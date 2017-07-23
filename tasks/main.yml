@@ -13,7 +13,7 @@
   become: yes
   when: 'conda_binary.stat.exists == False and ansible_os_family == "Debian"'
 
-- name: install nix dependencies for Redhat-based systems
+- name: install conda dependencies for Redhat-based systems
   yum: pkg="{{item}}" state=installed
   with_items:
     - bzip2
