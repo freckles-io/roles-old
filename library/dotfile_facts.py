@@ -4,12 +4,11 @@ import os
 from ansible.module_utils.basic import *
 from ansible.module_utils.basic import AnsibleModule
 
-FRECKLE_METADATA_FILENAME = ".freckles"
+FRECKLES_PACKAGE_METADATA_FILENAME = ".package.freckles"
 NO_INSTALL_MARKER_FILENAME = ".no_install.freckles"
 NO_STOW_MARKER_FILENAME = ".no_stow.freckles"
 
-PROFILE_MARKER_FILENAME = ".profile.freckles"
-
+FRECKLES_FOLDER_MARKER_FILENAME = ".freckles"
 
 def create_dotfiles_dict(dotfile_repos, profiles=None):
         """Walks through all the provided dotfiles, and creates a dictionary with values according to what it finds, per folder.
@@ -33,7 +32,7 @@ def create_dotfiles_dict(dotfile_repos, profiles=None):
             if not profiles:
                 paths = []
                 for root, dirnames, filenames in os.walk(os.path.expanduser(dest)):
-                    for filename in fnmatch.filter(filenames, PROFILE_MARKER_FILENAME):
+                    for filename in fnmatch.filter(filenames, FRECKLES_FOLDER_MARKER_FILENAME):
                         paths.append(root)
             else:
                 paths = profiles
@@ -70,7 +69,7 @@ def create_dotfiles_dict(dotfile_repos, profiles=None):
                         if dotfile_path:
                             app['dotfile_relative_path'] = dotfile_path
 
-                        freckles_metadata_file = os.path.join(dotfile_dir, FRECKLE_METADATA_FILENAME)
+                        freckles_metadata_file = os.path.join(dotfile_dir, FRECKLES_PACKAGE_METADATA_FILENAME)
                         if os.path.exists(freckles_metadata_file):
                             # have to assume no pyyaml is available
                             with open(freckles_metadata_file, "r") as f:
@@ -115,14 +114,14 @@ def additional_packages_dict(dotfile_repos, profiles=None):
             dest = dr["dest"]
             if not profiles:
                 for root, dirnames, filenames in os.walk(os.path.expanduser(dest)):
-                    for filename in fnmatch.filter(filenames, PROFILE_MARKER_FILENAME):
+                    for filename in fnmatch.filter(filenames, FRECKLES_FOLDER_MARKER_FILENAME):
                         profiles.append(os.path.relpath(root, os.path.expanduser(dest)))
 
             if not profiles:
                 profiles = [""]
 
             for p in profiles:
-                packages_metadata = os.path.expanduser(os.path.join(dest, p, PROFILE_MARKER_FILENAME))
+                packages_metadata = os.path.expanduser(os.path.join(dest, p, FRECKLES_FOLDER_MARKER_FILENAME))
                 if os.path.exists(packages_metadata):
                     app = {"vars": {"freckles_profile": p}}
                     with open(packages_metadata, "r") as f:
