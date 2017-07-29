@@ -1,6 +1,7 @@
 ---
 # defaults file for dotfiles
 
+#bootstrap_pkg_mgr: 'auto'
 freckles_profiles: []
 freckles_stow: False
 freckles_stow_target_dir: "{{ ansible_env.HOME }}"

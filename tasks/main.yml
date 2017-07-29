@@ -15,22 +15,22 @@
     name: geerlingguy.homebrew
   vars:
     homebrew_cask_apps: []
-  when: '("git" in freckles_executables_missing) and ((pkg_mgr is defined and pkg_mgr == "homebrew") or (ansible_os_family == "Darwin" and pkg_mgr is not defined) )'
+  when: '("git" in freckles_executables_missing) and ((bootstrap_pkg_mgr is defined and bootstrap_pkg_mgr == "homebrew") or (ansible_os_family == "Darwin" and bootstrap_pkg_mgr is not defined) )'
 
 - name: install nix package manager if needed for installing 'git'
   include_role:
     name: makkus.install-nix
-  when: "pkg_mgr is defined and pkg_mgr == nix and 'git' in freckles_executables_missing"
+  when: "bootstrap_pkg_mgr is defined and bootstrap_pkg_mgr == nix and 'git' in freckles_executables_missing"
 
 - name: install conda package manager if needed for installing 'git'
   include_role:
     name: makkus.install-conda
-  when: "pkg_mgr is defined and pkg_mgr == conda and 'git' in freckles_executables_missing"
+  when: "bootstrap_pkg_mgr is defined and bootstrap_pkg_mgr == conda and 'git' in freckles_executables_missing"
 
 - name: install git
   install:
     packages: git
-    pkg_mgr: "{{ pkg_mgr | default('auto') }}"
+    pkg_mgr: "{{ bootstrap_pkg_mgr | default('auto') }}"
   when: "'git' in freckles_executables_missing"
 
 - name: checkout dotfiles
@@ -42,17 +42,16 @@
 
 - name: getting dotfiles facts
   dotfile_facts:
-    dotfiles_repos: "{{ freckles_repos | git_repo_filter }}"
+    freckles_repos: "{{ freckles_repos | git_repo_filter }}"
     profiles: "{{ freckles_profiles | ensure_list_filter }}"
 
-- name: process dotfile packages
+- name: process dotfile folder facts
   set_fact:
-    freckles_packages_list: "{{ freckles_dotfile_packages | create_package_list_filter }}"
-    freckles_additional_packages_list: "{{ freckles_additional_packages | create_package_list_filter(is_additional_packages_format=True) }}"
+    freckles_profiles: "{{ freckles_folders_raw | frklize_folders_metadata_filter }}"
 
-- name: process package managers
+- name: auto-detect package managers
   set_fact:
-    freckles_additional_package_managers: "{{ freckles_packages_list | pkg_mgr_filter(freckles_additional_packages_list) }}"
+    freckles_additional_package_managers: "{{ freckles_profiles | pkg_mgr_filter }}"
 
 # this doesn't work, bug in ansible, for now installing roles manually one by one
 # - name: ensure all package managers are installed
@@ -84,12 +83,13 @@
       - epel-release:
           pkgs:
             other: ignore
+  when: 'freckles_stow == true and "stow" in freckles_executables_missing'
 
 - name: install stow
   install:
     packages:
       - stow
-    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+    pkg_mgr: "{{ bootstrap_pkg_mgr | default(omit) }}"
   when: 'freckles_stow == true and "stow" in freckles_executables_missing'
 
 - name: stow folders
@@ -103,18 +103,10 @@
   with_items:
     - "{{ freckles_packages_list }}"
 
-- name: install packages from dotfile folders
+- name: install packages
   install:
-    packages: "{{ item }}"
-    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+    packages: "{{ item.package }}"
+    pkg_mgr: "{{ item.pkg_mgr }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
   with_items:
-    - "{{ freckles_packages_list }}"
-
-- name: install additional packages
-  install:
-    packages: "{{ item }}"
-    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
-  ignore_errors: "{{ ignore_errors | default(true) }}"
-  with_items:
-    - "{{ freckles_additional_packages_list }}"
+    - "{{ freckles_profiles | create_package_list_filter }}"
