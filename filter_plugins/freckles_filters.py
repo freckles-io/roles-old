@@ -64,29 +64,27 @@ class FilterModule(object):
 
             profile_metadata = all_profile_metadata.get(folder, {})
             freckles_metadata.setdefault(folder, {}).setdefault("vars", metadata.get("vars", {}))
-            if not profile_metadata:
-                continue
+
+            packages = {"packages": metadata.get("vars", {}).get("packages", [])}
 
             if "dotfiles" in profile_metadata.keys():
-                profile_packages = metadata.get("vars", {}).get("packages", {})
                 package_list = self.process_dotfiles_metadata(profile_metadata["dotfiles"])
                 if not package_list:
                     package_list = []
-                if profile_packages:
+                if packages:
                     # if only append, vars will be inherited
-                    package_list = [[package_list], [{"packages": profile_packages}]]
+                    packages = [[package_list], [{"packages": packages}]]
 
-                format = {"child_marker": "packages",
-                          "default_leaf": "vars",
-                          "default_leaf_key": "name",
-                          "key_move_map": {'*': "vars"}}
-                chain = [frkl.FrklProcessor(format)]
-                frkl_obj = frkl.Frkl(package_list, chain)
-                pkgs = frkl_obj.process()
+            # ensuring packages format
+            format = {"child_marker": "packages",
+                      "default_leaf": "vars",
+                      "default_leaf_key": "name",
+                      "key_move_map": {'*': "vars"}}
+            chain = [frkl.FrklProcessor(format)]
+            frkl_obj = frkl.Frkl(packages, chain)
+            pkgs = frkl_obj.process()
 
-                freckles_metadata[folder]["vars"]["packages"] = pkgs
-                # metadata.setdefault("vars", {})["packages"] = pkgs
-                    # temp_result.setdefault(profile, {}).setdefault("packages", []) =
+            freckles_metadata[folder]["vars"]["packages"] = pkgs
 
         return freckles_metadata
 
@@ -122,11 +120,10 @@ class FilterModule(object):
 
         return result
 
-    def create_package_list_filter(self, freckles_profiles):
+    def create_package_list_filter(self, freckles_metadata):
 
         result = []
-        for profile, profile_details in freckles_profiles.items():
-            profile_pkg_mgr = profile_details.get("vars", {}).get("pkg_mgr", "auto")
+        for profile, profile_details in freckles_metadata.items():
             apps = profile_details.get("vars", {}).get("packages", [])
             parent_vars = copy.deepcopy(profile_details.get("vars", {}))
             parent_vars.pop("packages", None)
