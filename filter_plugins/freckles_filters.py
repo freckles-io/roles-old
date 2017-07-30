@@ -30,71 +30,95 @@ class FilterModule(object):
             'pkg_mgr_filter': self.pkg_mgr_filter,
             'create_package_list_filter': self.create_package_list_filter,
             'create_additional_packages_list_filter': self.create_package_list_filter,
-            'frklize_folders_metadata_filter': self.frklize_folders_metadata
+            'frklize_folders_metadata_filter': self.frklize_folders_metadata,
+            'freckles_augment_filter': self.freckles_augment_filter
         }
+
+
+    def process_dotfiles_metadata(self, apps):
+
+        temp_packages = []
+        for app in apps:
+            app_name = app['freckles_app_dotfile_folder_name']
+            no_install = app.get('freckles_app_no_install', None)
+            no_stow = app.get('freckles_app_no_stow', None)
+            raw_metadata = app.pop(METADATA_CONTENT_KEY, False)
+            if raw_metadata:
+                md = yaml.safe_load(raw_metadata)
+                temp_packages.append({app_name: md})
+            else:
+                temp_packages.append(app_name)
+            if no_install is not None:
+                temp_packages[app_name]["no_install"] = no_install
+            if no_stow is not None:
+                temp_packages[app_name]["no_stow"] = no_stow
+
+        return temp_packages
+
+
+    def freckles_augment_filter(self, folders_metadata, all_profile_metadata):
+
+        freckles_metadata = {}
+
+        for folder, metadata in folders_metadata.items():
+
+            profile_metadata = all_profile_metadata.get(folder, {})
+            freckles_metadata.setdefault(folder, {}).setdefault("vars", metadata.get("vars", {}))
+            if not profile_metadata:
+                continue
+
+            if "dotfiles" in profile_metadata.keys():
+                profile_packages = metadata.get("vars", {}).get("packages", {})
+                package_list = self.process_dotfiles_metadata(profile_metadata["dotfiles"])
+                if not package_list:
+                    package_list = []
+                if profile_packages:
+                    # if only append, vars will be inherited
+                    package_list = [[package_list], [{"packages": profile_packages}]]
+
+                format = {"child_marker": "packages",
+                          "default_leaf": "vars",
+                          "default_leaf_key": "name",
+                          "key_move_map": {'*': "vars"}}
+                chain = [frkl.FrklProcessor(format)]
+                frkl_obj = frkl.Frkl(package_list, chain)
+                pkgs = frkl_obj.process()
+
+                freckles_metadata[folder]["vars"]["packages"] = pkgs
+                # metadata.setdefault("vars", {})["packages"] = pkgs
+                    # temp_result.setdefault(profile, {}).setdefault("packages", []) =
+
+        return freckles_metadata
 
     def frklize_folders_metadata(self, folders_metadata):
 
         temp_vars = {}
-        packages = {}
-        for path, metadata in folders_metadata.items():
 
-            profile = metadata["profile_name"]
+        for folder, metadata in folders_metadata.items():
+
             raw_metadata = metadata.get(METADATA_CONTENT_KEY, False)
             if raw_metadata:
                 md = yaml.safe_load(raw_metadata)
+                if not md:
+                    md = []
                 # if isinstance(md, (list, tuple)):
                     # md = {"vars": md}
             else:
                 md = []
 
-            temp_vars.setdefault(profile, []).append(md)
-            packages.setdefault(profile, [])
-
-            apps = metadata.get("apps", [])
-            temp_packages = []
-            for app in apps:
-                app_name = app['freckles_app_dotfile_folder_name']
-                no_install = app.get('freckles_app_no_install', None)
-                no_stow = app.get('freckles_app_no_stow', None)
-                raw_metadata = app.pop(METADATA_CONTENT_KEY, False)
-                if raw_metadata:
-                    md = yaml.safe_load(raw_metadata)
-                    temp_packages.append({app_name: md})
-                else:
-                    temp_packages.append(app_name)
-                if no_install is not None:
-                    temp_packages[app_name]["no_install"] = no_install
-                if no_stow is not None:
-                    temp_packages[app_name]["no_stow"] = no_stow
-
-            packages[profile].append({"packages": temp_packages})
+            temp_vars.setdefault(folder, []).append(md)
 
         format = {"child_marker": "childs",
                   "default_leaf": "vars",
                   "default_leaf_key": "name",
                   "key_move_map": {'*': "vars"}}
-        chain = [frkl.FrklProcessor(format)]
 
         result = {}
-        # result["_debug"] = temp_vars
-        for profile, profile_vars in temp_vars.items():
-            frkl_obj = frkl.Frkl(profile_vars, chain)
-            result[profile] = frkl_obj.process(frkl.MergeDictResultCallback())
-
-        format = {"child_marker": "packages",
-                  "default_leaf": "vars",
-                  "default_leaf_key": "name",
-                  "key_move_map": {'*': "vars"}}
-        chain = [frkl.FrklProcessor(format)]
-        for profile, package_list in packages.items():
-            profile_packages = result[profile].get("vars", {}).pop("packages", {})
-            if profile_packages:
-                package_list.append({"packages": profile_packages})
-            frkl_obj = frkl.Frkl(package_list, chain)
-            pkgs = frkl_obj.process()
-            result[profile].setdefault("vars", {})["packages"] = pkgs
-            # temp_result.setdefault(profile, {}).setdefault("packages", []) =
+        for freckle_folder, freckle_vars in temp_vars.items():
+            chain = [frkl.FrklProcessor(format)]
+            frkl_obj = frkl.Frkl(freckle_vars, chain)
+            result[freckle_folder] = frkl_obj.process(frkl.MergeDictResultCallback())
+            result[freckle_folder]["meta"] = folders_metadata[freckle_folder]
 
         return result
 
@@ -115,33 +139,20 @@ class FilterModule(object):
         return result
 
 
-    def pkg_mgr_filter(self, freckles_profiles, prefix=None):
+    def pkg_mgr_filter(self, freckles_packages, prefix=None):
 
         pkg_mgrs = set()
 
-        for profile, profile_details in freckles_profiles.items():
-            profile_pkg_mgr = profile_details.get("vars", {}).get("pkg_mgr", None)
-            if profile_pkg_mgr:
-                if prefix:
-                    profile_pkg_mgr = "{}{}".format(prefix, profile_pkg_mgr)
+        for package in freckles_packages:
 
-            at_least_one_app_for_profile_pkg_mgr = False
-            for p in profile_details.get("vars", {}).get("packages"):
-                no_install = p.get("vars", {}).get("no_install", False)
-                if no_install is True:
-                    continue
-                app_pkg_mgr = p.get("vars", {}).get("pkg_mgr", None)
-                if app_pkg_mgr:
-                    if prefix:
-                        app_pkg_mgr = "{}{}".format(prefix, app_pkg_mgr)
-                    pkg_mgrs.add(app_pkg_mgr)
-                else:
-                    at_least_one_app_for_profile_pkg_mgr = True
+            pkg_mgr = package.get("vars", {}).get("pkg_mgr", None)
+            if pkg_mgr:
+                pkg_mgrs.add(pkg_mgr)
 
-            if at_least_one_app_for_profile_pkg_mgr and profile_pkg_mgr:
-                pkg_mgrs.add(profile_pkg_mgr)
-
-        return list(pkg_mgrs)
+        if prefix:
+            return ["{}{}".format(prefix, item) for item in pkg_mgrs]
+        else:
+            return list(pkg_mgrs)
 
     def ensure_list_filter(self, dotfile_repos):
 

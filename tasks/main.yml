@@ -40,19 +40,31 @@
   with_items:
     - "{{ freckles_repos | git_repo_filter }}"
 
-- name: getting repo folder facts
-  dotfile_facts:
+- name: finding freckles folders
+  freckles_facts:
     freckles_repos: "{{ freckles_repos | git_repo_filter }}"
-    freckles_profiles: "{{ freckles_profiles | ensure_list_filter }}"
-    freckles_types: "{{ freckles_types }}"
+    #freckles_profiles: "{{ freckles_profiles | ensure_list_filter }}"
 
-- name: process repo folder facts
+# can only do that on the controller, because dependency requirements
+- name: processing freckles folders
   set_fact:
-    freckles_profiles_metadata: "{{ freckles_folders_raw | frklize_folders_metadata_filter }}"
+    freckles_folders_metadata: "{{ freckles_folders_raw | frklize_folders_metadata_filter }}"
+
+- name: retrieving freckles facts
+  freckles_facts:
+    freckles_folders_metadata: "{{ freckles_folders_metadata }}"
+
+- name: augmenting freckles profile metadata
+  set_fact:
+    freckles_metadata: "{{ freckles_folders_metadata | freckles_augment_filter(freckles_profiles_metadata) }}"
+
+- name: calculating package list
+  set_fact:
+    freckles_packages: "{{ freckles_metadata | create_package_list_filter }}"
 
 - name: auto-detect package managers
   set_fact:
-    freckles_additional_package_managers: "{{ freckles_profiles_metadata | pkg_mgr_filter }}"
+    freckles_additional_package_managers: "{{ freckles_packages | pkg_mgr_filter }}"
 
 # this doesn't work, bug in ansible, for now installing roles manually one by one
 # - name: ensure all package managers are installed
@@ -84,10 +96,10 @@
     # pkg_mgr: "{{ item.pkg_mgr }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
   with_items:
-    - "{{ freckles_profiles_metadata | create_package_list_filter }}"
+    - "{{ freckles_packages }}"
 
-- include: dotfiles.yml
-  when: "'dotfiles' in freckles_types"
+# - include: dotfiles.yml
+  # when: "'dotfiles' in freckles_types"
 
-- include: python-dev-env.yml
-  when: "'python-dev-env' in freckles_types"
+# - include: python-dev-env.yml
+  # when: "'python-dev-env' in freckles_types"
