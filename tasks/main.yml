@@ -1,0 +1,19 @@
+---
+# tasks file for makkus.install-pkg-mgrs
+
+- name: install homebrew
+  include_role:
+    name: geerlingguy.homebrew
+  vars:
+    homebrew_cask_apps: []
+  when: '"homebrew" in pkg_mgrs and ansible_os_family == "Darwin"'
+
+- name: install nix
+  include_role:
+    name: makkus.install-nix
+  when: '"nix" in pkg_mgrs'
+
+- name: install conda
+  include_role:
+    name: makkus.install-conda
+  when: '"conda" in pkg_mgrs'

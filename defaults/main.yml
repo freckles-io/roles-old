@@ -1,0 +1,4 @@
+---
+# defaults file for makkus.install-pkg-mgrs
+
+pkg_mgr: []
