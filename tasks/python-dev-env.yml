@@ -1,0 +1,11 @@
+- name: install python dev requirements
+  install:
+    pkg_mgr: pip
+    executable: ~/.freckles/opt/conda/envs/freckles-dev/bin/pip
+    packages:
+      - "{{ freckles_project_dir }}/requirements_dev.txt"
+
+- name: running 'python setup.py develop' in project environment
+  command: ~/.freckles/opt/conda/envs/freckles-dev/bin/python setup.py develop
+  args:
+    chdir: "{{ freckles_project_dir }}"
