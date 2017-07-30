@@ -51,7 +51,7 @@ class FilterModule(object):
             temp_vars.setdefault(profile, []).append(md)
             packages.setdefault(profile, [])
 
-            apps = metadata["apps"]
+            apps = metadata.get("apps", [])
             temp_packages = []
             for app in apps:
                 app_name = app['freckles_app_dotfile_folder_name']
@@ -104,8 +104,13 @@ class FilterModule(object):
         for profile, profile_details in freckles_profiles.items():
             profile_pkg_mgr = profile_details.get("vars", {}).get("pkg_mgr", "auto")
             apps = profile_details.get("vars", {}).get("packages", [])
+            parent_vars = copy.deepcopy(profile_details.get("vars", {}))
+            parent_vars.pop("packages", None)
             for a in apps:
-                result.append({"package": a, "pkg_mgr": profile_pkg_mgr})
+                # we need to make sure we get all the overlay/parent vars
+                temp_app = frkl.dict_merge(parent_vars, a["vars"])
+                # result.append({"package": a, "pkg_mgr": profile_pkg_mgr})
+                result.append({"vars": temp_app})
 
         return result
 

@@ -66,6 +66,9 @@ def find_freckles_folders(freckles_repos, profiles=None):
             local_path = os.path.expanduser(dest)
             freckles_paths[local_path] = {}
             freckles_paths[local_path]["profile_name"] = profile_name
+            freckles_paths[local_path]["remote_repo"] = repo
+            freckles_paths[local_path]["repo_local_dest"] = dest
+            freckles_paths[local_path]["relative_path"] = root
             metadata_file = os.path.join(local_path, FRECKLES_FOLDER_MARKER_FILENAME)
 
             if os.path.exists(metadata_file):
@@ -271,7 +274,8 @@ def main():
     module = AnsibleModule(
         argument_spec = dict(
             freckles_repos = dict(required=True, type='list'),
-            profiles = dict(default=[], required=False, type='list')
+            freckles_profiles = dict(default=[], required=False, type='list'),
+            freckles_types = dict(required=True, type='list')
 
         ),
         supports_check_mode=False
@@ -280,12 +284,14 @@ def main():
     p = module.params
 
     freckles_repos = p.get('freckles_repos')
-    profiles = p.get('profiles', None)
+    profiles = p.get('freckles_profiles', None)
+    freckles_types = p.get('freckles_types')
 
     dotfile_facts = {}
 
     freckles_folders = find_freckles_folders(freckles_repos, profiles)
-    augment_with_dotfile_packages(freckles_folders)
+    if 'dotfiles' in freckles_types:
+        augment_with_dotfile_packages(freckles_folders)
 
     # dotfile_packages = create_dotfiles_dict(p['dotfiles_repos'], profiles)
     # dotfile_facts['freckles_dotfile_packages'] = dotfile_packages

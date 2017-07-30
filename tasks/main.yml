@@ -33,25 +33,26 @@
     pkg_mgr: "{{ bootstrap_pkg_mgr | default('auto') }}"
   when: "'git' in freckles_executables_missing"
 
-- name: checkout dotfiles
+- name: checkout freckles repo(s)
   git:
     dest: "{{ item.dest }}"
     repo: "{{ item.repo }}"
   with_items:
     - "{{ freckles_repos | git_repo_filter }}"
 
-- name: getting dotfiles facts
+- name: getting repo folder facts
   dotfile_facts:
     freckles_repos: "{{ freckles_repos | git_repo_filter }}"
-    profiles: "{{ freckles_profiles | ensure_list_filter }}"
+    freckles_profiles: "{{ freckles_profiles | ensure_list_filter }}"
+    freckles_types: "{{ freckles_types }}"
 
-- name: process dotfile folder facts
+- name: process repo folder facts
   set_fact:
-    freckles_profiles: "{{ freckles_folders_raw | frklize_folders_metadata_filter }}"
+    freckles_profiles_metadata: "{{ freckles_folders_raw | frklize_folders_metadata_filter }}"
 
 - name: auto-detect package managers
   set_fact:
-    freckles_additional_package_managers: "{{ freckles_profiles | pkg_mgr_filter }}"
+    freckles_additional_package_managers: "{{ freckles_profiles_metadata | pkg_mgr_filter }}"
 
 # this doesn't work, bug in ansible, for now installing roles manually one by one
 # - name: ensure all package managers are installed
@@ -77,36 +78,16 @@
     homebrew_cask_apps: []
   when: '("brew" in freckles_executables_missing) and (("homebrew" in freckles_additional_package_managers and ansible_os_family == "Darwin") or (ansible_os_family == "Darwin" and pkg_mgr is not defined) )'
 
-- name: install epel-release
+- name: install repo packages
   install:
-    packages:
-      - epel-release:
-          pkgs:
-            other: ignore
-  when: 'freckles_stow == true and "stow" in freckles_executables_missing'
-
-- name: install stow
-  install:
-    packages:
-      - stow
-    pkg_mgr: "{{ bootstrap_pkg_mgr | default(omit) }}"
-  when: 'freckles_stow == true and "stow" in freckles_executables_missing'
-
-- name: stow folders
-  stow:
-    name: "{{ item.vars.folder_name }}"
-    state: present
-    source_dir: "{{ item.vars.dotfile_parent_path }}"
-    target_dir: "{{ item.vars.stow_target_dir | default(freckles_stow_target_dir) }}"
-  ignore_errors: "{{ ignore_errors | default(true) }}"
-  when: 'freckles_stow == true and item.vars.no_stow|default(false)|bool == false'
-  with_items:
-    - "{{ freckles_packages_list }}"
-
-- name: install packages
-  install:
-    packages: "{{ item.package }}"
-    pkg_mgr: "{{ item.pkg_mgr }}"
+    packages: "{{ item }}"
+    # pkg_mgr: "{{ item.pkg_mgr }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
   with_items:
-    - "{{ freckles_profiles | create_package_list_filter }}"
+    - "{{ freckles_profiles_metadata | create_package_list_filter }}"
+
+- include: dotfiles.yml
+  when: "'dotfiles' in freckles_types"
+
+- include: python-dev-env.yml
+  when: "'python-dev-env' in freckles_types"
