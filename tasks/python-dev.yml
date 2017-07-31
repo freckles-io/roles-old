@@ -1,15 +1,13 @@
+- debug: var=freckle_vars
+
 - name: install python dev requirements
   install:
     pkg_mgr: pip
     executable: ~/.freckles/opt/conda/envs/freckles-dev/bin/pip
     packages:
-      - "{{ item.path }}/requirements_dev.txt"
-  with_items:
-    - "{{ freckles }}"
+      - "{{ freckle_path }}/requirements_dev.txt"
 
-- name: running 'python setup.py develop' in project environment
+- name: "running 'python setup.py develop'"
   command: ~/.freckles/opt/conda/envs/freckles-dev/bin/python setup.py develop
   args:
-    chdir: "{{ item.path }}"
-  with_items:
-    - "{{ freckles }}"
+    chdir: "{{ freckle_path }}"

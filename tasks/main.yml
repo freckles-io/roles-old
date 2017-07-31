@@ -33,7 +33,7 @@
     pkg_mgr: "{{ bootstrap_pkg_mgr | default('auto') }}"
   when: "'git' in freckles_executables_missing"
 
-- name: checkout freckles repo(s)
+- name: checkout freckle(s)
   git:
     dest: "{{ item.dest }}"
     repo: "{{ item.repo }}"
