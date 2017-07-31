@@ -3,9 +3,13 @@
     pkg_mgr: pip
     executable: ~/.freckles/opt/conda/envs/freckles-dev/bin/pip
     packages:
-      - "{{ freckles_project_dir }}/requirements_dev.txt"
+      - "{{ item.path }}/requirements_dev.txt"
+  with_items:
+    - "{{ freckles }}"
 
 - name: running 'python setup.py develop' in project environment
   command: ~/.freckles/opt/conda/envs/freckles-dev/bin/python setup.py develop
   args:
-    chdir: "{{ freckles_project_dir }}"
+    chdir: "{{ item.path }}"
+  with_items:
+    - "{{ freckles }}"

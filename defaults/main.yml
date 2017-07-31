@@ -2,6 +2,14 @@
 # defaults file for dotfiles
 
 #bootstrap_pkg_mgr: 'auto'
+# freckles:
+  # - freckle_path: ~/markus/projects/freckles
+    # freckle_url: https://github.com/makkus/freckles.git
+    # freckle_profiles:
+      # - python-dev-project
+      # folder_filter:
+        # - nix
+        # - conda
 freckles_types: []
 freckles_profiles: []
 freckles_stow: False

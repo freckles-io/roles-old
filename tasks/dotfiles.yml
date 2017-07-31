@@ -4,22 +4,22 @@
       - epel-release:
           pkgs:
             other: ignore
-  when: 'freckles_stow == true and "stow" in freckles_executables_missing'
+  when: '"stow" in freckles_executables_missing'
 
 - name: install stow
   install:
     packages:
       - stow
     pkg_mgr: "{{ bootstrap_pkg_mgr | default(omit) }}"
-  when: 'freckles_stow == true and "stow" in freckles_executables_missing'
+  when: '"stow" in freckles_executables_missing'
 
 - name: stow folders
   stow:
-    name: "{{ item.vars.folder_name }}"
+    name: "{{ item.vars.stow_folder_name }}"
     state: present
-    source_dir: "{{ item.vars.dotfile_parent_path }}"
+    source_dir: "{{ item.vars.stow_folder_parent }}"
     target_dir: "{{ item.vars.stow_target_dir | default(freckles_stow_target_dir) }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
-  when: 'freckles_stow == true and item.vars.no_stow|default(false)|bool == false'
+  when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false'
   with_items:
-    - "{{ freckles_packages_list }}"
+    - "{{ freckle_vars.get('packages', []) }}"

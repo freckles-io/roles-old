@@ -10,7 +10,7 @@ NO_STOW_MARKER_FILENAME = ".no_stow.freckle"
 
 FRECKLES_FOLDER_MARKER_FILENAME = ".freckle"
 
-METADATA_CONTENT_KEY = "freckles_metadata_content"
+METADATA_CONTENT_KEY = "freckle_metadata_file_content"
 
 ROOT_FOLDER_NAME = "__freckles_folder_root__"
 
@@ -24,8 +24,10 @@ def find_freckles_folders(module, freckles_repos):
     freckles_paths = {}
     for r in freckles_repos:
 
-        dest = r.get("dest", False)
-        repo = r.get("repo", None)
+        dest = r.get("path", False)
+        repo = r.get("url", None)
+        profiles = r.get("profiles", None)
+        folder_filter = r.get("folder_filter", None)
 
         if not dest:
             raise Exception("Dotfile repo description does not contain 'dest' key: {}".format(repo))
@@ -43,11 +45,14 @@ def find_freckles_folders(module, freckles_repos):
             root_local_path = os.path.expanduser(dest)
             freckles_paths[root_local_path] = {}
             freckles_paths[root_local_path]["folder_name"] = folder_name
+            freckles_paths[root_local_path]["is_base_folder"] = True
             freckles_paths[root_local_path]["remote_repo"] = repo
             freckles_paths[root_local_path]["repo_local_dest"] = dest
             freckles_paths[root_local_path]["relative_path"] = ""
-            freckles_paths[root_local_path]["parent_metadata"] = {}
-            freckles_paths[root_local_path]["parent_folder"] = ""
+            freckles_paths[root_local_path]["parent_freckle_metadata"] = {}
+            freckles_paths[root_local_path]["parent_freckle_path"] = ""
+            freckles_paths[root_local_path]["profiles_to_use"] = profiles
+            freckles_paths[root_local_path]["child_profiles"] = []
             metadata_file = os.path.join(root_local_path, FRECKLES_FOLDER_MARKER_FILENAME)
 
             if os.path.exists(metadata_file):
@@ -62,20 +67,26 @@ def find_freckles_folders(module, freckles_repos):
 
             # check whether the folder has got a .freckles marker file
             for filename in fnmatch.filter(filenames, FRECKLES_FOLDER_MARKER_FILENAME):
-                if root:
-                    folder_name = os.path.basename(root)
-                else:
-                    # we already have that one
+                if not root:
+                    # we already have the base folder
                     continue
 
+                if folder_filter and any([root.endswith(token) for token in folder_filter]):
+                    continue
+
+                folder_name = os.path.basename(root)
                 local_path = os.path.join(os.path.expanduser(dest), root)
                 temp_paths[local_path] = {}
                 temp_paths[local_path]["folder_name"] = folder_name
+                temp_paths[local_path]["is_base_folder"] = False
                 temp_paths[local_path]["remote_repo"] = repo
                 temp_paths[local_path]["repo_local_dest"] = dest
-                temp_paths[local_path]["relative_path"] = os.path.relpath(root, dest)
-                temp_paths[local_path]["parent_metadata"] = parent_metadata
-                temp_paths[local_path]["parent_folder"] = root_local_path
+                temp_paths[local_path]["parent_freckle_metadata"] = parent_metadata
+                temp_paths[local_path]["parent_freckle_path"] = root_local_path
+                temp_paths[local_path]["profiles_to_use"] = profiles
+                rel_path = os.path.relpath(root, dest)
+                temp_paths[local_path]["relative_path"] = rel_path
+                freckles_paths[root_local_path]["child_profiles"].append(rel_path)
 
                 metadata_file = os.path.join(local_path, FRECKLES_FOLDER_MARKER_FILENAME)
 

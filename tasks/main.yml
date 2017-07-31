@@ -38,11 +38,11 @@
     dest: "{{ item.dest }}"
     repo: "{{ item.repo }}"
   with_items:
-    - "{{ freckles_repos | git_repo_filter }}"
+    - "{{ freckles | git_repo_filter }}"
 
 - name: finding freckles folders
   freckles_facts:
-    freckles_repos: "{{ freckles_repos | git_repo_filter }}"
+    freckles_repos: "{{ freckles }}"
     #freckles_profiles: "{{ freckles_profiles | ensure_list_filter }}"
 
 # can only do that on the controller, because dependency requirements
@@ -65,6 +65,10 @@
 - name: auto-detect package managers
   set_fact:
     freckles_additional_package_managers: "{{ freckles_packages | pkg_mgr_filter }}"
+
+- name: calculating profiles to execute
+  set_fact:
+    profiles_to_execute: "{{ freckles_metadata | profile_filter }}"
 
 # this doesn't work, bug in ansible, for now installing roles manually one by one
 # - name: ensure all package managers are installed
@@ -90,7 +94,7 @@
     homebrew_cask_apps: []
   when: '("brew" in freckles_executables_missing) and (("homebrew" in freckles_additional_package_managers and ansible_os_family == "Darwin") or (ansible_os_family == "Darwin" and pkg_mgr is not defined) )'
 
-- name: install repo packages
+- name: install freckle packages
   install:
     packages: "{{ item }}"
     # pkg_mgr: "{{ item.pkg_mgr }}"
@@ -98,8 +102,14 @@
   with_items:
     - "{{ freckles_packages }}"
 
-# - include: dotfiles.yml
-  # when: "'dotfiles' in freckles_types"
-
-# - include: python-dev-env.yml
-  # when: "'python-dev-env' in freckles_types"
+- name: "applying profiles"
+  include: "{{ profile_loop_item[0] }}.yml"
+  vars:
+    freckle_vars: "{{ freckles_metadata[profile_loop_item[1]].get('vars', {}) }}"
+    freckle_path: "{{ profile_loop_item[1] }}"
+  when: 'profile_loop_item[0] in freckles_metadata.get(profile_loop_item[1], {}).get("vars", {}).get("freckle_profiles", [])'
+  with_nested:
+    - "{{ profiles_to_execute }}"
+    - "{{ freckles_metadata.keys() }}"
+  loop_control:
+    loop_var: profile_loop_item
