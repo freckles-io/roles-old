@@ -15,28 +15,29 @@
     name: geerlingguy.homebrew
   vars:
     homebrew_cask_apps: []
-  when: '("git" in freckles_executables_missing) and ((bootstrap_pkg_mgr is defined and bootstrap_pkg_mgr == "homebrew") or (ansible_os_family == "Darwin" and bootstrap_pkg_mgr is not defined) )'
+  when: '("git" in freckles_executables_missing) and ((pkg_mgr is defined and pkg_mgr == "homebrew") or (ansible_os_family == "Darwin" and pkg_mgr is not defined) )'
 
 - name: install nix package manager if needed for installing 'git'
   include_role:
     name: makkus.install-nix
-  when: "bootstrap_pkg_mgr is defined and bootstrap_pkg_mgr == nix and 'git' in freckles_executables_missing"
+  when: "pkg_mgr is defined and pkg_mgr == nix and 'git' in freckles_executables_missing"
 
 - name: install conda package manager if needed for installing 'git'
   include_role:
     name: makkus.install-conda
-  when: "bootstrap_pkg_mgr is defined and bootstrap_pkg_mgr == conda and 'git' in freckles_executables_missing"
+  when: "pkg_mgr is defined and pkg_mgr == conda and 'git' in freckles_executables_missing"
 
 - name: install git
   install:
     packages: git
-    pkg_mgr: "{{ bootstrap_pkg_mgr | default('auto') }}"
+    pkg_mgr: "{{ pkg_mgr | default('auto') }}"
   when: "'git' in freckles_executables_missing"
 
 - name: checkout freckle(s)
   git:
     dest: "{{ item.dest }}"
     repo: "{{ item.repo }}"
+  when: "item.repo is defined and item.repo"
   with_items:
     - "{{ freckles | git_repo_filter }}"
 
