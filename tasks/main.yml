@@ -65,11 +65,11 @@
 
 - name: auto-detect package managers
   set_fact:
-    freckles_additional_package_managers: "{{ freckles_packages | pkg_mgr_filter }}"
+    freckles_additional_package_managers: "{{ freckles_metadata | pkg_mgr_filter }}"
 
-- name: calculating profiles to execute
-  set_fact:
-    profiles_to_execute: "{{ freckles_metadata | profile_filter }}"
+# - name: calculating profiles to execute
+  # set_fact:
+    # profiles_to_execute: "{{ freckles_metadata | profile_filter }}"
 
 # this doesn't work, bug in ansible, for now installing roles manually one by one
 # - name: ensure all package managers are installed
@@ -103,14 +103,13 @@
   with_items:
     - "{{ freckles_packages }}"
 
-- name: "applying profiles"
+- name: "starting profile execution"
   include: "{{ profile_loop_item[0] }}.yml"
   vars:
-    freckle_vars: "{{ freckles_metadata[profile_loop_item[1]].get('vars', {}) }}"
+    freckle_vars: "{{ profile_loop_item[2] }}"
     freckle_path: "{{ profile_loop_item[1] }}"
-  when: 'profile_loop_item[0] in freckles_metadata.get(profile_loop_item[1], {}).get("vars", {}).get("freckle_profiles", [])'
-  with_nested:
-    - "{{ profiles_to_execute }}"
-    - "{{ freckles_metadata.keys() }}"
+  when: "profile_loop_item[0] != '__freckles_default__'"
+  with_items:
+    - "{{ freckles_metadata | flatten_profiles_filter }}"
   loop_control:
     loop_var: profile_loop_item

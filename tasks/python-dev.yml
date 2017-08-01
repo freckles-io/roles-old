@@ -1,11 +1,36 @@
-- name: install python dev requirements
+- debug: var=freckle_vars
+
+- debug: var=freckle_path
+
+- name: setting project name
+  set_fact:
+    project_name: "{{ freckle_path | project_name_filter }}"
+
+- name: install python dev requirements (into conda environment)
   install:
     pkg_mgr: pip
-    executable: ~/.local/opt/conda/envs/freckles-dev/bin/pip
+    executable: "~/.local/opt/conda/envs/{{ project_name}}-dev/bin/pip"
     packages:
       - "{{ freckle_path }}/requirements_dev.txt"
+  when: "pkg_mgr is defined and pkg_mgr == 'conda'"
 
-- name: "running 'python setup.py develop'"
-  command: ~/.local/opt/conda/envs/freckles-dev/bin/python setup.py develop
+- name: install python dev requirements (into virtualenv)
+  install:
+    pkg_mgr: pip
+    #executable: "~/.local/opt/conda/envs/{{ project_name}}-dev/bin/pip"
+    virtualenv: "~/.local/virtualenvs/{{ project_name }}-dev"
+    packages:
+      - "{{ freckle_path }}/requirements_dev.txt"
+  when: "pkg_mgr is not defined or pkg_mgr == 'auto'"
+
+- name: "running 'python setup.py develop' in conda environment"
+  command: "~/.local/opt/conda/envs/{{ project_name }}-dev/bin/python setup.py develop"
   args:
     chdir: "{{ freckle_path }}"
+  when: "pkg_mgr is defined and pkg_mgr == 'conda'"
+
+- name: "running 'python setup.py develop' in project virtualenv"
+  command: "~/.local/virtualenvs/{{ project_name }}-dev/bin/python setup.py develop"
+  args:
+    chdir: "{{ freckle_path }}"
+  when: "pkg_mgr is not defined or pkg_mgr == 'auto'"
