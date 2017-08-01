@@ -13,6 +13,7 @@ FRECKLES_FOLDER_MARKER_FILENAME = ".freckle"
 METADATA_CONTENT_KEY = "freckle_metadata_file_content"
 
 ROOT_FOLDER_NAME = "__freckles_folder_root__"
+DEFAULT_EXCLUDE_DIRS = [".git", ".tox", ".cache"]
 
 def find_freckles_folders(module, freckles_repos):
     """Walks through all the provided dotfiles, and creates a dictionary with values according to what it finds, per folder.
@@ -38,7 +39,8 @@ def find_freckles_folders(module, freckles_repos):
 
         temp_paths = {}
         # find all freckles folders
-        for root, dirnames, filenames in os.walk(dest):
+        for root, dirnames, filenames in os.walk(dest, topdown=True):
+            dirnames[:] = [d for d in dirnames if d not in DEFAULT_EXCLUDE_DIRS]
 
             # we always get a (default) profile for the root folder
             folder_name = ROOT_FOLDER_NAME
