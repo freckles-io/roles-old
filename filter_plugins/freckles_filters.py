@@ -7,12 +7,12 @@ import pprint
 import subprocess
 from distutils import spawn
 
+from frkl import frkl
+from nsbl.nsbl import ensure_git_repo_format
 from requests.structures import CaseInsensitiveDict
 from six import string_types
 
 import yaml
-from frkl import frkl
-from nsbl.nsbl import ensure_git_repo_format
 
 try:
     set
@@ -197,7 +197,10 @@ class FilterModule(object):
 
         result = []
         for fr in freckles:
-            temp = ensure_git_repo_format(fr["url"], dest=fr["path"])
+            if not fr["url"]:
+                temp = {"repo": None, "dest": fr["path"]}
+            else:
+                temp = ensure_git_repo_format(fr["url"], dest=fr["path"])
             result.append(temp)
 
         return result
