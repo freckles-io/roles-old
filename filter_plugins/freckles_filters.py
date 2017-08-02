@@ -196,7 +196,7 @@ class FilterModule(object):
 
             for profile, metadata in profiles.items():
 
-                for package in metadata.get("vars", {}).get("all_packages", []):
+                for package in metadata.get("vars", {}).get("packages", []):
                     pkg_mgr = package.get("vars", {}).get("pkg_mgr", None)
                     if pkg_mgr:
                         pkg_mgrs.add(pkg_mgr)

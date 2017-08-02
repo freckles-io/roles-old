@@ -1,37 +1,16 @@
 ---
 # tasks file for dotfiles
-- name: check required executables
-  required_executable_facts:
-    executables_to_check:
+- name: initialize box with basic requirements
+  include_role:
+    name: makkus.box-basics
+  vars:
+    required_executables:
       - git
       - nix-env
       - conda
       - brew
       - stow
-
-# install the default package manager now in case git is missing
-- name: install homebrew package manager if needed for installing 'git'
-  include_role:
-    name: geerlingguy.homebrew
-  vars:
-    homebrew_cask_apps: []
-  when: '("git" in freckles_executables_missing) and ((pkg_mgr is defined and pkg_mgr == "homebrew") or (ansible_os_family == "Darwin" and pkg_mgr is not defined) )'
-
-- name: install nix package manager if needed for installing 'git'
-  include_role:
-    name: makkus.install-nix
-  when: "pkg_mgr is defined and pkg_mgr == nix and 'git' in freckles_executables_missing"
-
-- name: install conda package manager if needed for installing 'git'
-  include_role:
-    name: makkus.install-conda
-  when: "pkg_mgr is defined and pkg_mgr == conda and 'git' in freckles_executables_missing"
-
-- name: install git
-  install:
-    packages: git
-    pkg_mgr: "{{ pkg_mgr | default('auto') }}"
-  when: "'git' in freckles_executables_missing"
+    default_pkg_mgr: "{{ pkg_mgr | default('auto') }}"
 
 - name: checkout freckle(s)
   git:
@@ -67,33 +46,12 @@
   set_fact:
     freckles_additional_package_managers: "{{ freckles_metadata | pkg_mgr_filter }}"
 
-# - name: calculating profiles to execute
-  # set_fact:
-    # profiles_to_execute: "{{ freckles_metadata | profile_filter }}"
-
-# this doesn't work, bug in ansible, for now installing roles manually one by one
-# - name: ensure all package managers are installed
-#   include_role:
-#     name: "{{ item }}"
-#   with_items:
-#     - "{{ dotfiles_repos | pkg_mgr_filter('install-') }}"
-
-- name: install nix
+- name: install required package managers
   include_role:
-    name: makkus.install-nix
-  when: '("nix" in freckles_additional_package_managers) and ( "nix-env" in freckles_executables_missing )'
-
-- name: install conda
-  include_role:
-    name: makkus.install-conda
-  when: '("conda" in freckles_additional_package_managers) and ( "conda" in freckles_executables_missing )'
-
-- name: install homebrew
-  include_role:
-    name: geerlingguy.homebrew
+    name: makkus.install-pkg-mgrs
   vars:
-    homebrew_cask_apps: []
-  when: '("brew" in freckles_executables_missing) and (("homebrew" in freckles_additional_package_managers and ansible_os_family == "Darwin") or (ansible_os_family == "Darwin" and pkg_mgr is not defined) )'
+    pkg_mgrs: "{{ freckles_additional_package_managers }}"
+    default_pkg_mgr: "{{ pkg_mgr | default('auto') }}"
 
 - name: install freckle packages
   install:
@@ -106,7 +64,7 @@
 - name: "starting profile execution"
   include: "{{ profile_loop_item[0] }}.yml"
   vars:
-    freckle_vars: "{{ profile_loop_item[2] }}"
+    freckle_vars: "{{ profile_loop_item[2].get('vars', {}) }}"
     freckle_path: "{{ profile_loop_item[1] }}"
   when: "profile_loop_item[0] != '__freckles_default__'"
   with_items:

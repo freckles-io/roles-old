@@ -4,14 +4,16 @@
       - epel-release:
           pkgs:
             other: ignore
-  when: '"stow" in freckles_executables_missing'
+  when: '"stow" in executables_missing'
 
 - name: install stow
   install:
     packages:
       - stow
-    pkg_mgr: "{{ bootstrap_pkg_mgr | default(omit) }}"
-  when: '"stow" in freckles_executables_missing'
+    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+  when: '"stow" in executables_missing'
+
+- debug: var=freckle_vars
 
 - name: stow folders
   stow:

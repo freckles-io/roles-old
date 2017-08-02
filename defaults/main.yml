@@ -10,6 +10,8 @@
       # folder_filter:
         # - nix
         # - conda
+
+pkg_mgr: "auto"
 freckles_types: []
 freckles_profiles: []
 freckles_stow: False

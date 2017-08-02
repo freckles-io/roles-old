@@ -1,7 +1,3 @@
-- debug: var=freckle_vars
-
-- debug: var=freckle_path
-
 - name: setting project name
   set_fact:
     project_name: "{{ freckle_path | project_name_filter }}"
