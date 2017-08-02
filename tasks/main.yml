@@ -4,12 +4,6 @@
   include_role:
     name: makkus.box-basics
   vars:
-    required_executables:
-      - git
-      - nix-env
-      - conda
-      - brew
-      - stow
     default_pkg_mgr: "{{ pkg_mgr | default('auto') }}"
 
 - name: checkout freckle(s)

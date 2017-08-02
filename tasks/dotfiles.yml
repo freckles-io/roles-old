@@ -1,3 +1,8 @@
+- name: check required executables
+  required_executable_facts:
+    executables_to_check:
+      - stow
+
 - name: install epel-release
   install:
     packages:
