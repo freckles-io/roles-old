@@ -1,12 +1,18 @@
----
 # tasks file for makkus.install-pkg-mgrs
+
+# this doesn't work, bug in ansible, for now installing roles manually one by one
+# - name: ensure all package managers are installed
+#   include_role:
+#     name: "{{ item }}"
+#   with_items:
+#     - "{{ dotfiles_repos | pkg_mgr_filter('install-') }}"
 
 - name: install homebrew
   include_role:
     name: geerlingguy.homebrew
   vars:
     homebrew_cask_apps: []
-  when: '"homebrew" in pkg_mgrs and ansible_os_family == "Darwin"'
+  when: '("homebrew" in pkg_mgrs or default_pkg_mgr == "auto") and ansible_os_family == "Darwin"'
 
 - name: install nix
   include_role:

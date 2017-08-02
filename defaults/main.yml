@@ -1,4 +1,5 @@
 ---
 # defaults file for makkus.install-pkg-mgrs
 
-pkg_mgr: []
+pkg_mgrs: []
+default_pkg_mgr: "auto"
