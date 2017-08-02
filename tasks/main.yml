@@ -1,28 +1,6 @@
 ---
 # tasks file for box-basics
 
-- name: check required executables
-  required_executable_facts:
-    executables_to_check: "{{ required_executables }}"
-
-# install the default package manager now in case git is missing
-- name: install homebrew package manager if needed for installing 'git'
-  include_role:
-    name: geerlingguy.homebrew
-  vars:
-    homebrew_cask_apps: []
-  when: '("git" in executables_missing) and ( (default_pkg_mgr is defined and default_pkg_mgr == "homebrew" and ansible_os_family == "Darwin") or (default_pkg_mgr is defined and default_pkg_mgr == "auto" and ansible_os_family == "Darwin") or (ansible_os_family == "Darwin" and default_pkg_mgr is not defined) )'
-
-- name: install nix package manager if needed for installing 'git'
-  include_role:
-    name: makkus.install-nix
-  when: "'git' in executables_missing and default_pkg_mgr == 'nix'"
-
-- name: install conda package manager if needed for installing 'conda'
-  include_role:
-    name: makkus.install-conda
-  when: "'git' in executables_missing and default_pkg_mgr == 'conda'"
-
 # sometimes this needs to be done on a new box, otherwise apt install fails
 - name: update apt cache
   become: yes
@@ -31,8 +9,12 @@
     cache_valid_time: 3600
   when: "ansible_os_family == 'Debian' and (pkg_mgr is not defined or pkg_mgr == 'auto' or pkg_mgr == 'apt')"
 
-- name: install git
-  install:
-    packages: git
-    pkg_mgr: "{{ pkg_mgr | default('auto') }}"
-  when: "'git' in executables_missing"
+- name: install required package managers
+  include_role:
+    name: makkus.install-pkg-mgrs
+  vars:
+    pkg_mgrs:
+      - git
+      - homebrew
+    default_pkg_mgr: "{{ pkg_mgr | default('auto') }}"
+
