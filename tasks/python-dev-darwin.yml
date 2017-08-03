@@ -1,3 +1,7 @@
+- name: installing xcode
+  include_role:
+    name: elliotweiser.osx-command-line-tools
+
 - name: install pip (if necessary)
   command: easy_install pip
   become: yes
@@ -7,42 +11,5 @@
     pkg_mgr: pip
     packages:
       - virtualenv
+    become: yes
 
-- name: Create /usr/local/opt
-  file:
-    path: "/usr/local/share"
-    state: directory
-    owner: "{{ ansible_user_id }}"
-    group: admin
-    mode: 0775
-  become: yes
-
-- name: Create /usr/local/opt
-  file:
-    path: "/usr/local/share"
-    state: directory
-    owner: "{{ ansible_user_id }}"
-    group: admin
-    mode: 0775
-  become: yes
-
-- name: Create /usr/local/lib
-  file:
-    path: "/usr/local/lib"
-    state: directory
-    owner: "{{ ansible_user_id }}"
-    group: admin
-    mode: 0775
-  become: yes
-
-- name: Create /usr/local/Frameworks
-  file:
-    path: "/usr/local/Frameworks"
-    state: directory
-    owner: "{{ ansible_user_id }}"
-    group: admin
-    mode: 0775
-  become: yes
-
-- name: link brew python
-  command: brew link python
