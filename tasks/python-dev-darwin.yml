@@ -4,11 +4,14 @@
 
 - name: install pip (if necessary)
   command: easy_install pip
+  args:
+    creates: /usr/local/bin/pip
+  become: yes
+
+- name: upgrade pip
+  command: pip install -U pip
   become: yes
 
 - name: install virtualenv (for Mac OS X)
-  install:
-    pkg_mgr: pip
-    packages:
-      - virtualenv
+  command: pip install virtualenv
   become: yes
