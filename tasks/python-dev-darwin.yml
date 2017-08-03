@@ -11,5 +11,4 @@
     pkg_mgr: pip
     packages:
       - virtualenv
-    become: yes
-
+  become: yes
