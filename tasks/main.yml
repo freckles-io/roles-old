@@ -23,5 +23,4 @@
     pkg_mgrs:
       - git
       - homebrew
-    default_pkg_mgr: "{{ pkg_mgr | default('auto') }}"
-
+    default_pkg_mgr: "{{ default_pkg_mgr | default('auto') }}"
