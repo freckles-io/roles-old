@@ -1,25 +1,3 @@
-- name: check required executables
-  required_executable_facts:
-    executables_to_check:
-      - stow
-
-- name: install epel-release
-  install:
-    packages:
-      - epel-release:
-          pkgs:
-            other: ignore
-  when: '"stow" in executables_missing'
-
-- name: install stow
-  install:
-    packages:
-      - stow
-    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
-  when: '"stow" in executables_missing'
-
-- debug: var=freckle_vars
-
 - name: stow folders
   stow:
     name: "{{ item.vars.stow_folder_name }}"

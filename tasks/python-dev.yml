@@ -2,10 +2,6 @@
   set_fact:
     project_name: "{{ freckle_path | project_name_filter }}"
 
-- name: setting up environment for Mac OS X
-  include: python-dev-darwin.yml
-  when: "ansible_os_family == 'Darwin' and (pkg_mgr is not defined or pkg_mgr == 'auto' or pkg_mgr == 'homebrew')"
-
 - name: install python dev requirements (into conda environment)
   install:
     pkg_mgr: pip

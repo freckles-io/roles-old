@@ -35,7 +35,8 @@ class FilterModule(object):
             'freckles_augment_filter': self.freckles_augment_filter,
             'flatten_profiles_filter': self.flatten_profiles_filter,
             'project_name_filter': self.project_name_filter,
-            'merge_package_list_filter': self.merge_package_list_filter
+            'merge_package_list_filter': self.merge_package_list_filter,
+            'get_used_profile_names': self.get_used_profile_names
         }
 
     def project_name_filter(self, freckles_path):
@@ -55,6 +56,18 @@ class FilterModule(object):
                 result.append((profile, folder, metadata))
 
         return result
+
+    def get_used_profile_names(self, freckles_metadata):
+
+        profile_names = set()
+
+        for folder, profiles in freckles_metadata.items():
+
+            profile_names.update(profiles.keys())
+
+        profile_names.discard(DEFAULT_FRECKLES_PROFILE_NAME)
+
+        return list(profile_names)
 
     def process_dotfiles_metadata(self, apps, freckle_parent_folder):
 

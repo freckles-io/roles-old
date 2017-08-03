@@ -55,6 +55,17 @@
   with_items:
     - "{{ freckles_packages }}"
 
+- name: "preparing profiles"
+  include: "prepare-{{ profile_name }}.yml"
+  # vars:
+    # freckle_vars: "{{ profile_loop_item[2].get('vars', {}) }}"
+    # freckle_path: "{{ profile_loop_item[1] }}"
+  when: "profile_name != '__freckles_default__'"
+  with_items:
+    - "{{ freckles_metadata | get_used_profile_names }}"
+  loop_control:
+    loop_var: profile_name
+
 - name: "starting profile execution"
   include: "{{ profile_loop_item[0] }}.yml"
   vars:

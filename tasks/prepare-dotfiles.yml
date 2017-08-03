@@ -1,0 +1,23 @@
+---
+- name: check required executables
+  required_executable_facts:
+    executables_to_check:
+      - stow
+
+- name: install epel-release
+  install:
+    packages:
+      - epel-release:
+          pkgs:
+            other: ignore
+  when: '"stow" in executables_missing'
+
+- name: install stow
+  install:
+    packages:
+      - stow:
+          conda_channels:
+            - conda-forge
+            - freckles
+    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+  when: '"stow" in executables_missing'
