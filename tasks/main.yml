@@ -50,7 +50,7 @@
 - name: install freckle packages
   install:
     packages: "{{ item }}"
-    # pkg_mgr: "{{ item.pkg_mgr }}"
+    pkg_mgr: "{{ pkg_mgr }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
   with_items:
     - "{{ freckles_packages }}"
