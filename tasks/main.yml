@@ -21,12 +21,12 @@
 - name: install nix
   include_role:
     name: makkus.install-nix
-  when: "'nix-env' in executables_missing and ('nix' in pkg_mgrs or ('git' in executables_missing and default_pkg_mgr == 'nix'))"
+  when: "'nix-env' in executables_missing and ('nix' in pkg_mgrs or default_pkg_mgr == 'nix')"
 
 - name: install conda
   include_role:
     name: makkus.install-conda
-  when: "'conda' in executables_missing and ('conda' in pkg_mgrs or ('git' in executables_missing and default_pkg_mgr == 'conda'))"
+  when: "'conda' in executables_missing and ('conda' in pkg_mgrs or default_pkg_mgr == 'conda')"
 
 - name: install git
   install:
