@@ -38,7 +38,7 @@
 
 - name: auto-detect package managers
   set_fact:
-    freckles_additional_package_managers: "{{ freckles_metadata | pkg_mgr_filter }}"
+    freckles_additional_package_managers: "{{ freckles_metadata | pkg_mgr_filter }} [ '{{ pkg_mgr }}' ]"
 
 - name: install required package managers
   include_role:
