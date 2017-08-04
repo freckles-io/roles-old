@@ -11,25 +11,43 @@
   required_executable_facts:
     executables_to_check: "{{ pkg_mgrs | pkg_mgr_executable_filter }}"
 
-- name: install homebrew
-  include_role:
-    name: geerlingguy.homebrew
-  vars:
-    homebrew_cask_apps: []
-  when: "'brew' in executables_missing and ansible_os_family == 'Darwin' and ('homebrew' in pkg_mgrs or default_pkg_mgr == 'auto')"
+# Trick to *really* skip OS X related tasks if not on OS X, should save a few seconds
+# only doing this because this role is called twice in the freckles role, and just the
+# skipping of all the tasks included here takes ansible quite a while
+# - name: checking for Mac OS X
+  # set_fact:
+    # do_mac_stuff:
+- name: checking for Mac OS X
+  include: "include-{{ ansible_os_family }}.yml"
+  when: "ansible_os_family == 'Darwin' and 'brew' in executables_missing"
 
-- name: install nix
-  include_role:
-    name: makkus.install-nix
-  when: "'nix-env' in executables_missing and ('nix' in pkg_mgrs or default_pkg_mgr == 'nix')"
+# same trick than above
+- name: pre-checking nix requirements
+  set_fact:
+    nix_name: "nix"
+- name: checking whether to install nix
+  include: "include-{{ nix_name }}.yml"
+  when: "'nix-env' in executables_missing"
 
-- name: install conda
-  include_role:
-    name: makkus.install-conda
-  when: "'conda' in executables_missing and ('conda' in pkg_mgrs or default_pkg_mgr == 'conda')"
+# same trick than above
+- name: pre-checking conda requirements
+  set_fact:
+    conda_name: "conda"
+- name: checking whether to install nix
+  include: "include-{{ conda_name }}.yml"
+  when: "'conda' in executables_missing"
 
 - name: install git
   install:
     name: git
     pkg_mgr: "{{ pkg_mgr | default('auto') }}"
   when: "'git' in executables_missing"
+
+# same trick than above
+- name: pre-checking Vagrant requirements
+  set_fact:
+    vagrant_name: "vagrant"
+- name: checking whether to install Vagrant
+  include: "include-{{ vagrant_name }}.yml"
+  when: "'vagrant' in executables_missing"
+

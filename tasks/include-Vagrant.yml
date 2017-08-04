@@ -1,0 +1,4 @@
+- name: install vagrant
+  include_role:
+    name: makkus.install-vagrant
+  when: "'vagrant' in executables_missing"

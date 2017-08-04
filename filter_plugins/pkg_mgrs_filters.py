@@ -4,7 +4,8 @@ PKG_MGRS_EXECUTABLES_MAP = {
     "git": "git",
     "nix": "nix-env",
     "conda": "conda",
-    "homebrew": "brew"
+    "homebrew": "brew",
+    "vagrant_plugin": "vagrant"
 }
 
 class FilterModule(object):

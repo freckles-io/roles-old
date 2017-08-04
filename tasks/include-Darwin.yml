@@ -1,0 +1,7 @@
+---
+- name: install homebrew
+  include_role:
+    name: geerlingguy.homebrew
+  vars:
+    homebrew_cask_apps: []
+  when: "ansible_os_family == 'Darwin' and 'brew' in executables_missing"

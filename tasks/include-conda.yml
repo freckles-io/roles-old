@@ -1,0 +1,5 @@
+---
+- name: install conda
+  include_role:
+    name: makkus.install-conda
+  when: "'conda' in executables_missing or default_pkg_mgr == 'conda'"
