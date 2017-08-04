@@ -1,0 +1,4 @@
+---
+# vars file for install-vagrant
+
+vagrant_binary_path: "/usr/bin/vagrant"

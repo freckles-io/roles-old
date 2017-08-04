@@ -1,0 +1,5 @@
+---
+
+- name: install Vagrant rpm package
+  yum:
+    name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"

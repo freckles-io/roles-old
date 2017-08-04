@@ -1,0 +1,10 @@
+---
+# tasks to install vagrant
+
+- name: check whether vagrant binary exists
+  stat: path="{{ vagrant_binary_path }}"
+  become: no
+  register: vagrant_binary
+
+- include: common.yml
+  when: vagrant_binary.stat.exists == False or force_update

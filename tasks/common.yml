@@ -1,0 +1,30 @@
+---
+# tasks to install vagrant
+
+- name: calculating vagrant download name
+  set_fact:
+    vagrant_binary_name: "{{ ansible_os_family | vagrant_binary_name_filter(vagrant_version, ansible_architecture) }}"
+
+- name: creating cache download dir
+  file:
+    name: "{{ vagrant_download_path }}"
+    state: directory
+
+- name: download vagrant
+  get_url:
+    url: "{{ vagrant_download_url }}/{{ vagrant_version }}/{{ vagrant_binary_name }}"
+    dest: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+    validate_certs: false # temporary, until ansible fixes this
+  become: no
+
+- include: debian.yml
+  when: ansible_os_family == "Debian"
+
+- include: redhat.yml
+  when: ansible_os_family == "RedHat"
+
+- name: delete downloaded Vagrant package
+  file:
+    name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+    state: absent
+  when: delete_download_after
