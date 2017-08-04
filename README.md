@@ -24,7 +24,7 @@ Role Variables
 Dependencies
 ------------
 
-No dependencies
+curl (on Mac OS X) -- get_url errors out for some reason, at least on El Capitan
 
 Example Playbook
 ----------------

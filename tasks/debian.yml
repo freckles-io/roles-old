@@ -1,8 +1,8 @@
 ---
-- name: install ca-certificates if necessary
-  apt:
-    name: ca-certificates
-  become: yes
+# - name: install ca-certificates if necessary
+  # apt:
+    # name: ca-certificates
+  # become: yes
 
 - name: install Vagrant Debian package
   apt:
