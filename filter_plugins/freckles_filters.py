@@ -7,6 +7,7 @@ import pprint
 import subprocess
 from distutils import spawn
 
+from ansible import errors
 from frkl import frkl
 from nsbl.nsbl import ensure_git_repo_format
 from requests.structures import CaseInsensitiveDict
@@ -22,6 +23,10 @@ except NameError:
 METADATA_CONTENT_KEY = "freckle_metadata_file_content"
 DEFAULT_FRECKLES_PROFILE_NAME = "__freckles_default__"
 
+SUPPORTED_ROLE_PACKAGES = {
+    "vagrant": "makkus.install-vagrant"
+}
+
 class FilterModule(object):
     def filters(self):
         return {
@@ -30,14 +35,21 @@ class FilterModule(object):
             'git_repo_filter': self.git_repo_filter,
             'pkg_mgr_filter': self.pkg_mgr_filter,
             'create_package_list_filter': self.create_package_list_filter,
+            'create_role_package_list_filter': self.create_role_package_list_filter,
             'create_additional_packages_list_filter': self.create_package_list_filter,
             'frklize_folders_metadata_filter': self.frklize_folders_metadata,
             'freckles_augment_filter': self.freckles_augment_filter,
             'flatten_profiles_filter': self.flatten_profiles_filter,
             'project_name_filter': self.project_name_filter,
             'merge_package_list_filter': self.merge_package_list_filter,
-            'get_used_profile_names': self.get_used_profile_names
+            'get_used_profile_names': self.get_used_profile_names,
+            'role_package_name_filter': self.role_package_name_filter
         }
+
+    def role_package_name_filter(self, package_list):
+
+        #TODO: check and raise proper error
+        return [SUPPORTED_ROLE_PACKAGES[pn.get("vars").get("name")] for pn in package_list]
 
     def project_name_filter(self, freckles_path):
 
@@ -176,14 +188,18 @@ class FilterModule(object):
         for freckle_folder, profiles in temp_vars.items():
             for profile, profile_vars in profiles.items():
                 chain = [frkl.FrklProcessor(format)]
-                frkl_obj = frkl.Frkl(profile_vars, chain)
-                profile_vars_new = frkl_obj.process(frkl.MergeDictResultCallback())
-
-                result.setdefault(freckle_folder, {})[profile] = {"vars": profile_vars_new.get("vars", {}), "meta": folders_metadata[freckle_folder][profile]}
+                try:
+                    frkl_obj = frkl.Frkl(profile_vars, chain)
+                    profile_vars_new = frkl_obj.process(frkl.MergeDictResultCallback())
+                    result.setdefault(freckle_folder, {})[profile] = {"vars": profile_vars_new.get("vars", {}), "meta": folders_metadata[freckle_folder][profile]}
+                except (frkl.FrklConfigException) as e:
+                    raise errors.AnsibleFilterError(
+                        "Can't read freckle metadata file '{}/.{}.freckle': {}".format(freckle_folder, profile, e.message)
+                    )
 
         return result
 
-    def create_package_list_filter(self, freckles_metadata):
+    def create_package_list(self, freckles_metadata):
 
         result = []
         for folder, profiles in freckles_metadata.items():
@@ -200,6 +216,15 @@ class FilterModule(object):
 
         return sorted(result, key=lambda k: k.get("vars", {}).get("name", "zzz"))
 
+    def create_package_list_filter(self, freckles_metadata):
+
+        p_list = self.create_package_list(freckles_metadata)
+        return [p for p in p_list if p.get("vars", {}).get("pkg_mgr", "auto") != "ansible_role"]
+
+    def create_role_package_list_filter(self, freckles_metadata):
+
+        p_list = self.create_package_list(freckles_metadata)
+        return [p for p in p_list if p.get("vars", {}).get("pkg_mgr", "auto") == "ansible_role"]
 
     def pkg_mgr_filter(self, freckles_metadata, prefix=None):
 
@@ -211,7 +236,7 @@ class FilterModule(object):
 
                 for package in metadata.get("vars", {}).get("packages", []):
                     pkg_mgr = package.get("vars", {}).get("pkg_mgr", None)
-                    if pkg_mgr:
+                    if pkg_mgr and not pkg_mgr == "auto" and not pkg_mgr == "ansible_role":
                         pkg_mgrs.add(pkg_mgr)
 
         if prefix:

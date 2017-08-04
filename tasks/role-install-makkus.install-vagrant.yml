@@ -1,0 +1,3 @@
+- name: starting Vagrant installation process
+  include_role:
+    name: "makkus.install-vagrant"

@@ -4,7 +4,7 @@
   include_role:
     name: makkus.box-basics
   vars:
-    default_pkg_mgr: "{{ pkg_mgr | default('auto') }}"
+    pkg_mgr: "{{ pkg_mgr | default('auto') }}"
 
 - name: checkout freckle(s)
   git:
@@ -32,13 +32,17 @@
   set_fact:
     freckles_metadata: "{{ freckles_folders_metadata | freckles_augment_filter(freckles_profiles_metadata) }}"
 
+- name: calculating packages to install via role
+  set_fact:
+    freckles_role_packages: "{{ freckles_metadata | create_role_package_list_filter }}"
+
 - name: calculating package list
   set_fact:
     freckles_packages: "{{ freckles_metadata | create_package_list_filter }}"
 
 - name: auto-detect package managers
   set_fact:
-    freckles_additional_package_managers: "{{ freckles_metadata | pkg_mgr_filter }} + [ '{{ pkg_mgr }}' ]"
+    freckles_additional_package_managers: "{{ freckles_metadata | pkg_mgr_filter }}"
 
 - name: install required package managers
   include_role:
@@ -46,6 +50,21 @@
   vars:
     pkg_mgrs: "{{ freckles_additional_package_managers }}"
     default_pkg_mgr: "{{ pkg_mgr | default('auto') }}"
+
+# ansible can't use vars for the include_role task, need to add those tasks using a little trick
+# - name: install freckle packages that need ansible roles
+  # include_role:
+    # name: "{{ role_package }}"
+  # with_items:
+    # - "{{ freckles_role_packages | role_package_name_filter }}"
+
+# TODO: check for supported roles
+- name: install freckle packages that need ansible roles
+  include: "role-install-{{ role_package }}.yml"
+  with_items:
+    - "{{ freckles_role_packages | role_package_name_filter }}"
+  loop_control:
+    loop_var: role_package
 
 - name: install freckle packages
   install:
