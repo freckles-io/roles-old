@@ -1,7 +1,7 @@
 ---
 # tasks to install vagrant
 
-- name: check whether Vagrant binary exists
+- name: "checking for executable: vagrant"
   required_executable_facts:
     executables_to_check:
       - vagrant
