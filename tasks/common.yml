@@ -4,12 +4,12 @@
 - name: calculating Vagrant download name
   set_fact:
     vagrant_binary_name: "{{ ansible_os_family | vagrant_binary_name_filter(vagrant_version, ansible_architecture) }}"
-  when: ansible_os_family != "Darwin"
 
 - name: creating cache download dir
   file:
     name: "{{ vagrant_download_path }}"
     state: directory
+  when: ansible_os_family != "Darwin"
 
 # errors out when 'validate_certs: true', needs to be fixed in ansible I think
 - name: download Vagrant
