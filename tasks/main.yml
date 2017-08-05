@@ -1,17 +1,10 @@
 ---
 # tasks to install vagrant
 
-- name: check whether vagrant binary exists
-  stat: path="{{ vagrant_binary_path }}"
-  become: no
-  register: vagrant_binary
-  when: ansible_os_family != "Darwin"
-
-- name: check whether vagrant binary exists (Mac OS X)
-  stat: path="{{ vagrant_binary_path_darwin }}"
-  become: no
-  register: vagrant_binary
-  when: ansible_os_family == "Darwin"
+- name: check whether Vagrant binary exists
+  required_executable_facts:
+    executables_to_check:
+      - vagrant
 
 - include: common.yml
-  when: vagrant_binary.stat.exists == False or force_update
+  when: "'vagrant' in executables_missing or force_update"
