@@ -33,7 +33,7 @@
 - name: pre-checking conda requirements
   set_fact:
     conda_name: "conda"
-- name: checking whether to install nix
+- name: checking whether to install conda
   include: "include-{{ conda_name }}.yml"
   when: "'conda' in executables_missing"
 
