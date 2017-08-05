@@ -132,6 +132,11 @@ class FilterModule(object):
     def freckles_augment_filter(self, folders_metadata, all_profile_metadata):
 
         freckles_metadata = {}
+        if not folders_metadata:
+            folders_metadata = {}
+
+        if not all_profile_metadata:
+            all_profile_metadata = {}
 
         for folder, profiles in folders_metadata.items():
 

@@ -30,7 +30,8 @@ def find_freckles_folders(module, freckles_repos):
         dest = r.get("path", False)
         repo = r.get("url", None)
         profiles = r.get("profiles", None)
-        folder_filter = r.get("folder_filter", None)
+        include = r.get("include", None)
+        exclude = r.get("exclude", None)
 
         if not dest:
             raise Exception("Dotfile repo description does not contain 'dest' key: {}".format(repo))
@@ -73,8 +74,26 @@ def find_freckles_folders(module, freckles_repos):
                 if not filename.startswith("."):
                     continue
 
-                if folder_filter and any([root.endswith(token) for token in folder_filter]):
-                    continue
+                # check whether we only should consider certain folders
+                if include:
+                    match = False
+                    for token in include:
+                        if root.endswith(token):
+                            match = True
+                            break
+
+                    if not match:
+                        continue
+
+                if exclude:
+                    match = False
+                    for token in exclude:
+                        if root.endswith(token):
+                            match = True
+                            break
+
+                    if match:
+                        continue
 
                 if filename == FRECKLES_FOLDER_MARKER_FILENAME:
                     profile_name = DEFAULT_FRECKLES_PROFILE_NAME
@@ -290,7 +309,7 @@ def main():
 
     if freckles_repos:
         find_freckles_folders(module, freckles_repos)
-    elif freckles_folders_metadata:
+    elif freckles_folders_metadata or isinstance(freckles_folders_metadata, dict):
         augment_freckles_metadata(module, freckles_folders_metadata, freckles_profiles)
         pass
     #augment_with_dotfile_packages(freckles_folders)
