@@ -1,5 +1,5 @@
 ---
-- name: install homebrew
+- name: preparing homebrew install
   include_role:
     name: geerlingguy.homebrew
   vars:
