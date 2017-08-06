@@ -21,7 +21,7 @@
   include: "include-{{ ansible_os_family }}.yml"
   when: "ansible_os_family == 'Darwin' and 'brew' in executables_missing"
 
-# same trick than above
+# same trick as above
 - name: pre-checking nix requirements
   set_fact:
     nix_name: "nix"
@@ -29,7 +29,7 @@
   include: "include-{{ nix_name }}.yml"
   when: "'nix-env' in executables_missing"
 
-# same trick than above
+# same trick as above
 - name: pre-checking conda requirements
   set_fact:
     conda_name: "conda"
@@ -43,7 +43,7 @@
     pkg_mgr: "{{ pkg_mgr | default('auto') }}"
   when: "'git' in executables_missing"
 
-# same trick than above
+# same trick as above
 - name: pre-checking Vagrant requirements
   set_fact:
     vagrant_name: "vagrant"
