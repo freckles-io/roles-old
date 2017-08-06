@@ -3,8 +3,6 @@
 - name: initialize box with basic requirements
   include_role:
     name: makkus.box-basics
-  vars:
-    pkg_mgr: "{{ pkg_mgr | default('auto') }}"
 
 - name: checkout freckle(s)
   git:

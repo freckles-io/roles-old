@@ -3,7 +3,7 @@
     name: "{{ item.vars.stow_folder_name }}"
     state: present
     source_dir: "{{ item.vars.stow_folder_parent }}"
-    target_dir: "{{ item.vars.stow_target_dir | default(freckles_stow_target_dir) }}"
+    target_dir: "{{ item.vars.stow_target_dir | default(freckles_dotfiles_default_stow_target_dir) }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
   when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false'
   with_items:

@@ -2,19 +2,18 @@
 # defaults file for dotfiles
 
 pkg_mgr: "auto"
-freckles_profiles: []
-freckles_stow: False
-freckles_stow_target_dir: "{{ ansible_env.HOME }}"
-
+freckles_dotfiles_stow: True
+freckles_dotfiles_default_stow_target_dir: "{{ ansible_env.HOME }}"
+freckles: {}
+# example for freckles var:
 # freckles:
-  # - freckle_path: ~/markus/projects/freckles
-    # freckle_url: https://github.com/makkus/freckles.git
-    # freckle_profiles:
-      # - python-dev-project
-    # include:
-      # - nix
-      # - conda
-
-# include:
-  # - <folder_name>
-  # - <folder_name>
+#   - freckle_path: ~/markus/projects/freckles
+#     freckle_url: https://github.com/makkus/dotfiles.git
+#     profiles:
+#       - dotfiles
+#     include:
+#       - nix
+#       - conda
+#     exclude:
+#       - misc
+#       - x
