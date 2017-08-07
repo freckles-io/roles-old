@@ -1,0 +1,5 @@
+---
+# defaults file for install-freckles
+
+use_conda: true   # otherwise use pip
+conda_environment: "inaugurate"

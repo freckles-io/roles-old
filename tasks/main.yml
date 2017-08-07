@@ -1,0 +1,8 @@
+---
+# tasks file for install-freckles
+
+include: conda.yml
+when: use_conda
+
+include: pip.yml
+when: not use_conda

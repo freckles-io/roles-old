@@ -1,0 +1,4 @@
+---
+# vars file for install-freckles
+
+conda_binary_name: "conda"
