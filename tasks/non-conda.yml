@@ -7,6 +7,7 @@
   with_items:
     - build-essential
     - git
+    - curl
     - python-dev
     - python-virtualenv
     - libssl-dev
@@ -20,6 +21,7 @@
   with_items:
     - epel-release
     - wget
+    - curl
     - git
     - python-virtualenv
     - openssl-devel
@@ -45,11 +47,17 @@
     creates: "{{ pip_base_dir }}"
   when: "not freckles_exists"
 
-- set_fact:
+# this is really mostly used for testing this role using molecule and a transparent https proxy, to speed up testing...
+- name: different way to install pip, in case everything else fails
+  shell: "curl -k https://bootstrap.pypa.io/get-pip.py | PIP_TRUSTED_HOST=pypi.python.org {{ pip_base_dir }}/bin/python"
+  when: insecure_pip_install and not freckles_exists
+
+- name: setting pip executable
+  set_fact:
     pip_to_use: "{{ pip_base_dir }}/bin/pip"
 
 - name: prepare virtualenv
-  command: "{{ pip_to_use }} install --upgrade {{ item }}"
+  command: "{{ pip_to_use }} install {{ extra_pip_args }} --upgrade {{ item }}"
   with_items:
     - pip
     - setuptools

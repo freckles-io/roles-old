@@ -9,6 +9,8 @@ from ansible.module_utils.basic import AnsibleModule
 OTHER_PATHS_TO_CHECK = [
     os.path.expanduser("~/.local/bin"),
     os.path.expanduser("~/.local/inaugurate/conda/bin"),
+    os.path.expanduser("~/.local/inaugurate/conda/envs/inaugurate/bin"),
+    os.path.expanduser("~/.local/inaugurate/conda/envs/freckles/bin"),
     os.path.expanduser("~/.inaugurate/opt/conda/bin"),
     os.path.expanduser("~/.local/opt/conda/bin"),
     os.path.expanduser("~/.freckles/opt/conda/bin"),
@@ -67,9 +69,13 @@ def main():
     executable_facts = {}
 
     conda_binary_path = which(p['conda_binary'])
+
+    if not conda_binary_path:
+        executable_facts['conda_binary_path'] = False
+        module.exit_json(changed=False, ansible_facts=dict(executable_facts))
+        # module.fail_json(msg="Could not find executable for name '{}'".format(p['conda_binary']))
+
     conda_path = os.path.abspath(os.path.join(conda_binary_path, os.pardir, os.pardir))
-    if not conda_path:
-        module.fail_json(msg="Could not find executable for name '{}'".format(p['conda_binary']))
 
     info = get_conda_info(module, conda_binary_path)
     executable_facts['conda_path'] = conda_path
