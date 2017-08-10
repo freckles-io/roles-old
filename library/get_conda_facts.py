@@ -90,6 +90,8 @@ def main():
     conda_binary_path, not_important = which(p['conda_binary'], install_method)
     freckles_binary_path, i_method = which(p['freckles_binary'], install_method)
     freckles_exists = bool(freckles_binary_path)
+    if freckles_exists:
+        freckles_parent_path = os.path.abspath(os.path.join(freckles_binary_path, os.pardir))
 
     if not conda_binary_path and not freckles_binary_path:
         executable_facts['freckles_binary_path'] = False
@@ -101,6 +103,7 @@ def main():
 
     if not conda_binary_path and freckles_binary_path:
         executable_facts['freckles_binary_path'] = freckles_binary_path
+        executable_facts['freckles_parent_path'] = freckles_parent_path
         executable_facts['freckles_exists'] = True
         executable_facts['conda_exists'] = False
         executable_facts['existing_install_method'] = i_method
@@ -116,6 +119,7 @@ def main():
         executable_facts['conda_binary_path'] = conda_binary_path
         executable_facts['freckles_exists'] = False
         executable_facts['conda_info'] = info
+        executable_facts['conda_info'] = info
         module.exit_json(changed=False, ansible_facts=dict(executable_facts))
 
     if conda_binary_path and freckles_binary_path:
@@ -124,6 +128,7 @@ def main():
         executable_facts['conda_binary_path'] = conda_binary_path
         executable_facts['conda_info'] = info
         executable_facts['freckles_binary_path'] = freckles_binary_path
+        executable_facts['freckles_parent_path'] = freckles_parent_path
         executable_facts['freckles_exists'] = True
         module.exit_json(changed=False, ansible_facts=dict(executable_facts))
     #TODO freckles version?
