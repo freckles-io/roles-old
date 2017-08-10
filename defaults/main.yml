@@ -1,7 +1,7 @@
 ---
 # defaults file for install-freckles
 
-use_conda: true   # otherwise use pip and sudo to install dependencies
+install_method: auto   # either auto, conda, or pip
 environment_name: "inaugurate"
 pip_base_dir: "{{ ansible_env.HOME }}/.local/inaugurate/virtualenvs/{{ environment_name }}"
 update: true

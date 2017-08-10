@@ -57,7 +57,7 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   config.vm.synced_folder ".", "/vagrant", id: "vagrant"
-  config.vm.synced_folder "../../../freckles/freckles/external/default_role_repo/makkus.install-conda", "/install-conda", id: "install-conda"
+  config.vm.synced_folder "../makkus.install-conda", "/install-conda", id: "install-conda"
   # config.vm.synced_folder "../../../frkl", "/frkl", id: "frkl"
   # config.vm.synced_folder "../../../nsbl", "/nsbl", id: "nsbl"
   # config.vm.synced_folder "../../../inaugurate", "/inaugurate", id: "inaugurate"
