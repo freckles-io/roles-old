@@ -30,6 +30,7 @@
   get_url:
     url: "{{ linux_miniconda_installer_url }}"
     dest: "/tmp/miniconda_install.sh"
+    validate_certs: "{{ validate_certs }}"
   when: conda_binary.stat.exists == False and ( ansible_os_family == "Debian" or ansible_os_family == "RedHat" )
 
 - name: download macos miniconda install
@@ -37,6 +38,7 @@
   get_url:
     url: "{{ macos_miniconda_installer_url }}"
     dest: "/tmp/miniconda_install.sh"
+    validate_certs: "{{ validate_certs }}"
   when: 'conda_binary.stat.exists == False and ansible_os_family == "Darwin"'
 
 - name: run miniconda installer
@@ -59,5 +61,5 @@
 
 - name: update conda
   become: no
-  shell: "{{ conda_parent_dir }}/conda/bin/conda update --name root conda"
+  shell: "{{ conda_parent_dir }}/conda/bin/conda update {{ conda_extra_args }} --name root conda"
   when: 'conda_binary.stat.exists == False'
