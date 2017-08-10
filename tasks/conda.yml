@@ -1,8 +1,6 @@
 ---
 # install freckles using conda, assuming the conda package manager is already installed
 
-#TODO install conda
-
 - name: find conda binary
   get_conda_facts:
     conda_binary: "{{ conda_binary_name }}"
