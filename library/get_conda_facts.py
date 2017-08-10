@@ -25,6 +25,7 @@ def which(program, install_method):
     paths = []
     if fpath:
         if is_exe(program):
+            program = os.path.realpath(program)
             if 'conda' in program:
                 if install_method == 'conda' or install_method == 'auto':
                     return (program, 'conda')
@@ -37,6 +38,7 @@ def which(program, install_method):
             path = path.strip('"')
             exe_file = os.path.join(path, program)
             if is_exe(exe_file):
+                exe_file = os.path.realpath(exe_file)
                 if 'conda' in exe_file:
                     if install_method == 'conda' or install_method == 'auto':
                         return (exe_file, 'conda')
@@ -48,6 +50,7 @@ def which(program, install_method):
             paths.append(path)
             exe_file = os.path.join(path, program)
             if is_exe(exe_file):
+                exe_file = os.path.realpath(exe_file)
                 if 'conda' in exe_file:
                     if install_method == 'conda' or install_method == 'auto':
                         return (exe_file, 'conda')
