@@ -17,7 +17,7 @@
   become: no
   when: "not conda_binary_path"
 
-- name: check whether conda environment exists
+- name: checking for conda environment
   set_fact:
     env_exists: "{{ conda_info | environment_exists_filter(environment_name) }}"
 
@@ -35,6 +35,6 @@
     - git
   when: "not freckles_exists"
 
-- name: set pip executable to use
+- name: "setting executable: pip"
   set_fact:
     pip_to_use: "{{ freckles_parent_path }}/pip"

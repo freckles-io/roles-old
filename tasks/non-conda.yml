@@ -43,7 +43,7 @@
   shell: "curl -k https://bootstrap.pypa.io/get-pip.py | PIP_TRUSTED_HOST=pypi.python.org {{ pip_base_dir }}/bin/python"
   when: insecure_pip_install and not freckles_exists
 
-- name: setting pip executable
+- name: "setting executable: pip"
   set_fact:
     pip_to_use: "{{ pip_base_dir }}/bin/pip"
 

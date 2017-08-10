@@ -5,7 +5,7 @@
     msg: "'install_method' variable needs to be either 'auto', 'conda' or 'pip'"
   when: "install_method not in ['auto', 'conda', 'pip']"
 
-- name: find conda binary
+- name: finding freckles binary
   get_conda_facts:
     conda_binary: "{{ conda_binary_name }}"
     freckles_binary: "{{ freckles_binary_name }}"
