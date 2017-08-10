@@ -8,3 +8,4 @@ add_to_path: true
 rc_files_to_add_path_to:
   - "{{ ansible_env.HOME }}/.profile"
 validate_certs: true
+conda_extra_args: ""
