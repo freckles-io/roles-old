@@ -26,8 +26,6 @@
     - gcc
     - libffi-devel
     - python-devel
-    - ope
-    - nssl-devel
   when: "ansible_os_family == 'RedHat'"
 
 # - name: install Mac OS X dependencies
