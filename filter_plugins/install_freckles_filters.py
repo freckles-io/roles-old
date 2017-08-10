@@ -7,6 +7,8 @@ class FilterModule(object):
             'environment_exists_filter': self.environment_exists_filter
         }
 
-    def environment_exists_filter(self, conda_info):
+    def environment_exists_filter(self, conda_info, conda_environment):
 
-        pass
+        envs = conda_info.get("envs", [])
+
+        return any([e.endswith(conda_environment) for e in envs])

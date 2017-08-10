@@ -1,8 +1,23 @@
 ---
 # tasks file for install-freckles
 
-include: conda.yml
-when: use_conda
+- include: conda.yml
+  when: use_conda
 
-include: pip.yml
-when: not use_conda
+- include: non-conda.yml
+  when: not use_conda
+
+- name: install freckles
+  pip:
+    name: freckles
+    executable: "{{ pip_to_use }}"
+  become: no
+  when: not freckles_exists
+
+- name: update freckles
+  pip:
+    name: freckles
+    executable: "{{ pip_to_use }}"
+    extra_args: "-U --upgrade-strategy only-if-needed"
+  become: no
+  when: update

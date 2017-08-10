@@ -1,9 +1,23 @@
 ---
 # install freckles using conda, assuming the conda package manager is already installed
 
+#TODO install conda
+
 - name: find conda binary
   get_conda_facts:
     conda_binary: "{{ conda_binary_name }}"
+    freckles_binary: "{{ freckles_binary_name }}"
+  become: no
 
-- name: check conda environments
-  command: "{{ conda_path }}"
+- name: check whether conda environment exists
+  set_fact:
+    env_exists: "{{ conda_info | environment_exists_filter(environment_name) }}"
+
+- name: create conda environment
+  command: "{{ conda_binary_path }} create -y --name {{ environment_name }} python={{ conda_python_version }}"
+  become: no
+  when: not env_exists
+
+- name: set pip executable to use
+  set_fact:
+    pip_to_use: "{{ conda_path }}/bin/pip"

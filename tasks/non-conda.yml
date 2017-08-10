@@ -1,0 +1,60 @@
+---
+
+- name: install Debian dependencies
+  apt:
+    name: "{{ item }}"
+  become: yes
+  with_items:
+    - build-essential
+    - git
+    - python-dev
+    - python-virtualenv
+    - libssl-dev
+    - libffi-dev
+  when: "ansible_os_family == 'Debian'"
+
+- name: install RedHat dependencies
+  yum:
+    name: "{{ item }}"
+  become: yes
+  with_items:
+    - epel-release
+    - wget
+    - git
+    - python-virtualenv
+    - openssl-devel
+    - gcc
+    - libffi-devel
+    - python-devel
+    - ope
+    - nssl-devel
+  when: "ansible_os_family == 'RedHat'"
+
+# - name: install Mac OS X dependencies
+
+- name: check whether freckles binary already exists
+  stat:
+    path: "{{ pip_base_dir }}/bin/{{ freckles_binary_name }}"
+  register: venv_freckles_path
+
+- name: set freckles_exists fact
+  set_fact:
+    freckles_exists: "{{ venv_freckles_path.stat.exists }}"
+
+- name: create virtualenv
+  command: virtualenv "{{ pip_base_dir }}" -p "{{ pip_python }}"
+  args:
+    creates: "{{ pip_base_dir }}"
+  when: "not freckles_exists"
+
+- set_fact:
+    pip_to_use: "{{ pip_base_dir }}/bin/pip"
+
+- name: prepare virtualenv
+  command: "{{ pip_to_use }} install --upgrade {{ item }}"
+  with_items:
+    - pip
+    - setuptools
+    - wheel
+    - requests
+  when: "not freckles_exists"

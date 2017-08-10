@@ -8,6 +8,7 @@ from ansible.module_utils.basic import AnsibleModule
 
 OTHER_PATHS_TO_CHECK = [
     os.path.expanduser("~/.local/bin"),
+    os.path.expanduser("~/.local/inaugurate/conda/bin"),
     os.path.expanduser("~/.inaugurate/opt/conda/bin"),
     os.path.expanduser("~/.local/opt/conda/bin"),
     os.path.expanduser("~/.freckles/opt/conda/bin"),
@@ -40,7 +41,7 @@ def which(program):
 
 def get_conda_info(module, conda_path):
 
-    cmd = "{} env list".format(conda_path)
+    cmd = "{} env list --json".format(conda_path)
     rc, stdout, stderr = module.run_command(cmd)
 
     if rc != 0:
@@ -55,7 +56,8 @@ def get_conda_info(module, conda_path):
 def main():
     module = AnsibleModule(
         argument_spec = dict(
-            conda_binary = dict(required=True)
+            conda_binary = dict(required=True),
+            freckles_binary = dict(required=True)
         ),
         supports_check_mode=False
     )
@@ -64,13 +66,22 @@ def main():
 
     executable_facts = {}
 
-    path = which(p['conda_binary'])
-    if not path:
-        module.fail_json("Could not find executable for name '{}'".format(p['conda_binary']))
+    conda_binary_path = which(p['conda_binary'])
+    conda_path = os.path.abspath(os.path.join(conda_binary_path, os.pardir, os.pardir))
+    if not conda_path:
+        module.fail_json(msg="Could not find executable for name '{}'".format(p['conda_binary']))
 
-    info = get_conda_info(module)
-    executable_facts['conda_path'] = path
-    executable_facts['conda_info'"] = info
+    info = get_conda_info(module, conda_binary_path)
+    executable_facts['conda_path'] = conda_path
+    executable_facts['conda_binary_path'] = conda_binary_path
+    executable_facts['conda_info'] = info
+
+    freckles_binary_path = which(p['freckles_binary'])
+    freckles_exists = bool(freckles_binary_path)
+
+    executable_facts['freckles_binary_path'] = freckles_binary_path
+    executable_facts['freckles_exists'] = freckles_exists
+    #TODO freckles version?
 
     module.exit_json(changed=False, ansible_facts=dict(executable_facts))
 
