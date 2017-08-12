@@ -39,7 +39,8 @@
 
 - name: install git
   install:
-    name: git
+    packages:
+      - git
     pkg_mgr: "{{ pkg_mgr | default('auto') }}"
   when: "'git' in executables_missing"
 
