@@ -1,0 +1,5 @@
+---
+# defaults file for install-packages
+
+package_install_list: []
+pkg_mgr: 'auto'
