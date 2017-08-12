@@ -6,12 +6,12 @@
   set_fact:
     freckles_dotfiles_packages: "{{ freckles_profile_dotfiles_metadata | create_dotfiles_packages }}"
 
-- name: install packages from dotfile folders
-  install:
-    packages: "{{ item }}"
-    pkg_mgr: "{{ pkg_mgr }}"
-  with_items:
-    - "{{ freckles_dotfiles_packages }}"
+- name: install packages from dotfiles
+  include_role:
+    name: makkus.install-packages
+  vars:
+    package_install_list: "{{ freckles_dotfiles_packages }}"
+    profile_name: dotfiles
 
 - name: check required executables
   required_executable_facts:

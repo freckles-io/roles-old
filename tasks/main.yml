@@ -25,39 +25,18 @@
   set_fact:
     package_install_list: "{{ freckles_metadata | create_package_list_filter }}"
 
-- name: auto-detect package managers
-  set_fact:
-    required_package_managers: "{{ package_install_list | pkg_mgr_filter }}"
-
-- name: install required package managers
+- name: install base packages
   include_role:
-    name: makkus.install-pkg-mgrs
+    name: makkus.install-packages
   vars:
-    pkg_mgrs: "{{ required_package_managers }}"
-    default_pkg_mgr: "{{ pkg_mgr | default(omit) }}"
-
-- name: install freckle packages that need ansible roles
-  include: "role-install-{{ role_package['vars']['name'] }}.yml"
-  when: "role_package['vars'].get('pkg_mgr', 'auto') == 'ansible_role'"
-  with_items:
-    - "{{ package_install_list }}"
-  loop_control:
-    loop_var: role_package
-
-- name: install freckle packages
-  install:
-    packages: "{{ item }}"
-    pkg_mgr: "{{ pkg_mgr }}"
-  ignore_errors: "{{ ignore_errors | default(true) }}"
-  when: "item['vars'].get('pkg_mgr', 'auto') != 'ansible_role'"
-  with_items:
-    - "{{ package_install_list }}"
+    profile_name: freckle
 
 - name: "starting profile execution"
   include: "{{ profile_loop_item.key }}.yml"
   vars:
     freckle_profile_folders: "{{ profile_loop_item.value }}"
-  when: "profile_loop_item.key != '__freckles_default__'"
+  static: no
+  when: "profile_loop_item is defined and profile_loop_item.key is defined and profile_loop_item.key != '__freckles_default__'"
   with_dict: "{{ freckles_metadata | flatten_profiles_filter }}"
   loop_control:
     loop_var: profile_loop_item

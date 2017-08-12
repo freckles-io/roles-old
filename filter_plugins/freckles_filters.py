@@ -42,7 +42,6 @@ class FilterModule(object):
         return {
             'read_profile_vars_filter': self.read_profile_vars_filter,
             'git_repo_filter': self.git_repo_filter,
-            'pkg_mgr_filter': self.pkg_mgr_filter,
             'create_package_list_filter': self.create_package_list_filter,
             'flatten_profiles_filter': self.flatten_profiles_filter,
             'get_used_profile_names': self.get_used_profile_names,
@@ -154,20 +153,6 @@ class FilterModule(object):
                     result = result + pkgs
 
         return sorted(result, key=lambda k: k.get("vars", {}).get("name", "zzz"))
-
-    def pkg_mgr_filter(self, package_list, prefix=None):
-
-        pkg_mgrs = set()
-
-        for pkg in package_list:
-            pkg_mgr = pkg.get("vars", {}).get("pkg_mgr", None)
-            if pkg_mgr and not pkg_mgr == "auto" and not pkg_mgr == "ansible_role":
-                pkg_mgrs.add(pkg_mgr)
-
-        if prefix:
-            return ["{}{}".format(prefix, item) for item in pkg_mgrs]
-        else:
-            return list(pkg_mgrs)
 
     def git_repo_filter(self, freckles):
 
