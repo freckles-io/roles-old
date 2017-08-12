@@ -20,7 +20,7 @@
   loop_control:
     loop_var: role_package
 
-- name: install freckle packages
+- name: "install {{ profile_name }} packages"
   install:
     packages: "{{ item }}"
     pkg_mgr: "{{ pkg_mgr }}"
