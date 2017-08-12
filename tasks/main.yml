@@ -11,30 +11,24 @@
   required_executable_facts:
     executables_to_check: "{{ pkg_mgrs | pkg_mgr_executable_filter }}"
 
-# Trick to *really* skip OS X related tasks if not on OS X, should save a few seconds
-# only doing this because this role is called twice in the freckles role, and just the
-# skipping of all the tasks included here takes ansible quite a while
-# - name: checking for Mac OS X
-  # set_fact:
-    # do_mac_stuff:
 - name: checking for Mac OS X
-  include: "include-{{ ansible_os_family }}.yml"
+  include_role:
+    name: geerlingguy.homebrew
+  vars:
+    homebrew_cask_apps: []
+  static: no
   when: "ansible_os_family == 'Darwin' and 'brew' in executables_missing"
 
-# same trick as above
-- name: pre-checking nix requirements
-  set_fact:
-    nix_name: "nix"
 - name: checking whether to install nix
-  include: "include-{{ nix_name }}.yml"
+  include_role:
+    name: makkus.install-nix
+  static: no
   when: "'nix-env' in executables_missing"
 
-# same trick as above
-- name: pre-checking conda requirements
-  set_fact:
-    conda_name: "conda"
 - name: checking whether to install conda
-  include: "include-{{ conda_name }}.yml"
+  include_role:
+    name: makkus.install-conda
+  static: no
   when: "'conda' in executables_missing"
 
 - name: install git
@@ -44,11 +38,9 @@
     pkg_mgr: "{{ pkg_mgr | default('auto') }}"
   when: "'git' in executables_missing"
 
-# same trick as above
-- name: pre-checking Vagrant requirements
-  set_fact:
-    vagrant_name: "vagrant"
 - name: checking whether to install Vagrant
-  include: "include-{{ vagrant_name }}.yml"
+  include_role:
+    name: makkus.install-vagrant
+  static: no
   when: "'vagrant' in executables_missing"
 
