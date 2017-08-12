@@ -8,3 +8,4 @@ tests/__pycache__/
 .ansible_vault_password
 *.box
 *retry
+*bak
