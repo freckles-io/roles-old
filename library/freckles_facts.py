@@ -34,7 +34,7 @@ def find_freckles_folders(module, freckles_repos):
         exclude = r.get("exclude", None)
 
         if not dest:
-            raise Exception("Dotfile repo description does not contain 'dest' key: {}".format(repo))
+            raise Exception("Dotfile repo description does not contain 'path' key: {}".format(repo))
         # if not repo:
             # raise Exception("Dotfile repo description does not contain 'repo' key: {}".format(repo))
 
@@ -292,39 +292,18 @@ def additional_packages_dict(dotfile_repos, profiles=None):
 def main():
     module = AnsibleModule(
         argument_spec = dict(
-            freckles_repos = dict(required=False, type='list'),
-            freckles_profiles = dict(default=[], required=False, type='list'),
-            freckles_folders_metadata = dict(required=False, type='dict')
+            freckles_repos = dict(required=True, type='list'),
+            freckles_profiles = dict(default=[], required=False, type='list')
         ),
-        supports_check_mode=False,
-        mutually_exclusive=[['freckles_repos', 'freckles_folders_metadata']],
-        required_one_of=[['freckles_repos', 'freckles_folders_metadata']]
+        supports_check_mode=False
     )
 
     p = module.params
 
     freckles_repos = p.get('freckles_repos', None)
     freckles_profiles = p.get('freckles_profiles', None)
-    freckles_folders_metadata = p.get('freckles_folders_metadata', None)
 
-    if freckles_repos:
-        find_freckles_folders(module, freckles_repos)
-    elif freckles_folders_metadata or isinstance(freckles_folders_metadata, dict):
-        augment_freckles_metadata(module, freckles_folders_metadata, freckles_profiles)
-        pass
-    #augment_with_dotfile_packages(freckles_folders)
-
-    # dotfile_packages = create_dotfiles_dict(p['dotfiles_repos'], profiles)
-    # dotfile_facts['freckles_dotfile_packages'] = dotfile_packages
-
-    # additional_packages = additional_packages_dict(p['dotfiles_repos'], profiles)
-    # dotfile_facts['freckles_additional_packages'] = additional_packages
-
-    # executable_exists = {}
-    # for exe in p.get('executables_to_check', []):
-        # missing = missing_from_path(exe)
-        # executable_exists[exe] = not missing
-    # dotfile_facts['executable_exists'] = executable_exists
+    find_freckles_folders(module, freckles_repos)
 
 
 if __name__ == '__main__':

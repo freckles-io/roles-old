@@ -1,10 +1,51 @@
+- name: get dotfile package metadata
+  dotfiles_facts:
+    freckles_profile_folders: "{{ freckle_profile_folders }}"
+
+- name: process dotfile package metadata
+  set_fact:
+    freckles_dotfiles_packages: "{{ freckles_profile_dotfiles_metadata | create_dotfiles_packages }}"
+
+- name: install packages from dotfile folders
+  install:
+    packages: "{{ item }}"
+    pkg_mgr: "{{ pkg_mgr }}"
+  with_items:
+    - "{{ freckles_dotfiles_packages }}"
+
+- name: check required executables
+  required_executable_facts:
+    executables_to_check:
+      - stow
+
+- name: install epel-release
+  install:
+    packages:
+      - epel-release:
+          pkgs:
+            redhat: epel-release
+            other: ignore
+    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+  when: '"stow" in executables_missing'
+
+- name: install stow
+  install:
+    packages:
+      - stow:
+          conda_channels:
+            - conda-forge
+            - freckles
+    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+  when: '"stow" in executables_missing'
+
 - name: stow folders
   stow:
     name: "{{ item.vars.stow_folder_name }}"
     state: present
     source_dir: "{{ item.vars.stow_folder_parent }}"
     target_dir: "{{ item.vars.stow_target_dir | default(freckles_dotfiles_default_stow_target_dir) }}"
+    delete_conflicts: "{{ item.vars.stow_delete_conflicts | default(freckles_dotfiles_default_delete_conflicts) }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
   when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false'
   with_items:
-    - "{{ freckle_vars.get('packages', []) }}"
+    - "{{ freckles_dotfiles_packages }}"

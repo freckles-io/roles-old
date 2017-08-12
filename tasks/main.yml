@@ -15,52 +15,32 @@
 - name: finding freckles folders
   freckles_facts:
     freckles_repos: "{{ freckles }}"
-    #freckles_profiles: "{{ freckles_profiles | ensure_list_filter }}"
 
 # can only do that on the controller, because dependency requirements
 - name: processing freckles folders
   set_fact:
-    freckles_folders_metadata: "{{ freckles_folders_raw | frklize_folders_metadata_filter }}"
-
-- name: retrieving freckles facts
-  freckles_facts:
-    freckles_folders_metadata: "{{ freckles_folders_metadata }}"
-
-- name: augmenting freckles profile metadata
-  set_fact:
-    freckles_metadata: "{{ freckles_folders_metadata | freckles_augment_filter(freckles_profiles_metadata) }}"
-
-- name: calculating packages to install via role
-  set_fact:
-    freckles_role_packages: "{{ freckles_metadata | create_role_package_list_filter }}"
+    freckles_metadata: "{{ freckles_folders_raw | read_profile_vars_filter }}"
 
 - name: calculating package list
   set_fact:
-    freckles_packages: "{{ freckles_metadata | create_package_list_filter }}"
+    package_install_list: "{{ freckles_metadata | create_package_list_filter }}"
 
 - name: auto-detect package managers
   set_fact:
-    freckles_additional_package_managers: "{{ freckles_metadata | pkg_mgr_filter }}"
+    required_package_managers: "{{ package_install_list | pkg_mgr_filter }}"
 
 - name: install required package managers
   include_role:
     name: makkus.install-pkg-mgrs
   vars:
-    pkg_mgrs: "{{ freckles_additional_package_managers }}"
-    default_pkg_mgr: "{{ pkg_mgr | default('auto') }}"
+    pkg_mgrs: "{{ required_package_managers }}"
+    default_pkg_mgr: "{{ pkg_mgr | default(omit) }}"
 
-# ansible can't use vars for the include_role task, need to add those tasks using a little trick
-# - name: install freckle packages that need ansible roles
-  # include_role:
-    # name: "{{ role_package }}"
-  # with_items:
-    # - "{{ freckles_role_packages | role_package_name_filter }}"
-
-# TODO: check for supported roles
 - name: install freckle packages that need ansible roles
-  include: "role-install-{{ role_package }}.yml"
+  include: "role-install-{{ role_package['vars']['name'] }}.yml"
+  when: "role_package['vars'].get('pkg_mgr', 'auto') == 'ansible_role'"
   with_items:
-    - "{{ freckles_role_packages | role_package_name_filter }}"
+    - "{{ package_install_list }}"
   loop_control:
     loop_var: role_package
 
@@ -69,27 +49,17 @@
     packages: "{{ item }}"
     pkg_mgr: "{{ pkg_mgr }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
+  when: "item['vars'].get('pkg_mgr', 'auto') != 'ansible_role'"
   with_items:
-    - "{{ freckles_packages }}"
-
-- name: "preparing profiles"
-  include: "prepare-{{ profile_name }}.yml"
-  # vars:
-    # freckle_vars: "{{ profile_loop_item[2].get('vars', {}) }}"
-    # freckle_path: "{{ profile_loop_item[1] }}"
-  when: "profile_name != '__freckles_default__'"
-  with_items:
-    - "{{ freckles_metadata | get_used_profile_names }}"
-  loop_control:
-    loop_var: profile_name
+    - "{{ package_install_list }}"
 
 - name: "starting profile execution"
-  include: "{{ profile_loop_item[0] }}.yml"
+  include: "{{ profile_loop_item.key }}.yml"
   vars:
-    freckle_vars: "{{ profile_loop_item[2].get('vars', {}) }}"
-    freckle_path: "{{ profile_loop_item[1] }}"
-  when: "profile_loop_item[0] != '__freckles_default__'"
-  with_items:
-    - "{{ freckles_metadata | flatten_profiles_filter }}"
+    freckle_profile_folders: "{{ profile_loop_item.value }}"
+  when: "profile_loop_item.key != '__freckles_default__'"
+  with_dict: "{{ freckles_metadata | flatten_profiles_filter }}"
   loop_control:
     loop_var: profile_loop_item
+
+

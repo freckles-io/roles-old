@@ -2,6 +2,6 @@
 - hosts: all
   roles:
     - role: makkus.freckles
-      freckles_stow: false
-      freckles_repos:
-        repo: https://github.com/makkus/dotfiles-test-full.git
+      freckles:
+        - url: https://github.com/makkus/dotfiles-test-full.git
+          path: ~/dotfiles-test-full

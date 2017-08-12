@@ -21,8 +21,9 @@ from distutils.spawn import find_executable
 from ansible.module_utils.basic import *
 
 POTENTIAL_CONDA_PATHS = [
-    os.path.expanduser("~/.inaugurate/opt/conda/bin"),
+    os.path.expanduser("~/.local/inaugurate/conda/bin"),
     os.path.expanduser("~/.local/opt/conda/bin"),
+    os.path.expanduser("~/.local/bin"),
     os.path.expanduser("~/.freckles/opt/conda/bin"),
     os.path.expanduser("~/miniconda3/bin"),
     os.path.expanduser("~/anaconda/bin")
@@ -144,8 +145,8 @@ def main():
         argument_spec=dict(
             name=dict(aliases=['pkg', 'package']),
             upgrade = dict(default=False, type='bool'),
-            channels = dict(default=False, type='list', required=False),
-            environment = dict(default="root", type='str', required=False),
+            conda_channels = dict(default=None, type='list', required=False),
+            conda_environment = dict(default="root", type='str', required=False),
             state=dict(default='present', choices=['present', 'installed', 'absent', 'removed'])),
         required_one_of=[['name', 'upgrade']],
         mutually_exclusive=[['name', 'upgrade']],
@@ -163,14 +164,13 @@ def main():
         p['state'] = 'absent'
 
     if p['upgrade']:
-        upgrade_packages(module, module.params.get("environment", None), module.params.get("channels", None))
+        upgrade_packages(module, module.params.get("conda_environment", None), module.params.get("conda_channels", None))
 
     if p['name']:
         pkgs = p['name'].split(',')
 
         if p['state'] == 'present':
-            install_packages(module, pkgs, module.params.get("environment", None), module.params.get("channels", None))
+            install_packages(module, pkgs, module.params.get("conda_environment", None), module.params.get("conda_channels", None))
 
 if __name__ == '__main__':
-    main(
-)
+    main()
