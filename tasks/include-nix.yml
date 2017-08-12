@@ -1,4 +1,0 @@
-- name: install nix
-  include_role:
-    name: makkus.install-nix
-  when: "'nix-env' in executables_missing or default_pkg_mgr == 'nix'"
