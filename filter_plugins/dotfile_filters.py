@@ -70,6 +70,7 @@ class FilterModule(object):
                 md["name"] = subfolder_metadata['freckles_app_dotfile_folder_name']
                 md["stow_folder_parent"] = subfolder_metadata['freckles_app_dotfile_parent_path']
 
+                # TODO: also use profile metadata?
                 overlay = frkl.dict_merge(parent_details, md)
                 result.append({"vars": overlay})
 

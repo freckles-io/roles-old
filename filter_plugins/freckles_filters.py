@@ -43,6 +43,8 @@ class FilterModule(object):
             'read_profile_vars_filter': self.read_profile_vars_filter,
             'git_repo_filter': self.git_repo_filter,
             'create_package_list_filter': self.create_package_list_filter,
+            'create_package_list_from_var_filter': self.create_package_list_from_var_filter,
+            'extra_pkg_mgrs_filter': self.extra_pkg_mgrs_filter,
             'flatten_profiles_filter': self.flatten_profiles_filter,
             'get_used_profile_names': self.get_used_profile_names,
             'create_profile_metadata': self.create_profile_metadata
@@ -127,9 +129,38 @@ class FilterModule(object):
         except (frkl.FrklConfigException) as e:
             raise errors.AnsibleFilterError("Can't process metadata: {}".format(profile_vars))
 
-        result = result.get("vars", {})
-        result.pop("packages", None)
+        result.get("vars", {}).pop("packages", None)
+        # result = result.get("vars", {})
+        # result.pop("packages", None)
         return result
+
+    def create_package_list_from_var_filter(self, packages_key, parent_vars):
+
+        parent_vars_copy = copy.deepcopy(parent_vars.get("vars", {}))
+        package_list = parent_vars_copy.pop(packages_key, [])
+
+        pkg_config = {"vars": parent_vars_copy, "packages": package_list}
+
+        chain = [frkl.FrklProcessor(DEFAULT_PACKAGE_FORMAT)]
+        frkl_obj = frkl.Frkl(pkg_config, chain)
+        pkgs = frkl_obj.process()
+
+        return sorted(pkgs, key=lambda k: k.get("vars", {}).get("name", "zzz"))
+
+
+    def extra_pkg_mgrs_filter(self, freckles_metadata):
+
+        extra_pkg_mgrs = set()
+
+        for folder, profiles in freckles_metadata.items():
+            for profile, var_list in profiles.items():
+                for metadata in var_list:
+
+                    extras = metadata.get("vars", {}).get("pkg_mgrs", [])
+                    extra_pkg_mgrs.update(extras)
+
+        return list(extra_pkg_mgrs)
+
 
     def create_package_list_filter(self, freckles_metadata):
 

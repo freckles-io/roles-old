@@ -17,3 +17,9 @@ freckles: {}
 #     exclude:
 #       - misc
 #       - x
+
+# profile specific defaults:
+# python-dev
+
+conda_packages: []
+default_python_version: 2.7

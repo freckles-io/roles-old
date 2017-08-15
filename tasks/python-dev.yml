@@ -1,32 +1,35 @@
-- name: setting project name
-  set_fact:
-    project_name: "{{ freckle_path | project_name_filter }}"
+- name: check for Mac OS X dependencies
+  include: python-dev-darwin.yml
+  static: no
+  when: "ansible_os_family == 'Darwin'"
 
-- name: install python dev requirements (into conda environment)
-  install:
-    pkg_mgr: pip
-    executable: "~/.local/opt/conda/envs/{{ project_name}}-dev/bin/pip"
-    packages:
-      - "{{ freckle_path }}/requirements_dev.txt"
-  when: "pkg_mgr is defined and pkg_mgr == 'conda'"
+- name: install python dependencies
+  include_role:
+    name: makkus.install-packages
+  vars:
+    profile_name: python-dev
+    package_install_list:
+      - vars:
+          name: build-essential
+          pkgs:
+            debian:
+              - build-essential
+            other: omit
+      - vars:
+          name: build-dependencies
+          pkgs:
+            debian:
+              - python-dev
+              - python-virtualenv
+              - python-pip
+            other: omit
 
-- name: install python dev requirements (into virtualenv)
-  install:
-    pkg_mgr: pip
-    #executable: "~/.local/opt/conda/envs/{{ project_name}}-dev/bin/pip"
-    virtualenv: "~/.local/virtualenvs/{{ project_name }}-dev"
-    packages:
-      - "{{ freckle_path }}/requirements_dev.txt"
-  when: "pkg_mgr is not defined or pkg_mgr == 'auto'"
-
-- name: "running 'python setup.py develop' in conda environment"
-  command: "~/.local/opt/conda/envs/{{ project_name }}-dev/bin/python setup.py develop"
-  args:
-    chdir: "{{ freckle_path }}"
-  when: "pkg_mgr is defined and pkg_mgr == 'conda'"
-
-- name: "running 'python setup.py develop' in project virtualenv"
-  command: "~/.local/virtualenvs/{{ project_name }}-dev/bin/python setup.py develop"
-  args:
-    chdir: "{{ freckle_path }}"
-  when: "pkg_mgr is not defined or pkg_mgr == 'auto'"
+- name: "Starting python project setup"
+  include: python-dev-item.yml
+  static: no
+  vars:
+    project_path: "{{ python_project_item.key }}"
+    project_details: "{{ python_project_item.value }}"
+  with_dict: "{{ freckle_profile_folders }}"
+  loop_control:
+    loop_var: python_project_item
