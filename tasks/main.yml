@@ -1,6 +1,5 @@
 ---
 # tasks file for install-packages
-
 - name: auto-detect package managers
   set_fact:
     required_package_managers: "{{ package_install_list | pkg_mgr_filter }}"
