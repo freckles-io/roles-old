@@ -14,7 +14,7 @@
     name: makkus.install-packages
   vars:
     package_install_list: "{{ freckles_dotfiles_packages }}"
-    profile_name: "dotfiles folders"
+    profile_name: "dotfile folders"
 
 - debug: var=freckles_metadata
 
@@ -34,7 +34,7 @@
     pkg_mgrs: "{{ extra_package_managers }}"
   when: "extra_package_managers"
 
-- name: install base packages
+- name: preapring base packages
   include_role:
     name: makkus.install-packages
   vars:
