@@ -1,8 +1,6 @@
 - name: debug
   debug: var=freckle_profile_folders
 
-- fail: msg="XXX"
-
 - name: get dotfile package metadata
   dotfiles_facts:
     freckles_profile_folders: "{{ freckle_profile_folders }}"
