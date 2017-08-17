@@ -4,7 +4,6 @@ import os
 from ansible.module_utils.basic import *
 from ansible.module_utils.basic import AnsibleModule
 
-FRECKLES_PACKAGE_METADATA_FILENAME = ".package_freckle"
 NO_INSTALL_MARKER_FILENAME = ".no_install_freckle"
 NO_STOW_MARKER_FILENAME = ".no_stow_freckle"
 
@@ -49,22 +48,6 @@ def get_dotfiles_metadata(folder, folder_details):
         app['freckles_app_dotfile_folder_path'] = dotfiles_dir
         app['freckles_app_dotfile_parent_path'] = folder
         app['freckles_app_dotfile_parent_details'] = folder_details
-
-        freckles_metadata_file = os.path.join(dotfiles_dir, FRECKLES_PACKAGE_METADATA_FILENAME)
-
-        if os.path.exists(freckles_metadata_file):
-            # have to assume no pyyaml is available
-            with open(freckles_metadata_file, "r") as f:
-                data = f.read()
-            app[METADATA_CONTENT_KEY] = data
-
-        no_install_file = os.path.join(dotfiles_dir, NO_INSTALL_MARKER_FILENAME)
-        if os.path.exists(no_install_file):
-            app['freckles_app_no_install'] = True
-
-        no_stow_file = os.path.join(dotfiles_dir, NO_STOW_MARKER_FILENAME)
-        if os.path.exists(no_stow_file):
-            app['freckles_app_no_stow'] = True
 
         app_folders.append(app)
 

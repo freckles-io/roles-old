@@ -50,28 +50,21 @@ class FilterModule(object):
 
             for subfolder_metadata in subfolder_list:
 
-                no_install = subfolder_metadata.get('freckles_app_no_install', None)
-                no_stow = subfolder_metadata.get('freckles_app_no_stow', None)
-
-                parent_details = subfolder_metadata.get('freckles_app_dotfile_parent_details', {})
-                raw_metadata = subfolder_metadata.pop(METADATA_CONTENT_KEY, False)
-                if raw_metadata:
-                    md = yaml.safe_load(raw_metadata)
-                else:
-                    md = {}
-
-                if no_install is not None:
-                    md["no_install"] = no_install
-                if no_stow is not None:
-                    md["no_stow"] = no_stow
-
+                md = {}
                 md["stow_source"] = subfolder_metadata['freckles_app_dotfile_folder_path']
                 md["stow_folder_name"] = subfolder_metadata['freckles_app_dotfile_folder_name']
                 md["name"] = subfolder_metadata['freckles_app_dotfile_folder_name']
                 md["stow_folder_parent"] = subfolder_metadata['freckles_app_dotfile_parent_path']
 
-                # TODO: also use profile metadata?
-                overlay = frkl.dict_merge(parent_details, md)
+                parent_details = subfolder_metadata.get('freckles_app_dotfile_parent_details', {})
+
+                extra_vars = copy.deepcopy(parent_details.get("extra_vars", {}).get(md["name"], {}))
+
+                package_md = extra_vars.pop("package", None)
+                overlay = frkl.dict_merge(md, extra_vars)
+                if package_md:
+                    frkl.dict_merge(overlay, package_md, copy_dct=False)
+
                 result.append({"vars": overlay})
 
         return result

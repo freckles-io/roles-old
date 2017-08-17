@@ -24,7 +24,7 @@ def find_freckles_folders(module, freckles_repos):
       freckles_repos (list): a list of dotfile dictionaries (see: XXX)
     """
 
-    freckles_paths = {}
+    freckles_paths_all = {}
     for r in freckles_repos:
 
         dest = r.get("path", False)
@@ -40,39 +40,14 @@ def find_freckles_folders(module, freckles_repos):
 
         dest = os.path.expanduser(dest)
 
-        # # we always get a (default) profile for the root folder
-        # folder_name = ROOT_FOLDER_NAME
-        root_local_path = os.path.expanduser(dest)
-        # freckles_paths[root_local_path] = {}
-        # freckles_paths[root_local_path]["folder_name"] = folder_name
-        # freckles_paths[root_local_path]["is_base_folder"] = True
-        # freckles_paths[root_local_path]["remote_repo"] = repo
-        # freckles_paths[root_local_path]["repo_local_dest"] = dest
-        # freckles_paths[root_local_path]["relative_path"] = ""
-        # freckles_paths[root_local_path]["parent_freckle_metadata"] = {}
-        # freckles_paths[root_local_path]["parent_freckle_path"] = ""
-        # freckles_paths[root_local_path]["profiles_to_use"] = profiles
-        # freckles_paths[root_local_path]["child_profiles"] = {}
-
-        # metadata_file = os.path.join(root_local_path, FRECKLES_FOLDER_MARKER_FILENAME)
-        # if os.path.exists(metadata_file):
-        #     with open(metadata_file, "r") as f:
-        #         parent_metadata = f.read()
-        #     if not parent_metadata:
-        #         parent_metadata = ""
-        # else:
-        #     parent_metadata = ""
-        # freckles_paths[root_local_path][METADATA_CONTENT_KEY] = parent_metadata
+        freckles_paths = {}
 
         # find all freckles folders
         for root, dirnames, filenames in os.walk(dest, topdown=True):
             dirnames[:] = [d for d in dirnames if d not in DEFAULT_EXCLUDE_DIRS]
 
             # check for .freckles profiles
-            for filename in fnmatch.filter(filenames, "*{}".format(FRECKLES_FOLDER_MARKER_FILENAME)):
-
-                if not filename.startswith("."):
-                    continue
+            for filename in fnmatch.filter(filenames, FRECKLES_FOLDER_MARKER_FILENAME):
 
                 # check whether we only should consider certain folders
                 if include:
@@ -95,29 +70,19 @@ def find_freckles_folders(module, freckles_repos):
                     if match:
                         continue
 
-                if filename == FRECKLES_FOLDER_MARKER_FILENAME:
-                    profile_name = DEFAULT_FRECKLES_PROFILE_NAME
-                    default_profile = True
-                else:
-                    profile_name = filename[1:-len(FRECKLES_FOLDER_MARKER_FILENAME)]
-                    default_profile = False
-
-                if not default_profile and profiles and profile_name not in profiles:
-                    continue
-
-                freckles_paths.setdefault(root, {})[profile_name] = {}
+                freckles_paths.setdefault(root, {})
 
                 folder_name = os.path.basename(root)
                 local_path = os.path.join(os.path.expanduser(dest), root)
 
-                freckles_paths[root][profile_name]["folder_name"] = folder_name
-                freckles_paths[root][profile_name]["is_base_folder"] = False
-                freckles_paths[root][profile_name]["remote_repo"] = repo
-                freckles_paths[root][profile_name]["repo_local_dest"] = dest
-                freckles_paths[root][profile_name]["parent_freckle_path"] = root_local_path
-                freckles_paths[root][profile_name]["profiles_to_use"] = profiles
+                freckles_paths[root]["folder_name"] = folder_name
+                freckles_paths[root]["is_base_folder"] = False
+                freckles_paths[root]["remote_repo"] = repo
+                freckles_paths[root]["repo_local_dest"] = dest
+                freckles_paths[root]["parent_freckle_path"] = dest
+                freckles_paths[root]["profiles_to_use"] = profiles
                 rel_path = os.path.relpath(root, dest)
-                freckles_paths[root][profile_name]["relative_path"] = rel_path
+                freckles_paths[root]["relative_path"] = rel_path
 
                 metadata_file = os.path.join(local_path, filename)
 
@@ -129,171 +94,117 @@ def find_freckles_folders(module, freckles_repos):
                 else:
                     data = ""
 
-                freckles_paths[root][profile_name][METADATA_CONTENT_KEY] = data
+                freckles_paths[root][METADATA_CONTENT_KEY] = data
 
-    freckles_facts = {}
-    freckles_facts['freckles_folders_raw'] = freckles_paths
-    module.exit_json(changed=False, ansible_facts=dict(freckles_facts))
+                freckles_paths[root]["extra_vars"] = {}
 
-def augment_freckles_metadata(module, freckles_folders_metadata, freckles_profiles=None):
-    """Augments metadata using profile-specific lookups."""
+                for sub_root, sub_dirnames, sub_filenames in os.walk(root, topdown=True):
 
-    result = {}
-    for folder, profiles in freckles_folders_metadata.items():
+                    sub_dirnames[:] = [sd for sd in sub_dirnames if sd not in DEFAULT_EXCLUDE_DIRS]
 
-        for profile, metadata in profiles.items():
+                    # check for .freckles profiles
+                    for sub_filename in fnmatch.filter(sub_filenames, "*{}".format(FRECKLES_FOLDER_MARKER_FILENAME)):
 
-            result[folder] = {}
-            if profile == "dotfiles":
-                result_md = get_dotfiles_metadata(folder, metadata)
-                result[folder][profile] = result_md
+                        if not sub_filename.startswith(".") or sub_filename == FRECKLES_FOLDER_MARKER_FILENAME:
+                            continue
 
-    freckles_profiles_facts = {}
-    freckles_profiles_facts['freckles_profiles_metadata'] = result
-    module.exit_json(changed=False, ansible_facts=dict(freckles_profiles_facts))
+                        sub_metadata_file = os.path.join(sub_root, sub_filename)
+                        sub_metadata_path = os.path.relpath(sub_metadata_file, root)
 
+                        with open(sub_metadata_file, "r") as f:
+                            data = f.read()
+                        if not data:
+                            data = ""
 
-def get_dotfiles_metadata(folder, folder_details):
+                        freckles_paths[root]["extra_vars"][sub_metadata_path] = data
 
-    profile_name = folder_details['meta']['folder_name']
-    remote_repo = folder_details['meta']['remote_repo']
-    local_dest = folder_details['meta']['repo_local_dest']
-    relative_path = folder_details['meta']['relative_path']
+        if freckles_paths:
+            freckles_paths_all.update(freckles_paths)
+        else:
+            # we assume the root folder is a freckle
+            root = dest
+            folder_name = os.path.basename(root)
+            local_path = root
+            freckles_paths[root] = {}
+            freckles_paths[root]["folder_name"] = folder_name
+            freckles_paths[root]["is_base_folder"] = False
+            freckles_paths[root]["remote_repo"] = repo
+            freckles_paths[root]["repo_local_dest"] = dest
+            freckles_paths[root]["parent_freckle_path"] = dest
+            freckles_paths[root]["profiles_to_use"] = profiles
+            rel_path = os.path.relpath(root, dest)
+            freckles_paths[root]["relative_path"] = rel_path
 
-    app_folders = []
-    for subfolder in os.listdir(folder):
+            freckles_paths[root][METADATA_CONTENT_KEY] = "" # would have picked it up before otherwise
 
-        dotfiles_dir = os.path.join(folder, subfolder)
-        if subfolder.startswith(".") or not os.path.isdir(dotfiles_dir):
-            continue
+            freckles_paths[root]["extra_vars"] = {}
 
-        app = {}
-        app['freckles_app_dotfile_folder_name'] = subfolder
-        app['freckles_app_profile_name'] = profile_name
-        app['freckles_app_dotfile_folder_path'] = dotfiles_dir
-        app['freckles_app_dotfile_parent_path'] = subfolder
-        app['freckles_app_dotfiles_remote_repo'] = remote_repo
-        app['freckles_app_dotfiles_repo_local_dest'] = local_dest
-        app['freckles_app_dotfiles_relative_path'] = relative_path
+            for sub_root, sub_dirnames, sub_filenames in os.walk(root, topdown=True):
 
-        freckles_metadata_file = os.path.join(dotfiles_dir, FRECKLES_PACKAGE_METADATA_FILENAME)
+                sub_dirnames[:] = [sd for sd in sub_dirnames if sd not in DEFAULT_EXCLUDE_DIRS]
 
-        if os.path.exists(freckles_metadata_file):
-            # have to assume no pyyaml is available
-            with open(freckles_metadata_file, "r") as f:
-                data = f.read()
-            app[METADATA_CONTENT_KEY] = data
+                # check for .freckles profiles
+                for sub_filename in fnmatch.filter(sub_filenames, "*{}".format(FRECKLES_FOLDER_MARKER_FILENAME)):
 
-        no_install_file = os.path.join(dotfiles_dir, NO_INSTALL_MARKER_FILENAME)
-        if os.path.exists(no_install_file):
-            app['freckles_app_no_install'] = True
+                    if not sub_filename.startswith(".") or sub_filename == FRECKLES_FOLDER_MARKER_FILENAME:
+                        continue
 
-        no_stow_file = os.path.join(dotfiles_dir, NO_STOW_MARKER_FILENAME)
-        if os.path.exists(no_stow_file):
-            app['freckles_app_no_stow'] = True
+                    sub_metadata_file = os.path.join(sub_root, sub_filename)
+                    sub_metadata_path = os.path.relpath(sub_metadata_file, root)
 
-        app_folders.append(app)
-
-    return app_folders
-
-
-
-def augment_with_dotfile_packages(freckles_folders):
-    """Walks through provided freckles folders, assumes every sub-folder is a folder representing an app.
-
-    If such a sub-folder contains a file called .package.freckles, tihs will be read and the (yaml) data in it will be super-imposed on top of the freckles_folder metadata.
-    """
-
-    for folder, folder_details in freckles_folders.items():
-
-        profile_name = folder_details['profile_name']
-        remote_repo = folder_details['remote_repo']
-        local_dest = folder_details['repo_local_dest']
-        relative_path = folder_details['relative_path']
-
-        app_folders = []
-        for subfolder in os.listdir(folder):
-
-            dotfiles_dir = os.path.join(folder, subfolder)
-            if subfolder.startswith(".") or not os.path.isdir(dotfiles_dir):
-                continue
-
-            app = {}
-            app['freckles_app_dotfile_folder_name'] = subfolder
-            app['freckles_app_profile_name'] = profile_name
-            app['freckles_app_dotfile_folder_path'] = dotfiles_dir
-            app['freckles_app_dotfile_parent_path'] = subfolder
-            app['freckles_app_dotfiles_remote_repo'] = remote_repo
-            app['freckles_app_dotfiles_repo_local_dest'] = local_dest
-            app['freckles_app_dotfiles_relative_path'] = relative_path
-
-            freckles_metadata_file = os.path.join(dotfiles_dir, FRECKLES_PACKAGE_METADATA_FILENAME)
-
-            if os.path.exists(freckles_metadata_file):
-                # have to assume no pyyaml is available
-                with open(freckles_metadata_file, "r") as f:
-                    data = f.read()
-                app[METADATA_CONTENT_KEY] = data
-
-            no_install_file = os.path.join(dotfiles_dir, NO_INSTALL_MARKER_FILENAME)
-            if os.path.exists(no_install_file):
-                app['freckles_app_no_install'] = True
-
-            no_stow_file = os.path.join(dotfiles_dir, NO_STOW_MARKER_FILENAME)
-            if os.path.exists(no_stow_file):
-                app['freckles_app_no_stow'] = True
-
-            app_folders.append(app)
-
-        freckles_folders[folder]["apps"] = app_folders
-
-    return freckles_folders
-
-
-def additional_packages_dict(dotfile_repos, profiles=None):
-
-        pkgs = []
-        for dr in dotfile_repos:
-            dest = dr["dest"]
-            if not profiles:
-                for root, dirnames, filenames in os.walk(os.path.expanduser(dest)):
-                    for filename in fnmatch.filter(filenames, FRECKLES_FOLDER_MARKER_FILENAME):
-                        profiles.append(os.path.relpath(root, os.path.expanduser(dest)))
-
-            if not profiles:
-                profiles = [""]
-
-            for p in profiles:
-                packages_metadata = os.path.expanduser(os.path.join(dest, p, FRECKLES_FOLDER_MARKER_FILENAME))
-                if os.path.exists(packages_metadata):
-                    app = {"vars": {"freckles_profile": p}}
-                    with open(packages_metadata, "r") as f:
+                    with open(sub_metadata_file, "r") as f:
                         data = f.read()
-                    if data:
-                        app[METADATA_CONTENT_KEY] = data
-                        pkgs.append(app)
-                    # stream = open(packages_metadata, 'r')
-                    # temp = yaml.safe_load(stream)
-                    # pkgs.append({"vars": {"freckles_profile": p}, "packages": temp})
+                    if not data:
+                        data = ""
 
-        # format = {"child_marker": "packages",
-                  # "default_leaf": "vars",
-                  # "default_leaf_key": "name",
-                  # "key_move_map": {'*': "vars"}}
-        # chain = [frkl.EnsureUrlProcessor(), frkl.EnsurePythonObjectProcessor(), frkl.FrklProcessor(format)]
+                    freckles_paths[root]["extra_vars"][sub_metadata_path] = data
 
-        # frkl_obj = frkl.Frkl(pkgs, chain)
+    return freckles_paths
 
-        # packages = frkl_obj.process()
 
-        return pkgs
+# def get_subfolder_metadata(folder, folder_details):
+#     """Walks through provided freckles folders, assumes every sub-folder is a folder representing an app.
 
+#     If such a sub-folder contains a file called .package.freckles, tihs will be read and the (yaml) data in it will be super-imposed on top of the freckles_folder metadata.
+#     """
+
+#     app_folders = []
+#     for subfolder in os.listdir(folder):
+
+#         dotfiles_dir = os.path.join(folder, subfolder)
+#         if subfolder.startswith(".") or not os.path.isdir(dotfiles_dir):
+#             continue
+
+#         app = {}
+#         app['freckles_app_dotfile_folder_name'] = subfolder
+#         app['freckles_app_dotfile_folder_path'] = dotfiles_dir
+#         app['freckles_app_dotfile_parent_path'] = folder
+#         app['freckles_app_dotfile_parent_details'] = folder_details
+
+#         freckles_metadata_file = os.path.join(dotfiles_dir, FRECKLES_PACKAGE_METADATA_FILENAME)
+
+#         if os.path.exists(freckles_metadata_file):
+#             # have to assume no pyyaml is available
+#             with open(freckles_metadata_file, "r") as f:
+#                 data = f.read()
+#             app[METADATA_CONTENT_KEY] = data
+
+#         no_install_file = os.path.join(dotfiles_dir, NO_INSTALL_MARKER_FILENAME)
+#         if os.path.exists(no_install_file):
+#             app['freckles_app_no_install'] = True
+
+#         no_stow_file = os.path.join(dotfiles_dir, NO_STOW_MARKER_FILENAME)
+#         if os.path.exists(no_stow_file):
+#             app['freckles_app_no_stow'] = True
+
+#         app_folders.append(app)
+
+#     return app_folders
 
 def main():
     module = AnsibleModule(
         argument_spec = dict(
             freckles_repos = dict(required=True, type='list'),
-            freckles_profiles = dict(default=[], required=False, type='list')
         ),
         supports_check_mode=False
     )
@@ -301,9 +212,11 @@ def main():
     p = module.params
 
     freckles_repos = p.get('freckles_repos', None)
-    freckles_profiles = p.get('freckles_profiles', None)
 
-    find_freckles_folders(module, freckles_repos)
+    freckles_paths = find_freckles_folders(module, freckles_repos)
+    freckles_facts = {}
+    freckles_facts['freckles_folders_raw'] = freckles_paths
+    module.exit_json(changed=False, ansible_facts=dict(freckles_facts))
 
 
 if __name__ == '__main__':

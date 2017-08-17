@@ -1,3 +1,8 @@
+- name: debug
+  debug: var=freckle_profile_folders
+
+- fail: msg="XXX"
+
 - name: get dotfile package metadata
   dotfiles_facts:
     freckles_profile_folders: "{{ freckle_profile_folders }}"
@@ -11,7 +16,30 @@
     name: makkus.install-packages
   vars:
     package_install_list: "{{ freckles_dotfiles_packages }}"
-    profile_name: dotfiles
+    profile_name: "dotfiles folders"
+
+- name: calculating package list
+  set_fact:
+    package_install_list: "{{ freckles_metadata | create_package_list_filter }}"
+
+- name: calculating extra package managers
+  set_fact:
+    extra_package_managers: "{{ freckles_metadata | extra_pkg_mgrs_filter }}"
+
+- name: install extra package managers
+  include_role:
+    name: makkus.install-pkg-mgrs
+  static: no
+  vars:
+    pkg_mgrs: "{{ extra_package_managers }}"
+  when: "extra_package_managers"
+
+- name: install base packages
+  include_role:
+    name: makkus.install-packages
+  vars:
+    profile_name: "dotfiles packages-list"
+
 
 - name: check required executables
   required_executable_facts:
