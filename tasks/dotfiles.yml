@@ -1,5 +1,5 @@
-- name: debug
-  debug: var=freckle_profile_folders
+# - name: debug
+  # debug: var=freckle_profile_folders
 
 - name: get dotfile package metadata
   dotfiles_facts:
