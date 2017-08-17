@@ -15,8 +15,6 @@ METADATA_CONTENT_KEY = "freckle_metadata_file_content"
 ROOT_FOLDER_NAME = "__freckles_folder_root__"
 DEFAULT_EXCLUDE_DIRS = [".git", ".tox", ".cache"]
 
-DEFAULT_FRECKLES_PROFILE_NAME = "__freckles_default__"
-
 def find_freckles_folders(module, freckles_repos):
     """Walks through all the provided dotfiles, and creates a dictionary with values according to what it finds, per folder.
 
