@@ -170,40 +170,42 @@ class FilterModule(object):
         return sorted(pkgs, key=lambda k: k.get("vars", {}).get("name", "zzz"))
 
 
-    def extra_pkg_mgrs_filter(self, freckles_metadata):
+    def extra_pkg_mgrs_filter(self, freckles_profile_metadata):
 
         extra_pkg_mgrs = set()
 
-        for folder, profiles in freckles_metadata.items():
-            for profile, var_list in profiles.items():
-                for metadata in var_list:
+        for folder, folder_metadata in freckles_profile_metadata.items():
 
-                    extras = metadata.get("vars", {}).get("pkg_mgrs", [])
-                    extra_pkg_mgrs.update(extras)
+            var_list = folder_metadata.get("vars", [])
+            for metadata in var_list:
+
+                extras = metadata.get("vars", {}).get("pkg_mgrs", [])
+                extra_pkg_mgrs.update(extras)
 
         return list(extra_pkg_mgrs)
 
 
-    def create_package_list_filter(self, freckles_metadata):
+    def create_package_list_filter(self, freckles_profile_metadata):
 
         result = []
 
-        for folder, profiles in freckles_metadata.items():
-            for profile, var_list in profiles.items():
-                for metadata in var_list:
+        for folder, folder_metadata in freckles_profile_metadata.items():
 
-                    parent_vars = copy.deepcopy(metadata.get("vars", {}))
-                    parent_vars.pop("packages", None)
+            var_list = folder_metadata.get("vars", [])
+            for metadata in var_list:
 
-                    packages = metadata.get("vars", {}).get("packages", [])
+                parent_vars = copy.deepcopy(metadata.get("vars", {}))
+                parent_vars.pop("packages", None)
 
-                    pkg_config = {"vars": parent_vars, "packages": packages}
+                packages = metadata.get("vars", {}).get("packages", [])
 
-                    chain = [frkl.FrklProcessor(DEFAULT_PACKAGE_FORMAT)]
-                    frkl_obj = frkl.Frkl(pkg_config, chain)
-                    pkgs = frkl_obj.process()
+                pkg_config = {"vars": parent_vars, "packages": packages}
 
-                    result = result + pkgs
+                chain = [frkl.FrklProcessor(DEFAULT_PACKAGE_FORMAT)]
+                frkl_obj = frkl.Frkl(pkg_config, chain)
+                pkgs = frkl_obj.process()
+
+                result = result + pkgs
 
         return sorted(result, key=lambda k: k.get("vars", {}).get("name", "zzz"))
 
