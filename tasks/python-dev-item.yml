@@ -14,7 +14,7 @@
   vars:
     profile_name: "project dependency"
     conda_environment: "{{ project_name }}-dev"
-    package_install_list: "{{ 'project_dependencies' | create_package_list_from_var_filter(project_details) }}"
+    package_install_list: "{{ project_details.get('vars', []) | create_package_list_from_var_filter('packages') }}"
 
 - name: install python dev requirements (into conda environment)
   install:

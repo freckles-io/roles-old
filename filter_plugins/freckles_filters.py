@@ -156,16 +156,22 @@ class FilterModule(object):
                     "Can't read freckle metadata file '{}/.freckle': {}".format(freckle_folder, e.message))
         return result
 
-    def create_package_list_from_var_filter(self, packages_key, parent_vars):
+    def create_package_list_from_var_filter(self, parent_vars_list, packages_key):
 
-        parent_vars_copy = copy.deepcopy(parent_vars.get("vars", {}))
-        package_list = parent_vars_copy.pop(packages_key, [])
+        if isinstance(parent_vars_list, dict):
+            parent_vars_list = [parent_vars_list]
 
-        pkg_config = {"vars": parent_vars_copy, "packages": package_list}
+        result = []
+        for parent_vars in parent_vars_list:
 
-        chain = [frkl.FrklProcessor(DEFAULT_PACKAGE_FORMAT)]
-        frkl_obj = frkl.Frkl(pkg_config, chain)
-        pkgs = frkl_obj.process()
+            parent_vars_copy = copy.deepcopy(parent_vars.get("vars", {}))
+            package_list = parent_vars_copy.pop(packages_key, [])
+            pkg_config = {"vars": parent_vars_copy, "packages": package_list}
+
+            chain = [frkl.FrklProcessor(DEFAULT_PACKAGE_FORMAT)]
+            frkl_obj = frkl.Frkl(pkg_config, chain)
+            pkgs = frkl_obj.process()
+            result.extend(pkgs)
 
         return sorted(pkgs, key=lambda k: k.get("vars", {}).get("name", "zzz"))
 

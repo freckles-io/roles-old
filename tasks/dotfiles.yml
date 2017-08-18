@@ -16,8 +16,6 @@
     package_install_list: "{{ freckles_dotfiles_packages }}"
     profile_name: "dotfile folders"
 
-- debug: var=freckles_metadata
-
 - name: calculating package list
   set_fact:
     package_install_list: "{{ freckles_metadata | create_package_list_filter }}"
