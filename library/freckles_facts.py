@@ -157,7 +157,9 @@ def find_freckles_folders(module, freckles_repos):
 
                     freckles_paths[root]["extra_vars"][sub_metadata_path] = data
 
-    return freckles_paths
+            freckles_paths_all.update(freckles_paths)
+
+    return freckles_paths_all
 
 
 # def get_subfolder_metadata(folder, folder_details):
