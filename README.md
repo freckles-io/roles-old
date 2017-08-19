@@ -1,22 +1,26 @@
-Role Name
-=========
+dotfiles
+===========
 
-A brief description of the role goes here.
+An ansible role to manage metadata-augmented dotfiles. Pointed at a folder with such files, this role will install required applications and symbolically link (using 'stow') the dotfiles in their appropriate places.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- freckles (https://github.com/makkus/freckles)
+
 
 Role Variables
---------------
+-------------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Coming soon
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+    - makkus.install-nix
+    - makkus.install-conda
+    - elliotweiser.osx-command-line-tools
+    - geerlingguy.homebrew
 
 Example Playbook
 ----------------
@@ -25,14 +29,14 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - { role: dotfiles, x: 42 }
+         - role: makkus.dotfiles
 
 License
 -------
 
-BSD
+GPLv3
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Markus Binsteiner
