@@ -1,2 +1,80 @@
 ---
 # tasks file for dotfiles
+
+# - name: debug
+  # debug: var=freckle_profile_folders
+
+- name: get dotfile package metadata
+  dotfiles_facts:
+    freckles_profile_folders: "{{ freckle_profile_folders }}"
+
+- name: process dotfile package metadata
+  set_fact:
+    freckles_dotfiles_packages: "{{ freckles_profile_dotfiles_metadata | create_dotfiles_packages }}"
+
+- name: install packages from dotfiles
+  include_role:
+    name: makkus.install-packages
+  vars:
+    package_install_list: "{{ freckles_dotfiles_packages }}"
+    profile_name: "dotfile folders"
+
+- name: calculating package list
+  set_fact:
+    package_install_list: "{{ freckles_metadata | create_package_list_filter }}"
+
+- name: calculating extra package managers
+  set_fact:
+    extra_package_managers: "{{ freckles_metadata | extra_pkg_mgrs_filter }}"
+
+- name: install extra package managers
+  include_role:
+    name: makkus.install-pkg-mgrs
+  static: no
+  vars:
+    pkg_mgrs: "{{ extra_package_managers }}"
+  when: "extra_package_managers"
+
+- name: preapring base packages
+  include_role:
+    name: makkus.install-packages
+  vars:
+    profile_name: "dotfiles packages-list"
+
+
+- name: check required executables
+  required_executable_facts:
+    executables_to_check:
+      - stow
+
+- name: install epel-release
+  install:
+    packages:
+      - epel-release:
+          pkgs:
+            redhat: epel-release
+            other: ignore
+    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+  when: '"stow" in executables_missing'
+
+- name: install stow
+  install:
+    packages:
+      - stow:
+          conda_channels:
+            - conda-forge
+            - freckles
+    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+  when: '"stow" in executables_missing'
+
+- name: stow folders
+  stow:
+    name: "{{ item.vars.stow_folder_name }}"
+    state: present
+    source_dir: "{{ item.vars.stow_folder_parent }}"
+    target_dir: "{{ item.vars.stow_target_dir | default(freckles_dotfiles_default_stow_target_dir) }}"
+    delete_conflicts: "{{ item.vars.stow_delete_conflicts | default(freckles_dotfiles_default_delete_conflicts) }}"
+  ignore_errors: "{{ ignore_errors | default(true) }}"
+  when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false'
+  with_items:
+    - "{{ freckles_dotfiles_packages }}"
