@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Markus Binsteiner
-  description: ansible role to manage dotfiles and working environments
+  description: ansible role to setup and manage working environments
 
   license: license (GPLv3)
 
