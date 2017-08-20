@@ -173,7 +173,7 @@ class FilterModule(object):
             pkgs = frkl_obj.process()
             result.extend(pkgs)
 
-        return sorted(pkgs, key=lambda k: k.get("vars", {}).get("name", "zzz"))
+        return sorted(result, key=lambda k: k.get("vars", {}).get("name", "zzz"))
 
 
     def extra_pkg_mgrs_filter(self, freckles_profile_metadata):
