@@ -76,23 +76,34 @@ class FilterModule(object):
 
                 profiles_to_use = freckles_metadata[folder]["folder_metadata"]["profiles_to_use"]
 
-                if not profiles_to_use:
-                    # means we run all the available profiles, except the 'freckle' one
-                    if profile != "freckle":
-                        profiles_to_run.setdefault(profile, {})[folder] = f_vars
+                if profile in profiles_to_use:
+                    profiles_to_run.setdefault(profile, {}).setdefault(folder, {}).setdefault("vars", []).extend(f_vars.get("vars", []))
+                elif profile == "freckle":
+                    for ptr in profiles_to_use:
+                        profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
+                        for f_var_item in f_vars.get("vars", []):
+                            t = f_var_item.get("vars", None)
+                            if t:
+                                profiles_to_run[ptr][folder]["vars"].append({"vars": t})
 
+                        profiles_to_run[ptr][folder]["extra_vars"] = f_vars["extra_vars"]
                 else:
-                    if profile in profiles_to_use:
-                        profiles_to_run.setdefault(profile, {}).setdefault(folder, {}).setdefault("vars", []).extend(f_vars.get("vars", []))
-                    elif profile == "freckle":
-                        for ptr in profiles_to_use:
-                            profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
-                            for f_var_item in f_vars.get("vars", []):
-                                t = f_var_item.get("vars", None)
-                                if t:
-                                    profiles_to_run[ptr][folder]["vars"].append({"vars": t})
+                    for ptr in profiles_to_use:
+                        profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
 
-                            profiles_to_run[ptr][folder]["extra_vars"] = f_vars["extra_vars"]
+        # add some stats to be used by the profile dispatcher if necessary
+        profiles_total = len(profiles_to_use)
+        profile_index = 0
+        for profile_name, folders in profiles_to_run.items():
+            folders_total = len(folders)
+            folder_index = 0
+            for folder, folder_metadata in folders.items():
+                stats = {}
+                stats["profiles"] = {"total": profiles_total, "current": profile_index}
+                stats["folders"] = {"total": folders_total, "current": folder_index}
+                folder_metadata["stats"] = stats
+                folder_index = folder_index + 1
+            profile_index = profile_index + 1
 
         return profiles_to_run
 

@@ -1,0 +1,31 @@
+---
+# tasks per profiles
+- local_action: stat path="{{ role_path }}/tasks/init-{{ freckles_profile_name }}.yml"
+  register: init_file
+  become: no
+- name: "starting profile execution"
+  include: "init-{{ freckles_profile_name }}.yml"
+  static: no
+  when: init_file.stat.exists
+
+- local_action: stat path="{{ role_path }}/tasks/items-{{ freckles_profile_name }}.yml"
+  register: items_file
+  become: no
+- name: "starting per-item profile execution"
+  include: "items-{{ freckles_profile_name }}.yml"
+  vars:
+    freckle_path: "{{ freckle_loop_item.key }}"
+    freckle_vars: "{{ freckle_loop_item.value }}"
+  when: items_file.stat.exists
+  with_dict: "{{ freckles_profile_folders }}"
+  loop_control:
+    loop_var: freckle_loop_item
+
+# - name: "starting profile execution for items"
+#   include: "items-{{ profile_loop_item.key }}.yml"
+#   vars:
+#     freckle_profile_folders: "{{ profile_loop_item.value }}"
+#   static: no
+#   with_dict: "{{ freckles_metadata | flatten_profiles_filter }}"
+#   loop_control:
+#     loop_var: profile_loop_item
