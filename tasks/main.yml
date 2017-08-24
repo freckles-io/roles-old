@@ -2,21 +2,21 @@
 # tasks file for box-basics
 
 # sometimes this needs to be done on a new box, otherwise apt install fails
-- name: update apt cache
+- name: "[update apt cache]"
   become: yes
   apt:
     update_cache: yes
     cache_valid_time: 3600
   when: "ansible_os_family == 'Debian' and (pkg_mgr == 'auto' or pkg_mgr == 'apt')"
   ignore_errors: true
-- name: update apt cache
+- name: "[update apt cache]"
   become: yes
   apt:
     update_cache: yes
     cache_valid_time: 3600
   when: "ansible_os_family == 'Debian' and (pkg_mgr == 'auto' or pkg_mgr == 'apt')"
 
-- name: install required package managers
+- name: "[install required package managers]"
   include_role:
     name: makkus.install-pkg-mgrs
   vars:
