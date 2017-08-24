@@ -7,7 +7,7 @@
 #   with_items:
 #     - "{{ dotfiles_repos | pkg_mgr_filter('install-') }}"
 
-- name: check required executables
+- name: "[check required executables]"
   required_executable_facts:
     executables_to_check: "{{ pkg_mgrs | pkg_mgr_executable_filter }}"
 
