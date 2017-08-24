@@ -43,7 +43,11 @@ class ActionModule(ActionBase):
 
         config_tasks = self._task.args.get('freckles_config_tasks')
 
-        config_file = os.path.join(os.path.expanduser("~"), ".freckles", 'config.yml')
+        config_folder = os.path.join(os.path.expanduser("~"), ".freckles")
+        if  not os.path.exists(config_folder):
+            os.makedirs(config_folder)
+
+        config_file = os.path.join(config_folder, 'config.yml')
         if os.path.exists(config_file):
             with open(config_file) as f:
                 old_config = yaml.safe_load(f)
