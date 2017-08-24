@@ -1,5 +1,5 @@
 ---
-- name: install Vagrant dmg package
+- name: installing Vagrant dmg package
   mac_pkg:
     archive_type: dmg
     archive_path: Vagrant.pkg

@@ -1,7 +1,7 @@
 ---
 # tasks to install vagrant
 
-- name: calculating Vagrant download name
+- name: "[calculating Vagrant download name]"
   set_fact:
     vagrant_binary_name: "{{ ansible_os_family | vagrant_binary_name_filter(vagrant_version, ansible_architecture) }}"
 
@@ -12,7 +12,7 @@
   when: ansible_os_family != "Darwin"
 
 # errors out when 'validate_certs: true', needs to be fixed in ansible I think
-- name: download Vagrant
+- name: downloading Vagrant
   get_url:
     url: "{{ vagrant_download_url }}/{{ vagrant_version }}/{{ vagrant_binary_name }}"
     dest: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
@@ -35,7 +35,7 @@
 - include: darwin.yml
   when: ansible_os_family == "Darwin"
 
-- name: delete downloaded Vagrant install package
+- name: deleting downloaded Vagrant install package
   file:
     name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
     state: absent
