@@ -1,19 +1,19 @@
 ---
 # tasks per profiles
-- name: checking whether to run profile init
+- name: "[checking whether to run profile init]"
   local_action: stat path="{{ role_path }}/tasks/init-{{ freckles_profile_name }}.yml"
   register: init_file
   become: no
-- name: "starting profile execution"
+- name: "[starting profile execution]"
   include: "init-{{ freckles_profile_name }}.yml"
   static: no
   when: init_file.stat.exists
 
-- name: checking whether to run profile tasks
+- name: "[checking whether to run profile tasks]"
   local_action: stat path="{{ role_path }}/tasks/items-{{ freckles_profile_name }}.yml"
   register: items_file
   become: no
-- name: "starting per-item profile execution"
+- name: "[starting per-item profile execution]"
   include: "items-{{ freckles_profile_name }}.yml"
   vars:
     freckle_path: "{{ freckle_loop_item.key }}"

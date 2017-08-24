@@ -1,10 +1,10 @@
 ---
 # tasks file for dotfiles
-- name: initialize box with basic requirements
+- name: "[initialize box with basic requirements]"
   include_role:
     name: makkus.box-basics
 
-- name: checkout freckle(s)
+- name: checking out freckle(s)
   git:
     dest: "{{ item.dest }}"
     repo: "{{ item.repo }}"
@@ -12,16 +12,16 @@
   with_items:
     - "{{ freckles | git_repo_filter }}"
 
-- name: finding freckles folders
+- name: "[finding freckles folders]"
   freckles_facts:
     freckles_repos: "{{ freckles }}"
 
 # can only do that on the controller, because dependency requirements
-- name: processing freckles folders
+- name: "[processing freckles folders]"
   set_fact:
     freckles_metadata: "{{ freckles_folders_raw | read_profile_vars_filter }}"
 
-- name: including profile
+- name: "[including profile]"
   include: "profile.yml"
   vars:
     freckles_profile_name: "{{ profile_loop_item.key }}"
