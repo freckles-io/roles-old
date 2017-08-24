@@ -1,11 +1,11 @@
 ---
 # tasks file for install-freckles
-- name: fail if wrong install method specified
+- name: "[fail if wrong install method specified]"
   fail:
     msg: "'install_method' variable needs to be either 'auto', 'conda' or 'pip'"
   when: "install_method not in ['auto', 'conda', 'pip']"
 
-- name: finding freckles binary
+- name: "[finding freckles binary]"
   get_conda_facts:
     conda_binary: "{{ conda_binary_name }}"
     freckles_binary: "{{ freckles_binary_name }}"
@@ -18,7 +18,7 @@
 - include: non-conda.yml
   when: "install_method == 'pip' or existing_install_method == 'pip'"
 
-- name: install freckles
+- name: installing freckles
   pip:
     name: freckles
     executable: "{{ pip_to_use }}"
@@ -26,7 +26,7 @@
   become: no
   when: "not freckles_exists"
 
-- name: update freckles
+- name: updating freckles
   pip:
     name: freckles
     executable: "{{ pip_to_use }}"
