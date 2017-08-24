@@ -26,6 +26,22 @@
   become: no
   when: "not freckles_exists"
 
+- name: updating frkl
+  pip:
+    name: frkl
+    executable: "{{ pip_to_use }}"
+    extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
+  become: no
+  when: update
+
+- name: updating nsbl
+  pip:
+    name: nsbl
+    executable: "{{ pip_to_use }}"
+    extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
+  become: no
+  when: update
+
 - name: updating freckles
   pip:
     name: freckles
