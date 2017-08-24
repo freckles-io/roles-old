@@ -1,17 +1,17 @@
 ---
 # tasks file for install-packages
-- name: auto-detect package managers
+- name: "[auto-detect package managers]"
   set_fact:
     required_package_managers: "{{ package_install_list | pkg_mgr_filter }}"
 
-- name: install required package managers
+- name: "[installing required package managers]"
   include_role:
     name: makkus.install-pkg-mgrs
   vars:
     pkg_mgrs: "{{ required_package_managers }}"
     default_pkg_mgr: "{{ pkg_mgr | default(omit) }}"
 
-- name: install freckle packages that need ansible roles
+- name: "[installing freckle packages that need ansible roles]"
   include: "role-install-{{ role_package['vars']['name'] }}.yml"
   when: "role_package['vars'].get('pkg_mgr', 'auto') == 'ansible_role'"
   with_items:
