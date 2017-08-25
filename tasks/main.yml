@@ -26,6 +26,7 @@
   vars:
     freckles_profile_name: "{{ profile_loop_item.key }}"
     freckles_profile_folders: "{{ profile_loop_item.value }}"
+    freckles_user_vars: "{{ user_vars.get(profile_loop_item.key) | default({}) }}"
   with_dict: "{{ freckles_metadata | flatten_profiles_filter }}"
   loop_control:
     loop_var: profile_loop_item
