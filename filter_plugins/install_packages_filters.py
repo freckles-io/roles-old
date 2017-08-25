@@ -31,9 +31,12 @@ class FilterModule(object):
         }
 
 
-    def pkg_mgr_filter(self, package_list, prefix=None):
+    def pkg_mgr_filter(self, package_list, default_pkg_mgr, prefix=None):
 
         pkg_mgrs = set()
+
+        if default_pkg_mgr and default_pkg_mgr != "auto":
+            pkg_mgrs.add(default_pkg_mgr)
 
         for pkg in package_list:
             pkg_mgr = pkg.get("vars", {}).get("pkg_mgr", None)

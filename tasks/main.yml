@@ -2,7 +2,7 @@
 # tasks file for install-packages
 - name: "[auto-detect package managers]"
   set_fact:
-    required_package_managers: "{{ package_install_list | pkg_mgr_filter }}"
+    required_package_managers: "{{ package_install_list | pkg_mgr_filter(pkg_mgr) }}"
 
 - name: "[installing required package managers]"
   include_role:
