@@ -12,3 +12,7 @@
 - name: checking out community profiles repo
   local_action: git repo="{{ freckles_community_profiles_repo }}" dest="{{ freckles_community_profiles_dest }}" track_submodules=yes
   when: "'enable_community_repo' in freckles_config_tasks or 'update_community_repo' in freckles_config_tasks"
+
+- name: checking out community frecklecutables repo
+  local_action: git repo="{{ freckles_community_frecklecutables_repo }}" dest="{{ freckles_community_frecklecutables_dest }}" track_submodules=yes
+  when: "'enable_community_repo' in freckles_config_tasks or 'update_community_repo' in freckles_config_tasks"

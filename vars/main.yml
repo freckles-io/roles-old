@@ -5,3 +5,5 @@ freckles_community_roles_repo: "https://github.com/makkus/curated-roles.git"
 freckles_community_roles_dest: "{{ ansible_env.HOME }}/.local/freckles/community-roles" # TODO: this is a bit dodgy, since we use it in 'local_action'
 freckles_community_profiles_repo: "https://github.com/makkus/curated-profiles.git"
 freckles_community_profiles_dest: "{{ ansible_env.HOME }}/.local/freckles/community-profiles" # TODO: this is a bit dodgy, since we use it in 'local_action'
+freckles_community_frecklecutables_repo: "https://github.com/makkus/curated-frecklecutables.git"
+freckles_community_frecklecutables_dest: "{{ ansible_env.HOME }}/.local/freckles/community-frecklecutables" # TODO: this is a bit dodgy, since we use it in 'local_action'

@@ -88,6 +88,17 @@ class ActionModule(ActionBase):
 
         old_config["trusted-profiles"] = trusted_profiles
 
+        trusted_frecklecutables = old_config.get("trusted-frecklecutables", ["default", "user"])
+
+        if not "community" in trusted_frecklecutables:
+            if enable:
+                trusted_frecklecutables.append("community")
+        else:
+            if not enable:
+                while "community" in trusted_profiles: trusted_frecklecutables.remove("community")
+
+        old_config["trusted-frecklecutables"] = trusted_frecklecutables
+
         return
 
 
