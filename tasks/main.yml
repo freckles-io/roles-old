@@ -21,7 +21,7 @@
 
 - name: "[calculating package list]"
   set_fact:
-    package_install_list: "{{ freckles_metadata | create_package_list_filter }}"
+    freckles_packages_list: "{{ freckles_metadata | create_package_list_filter }}"
 
 - name: "[calculating extra package managers]"
   set_fact:
@@ -40,6 +40,7 @@
     name: makkus.install-packages
   vars:
     profile_name: "dotfiles packages-list"
+    package_install_list: "{{ freckles_packages_list }}"
 
 
 - name: "[check required executables]"
