@@ -1,7 +1,7 @@
 ---
 # defaults file for dotfiles
 
-pkg_mgr: "auto"
+#pkg_mgr: "auto"
 freckles_dotfiles_default_stow_target_dir: "{{ ansible_env.HOME }}"
 freckles_dotfiles_default_delete_conflicts: false
 freckles: {}
