@@ -78,6 +78,7 @@ class FilterModule(object):
 
                 if profile in profiles_to_use:
                     profiles_to_run.setdefault(profile, {}).setdefault(folder, {}).setdefault("vars", []).extend(f_vars.get("vars", []))
+                    profiles_to_run[profile][folder]["extra_vars"] = f_vars["extra_vars"]
                 elif profile == "freckle":
                     for ptr in profiles_to_use:
                         profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
@@ -90,6 +91,7 @@ class FilterModule(object):
                 else:
                     for ptr in profiles_to_use:
                         profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
+                        profiles_to_run[ptr][folder]["extra_vars"] = f_vars["extra_vars"]
 
         # add some stats to be used by the profile dispatcher if necessary
         profiles_total = len(profiles_to_use)
