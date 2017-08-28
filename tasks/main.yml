@@ -22,6 +22,8 @@
   install:
     packages: "{{ item }}"
     pkg_mgr: "{{ pkg_mgr }}"
+    conda_environment: "{{ conda_environment | default(omit) }}"
+    conda_channels: "{{ conda_channels | default(omit) }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
   when: "item['vars'].get('pkg_mgr', 'auto') != 'ansible_role'"
   with_items:
