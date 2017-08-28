@@ -1,4 +1,4 @@
 ---
 # defaults file for box-basics
 required_executables: []
-pkg_mgr: "auto"
+#pkg_mgr: "auto"
