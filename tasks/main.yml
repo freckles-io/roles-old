@@ -9,7 +9,6 @@
     name: makkus.install-pkg-mgrs
   vars:
     pkg_mgrs: "{{ required_package_managers }}"
-    default_pkg_mgr: "{{ pkg_mgr | default(omit) }}"
 
 - name: "[installing freckle packages that need ansible roles]"
   include: "role-install-{{ role_package['vars']['name'] }}.yml"
