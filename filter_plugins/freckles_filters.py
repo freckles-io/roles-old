@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import re
 import copy
 import fnmatch
 import os
@@ -32,12 +33,18 @@ DEFAULT_PROFILE_VAR_FORMAT = {"child_marker": "profiles",
                               "default_leaf_key": "name",
                               "key_move_map": {'*': "vars"}}
 
+DEFAULT_VAR_FORMAT = {"child_marker": "childs",
+                              "default_leaf": "vars",
+                              "default_leaf_key": "name",
+                              "key_move_map": {'*': "vars"}}
+
 DEFAULT_PACKAGE_FORMAT = {"child_marker": "packages",
                           "default_leaf": "vars",
                           "default_leaf_key": "name",
                           "key_move_map": {'*': "vars"}}
 
 class FilterModule(object):
+
     def filters(self):
         return {
             'read_profile_vars_filter': self.read_profile_vars_filter,
@@ -46,9 +53,50 @@ class FilterModule(object):
             'create_package_list_from_var_filter': self.create_package_list_from_var_filter,
             'extra_pkg_mgrs_filter': self.extra_pkg_mgrs_filter,
             'flatten_profiles_filter': self.flatten_profiles_filter,
+            'flatten_vars_filter': self.flatten_vars_filter,
+            'file_list_filter': self.file_list_filter,
+            'relative_path_filter': self.relative_path_filter,
+            'first_valid_default_list_filter': self.first_valid_default_list_filter
             # 'get_used_profile_names': self.get_used_profile_names,
             # 'create_profile_metadata': self.create_profile_metadata
         }
+
+    def first_valid_default_list_filter(self, default_item, *other_defaults):
+
+        if default_item:
+            return default_item
+
+        for item in other_defaults:
+            if item:
+                return item
+
+    def relative_path_filter(self, list_of_files, path):
+
+        return [os.path.relpath(f, path) for f in list_of_files]
+
+    def file_list_filter(self, list_of_files, filter_regex):
+
+        r = re.compile(filter_regex)
+        result = filter(r.match, list_of_files)
+        return result
+
+    def flatten_vars_filter(self, freckles_vars):
+
+        if not freckles_vars:
+            return {}
+
+        chain = [frkl.FrklProcessor(DEFAULT_VAR_FORMAT)]
+        try:
+            frkl_obj = frkl.Frkl(freckles_vars, chain)
+            # mdrc_init = {"append_keys": "vars/packages"}
+            # frkl_callback = frkl.MergeDictResultCallback(mdrc_init)
+            frkl_callback = frkl.MergeResultCallback()
+            vars_new = frkl_obj.process(frkl_callback)
+
+            return vars_new[0]["vars"]
+        except (frkl.FrklConfigException) as e:
+            raise errors.AnsibleFilterError(
+                "Can't read freckle metadata file '{}/.freckle': {}".format(freckle_folder, e.message))
 
 
     def flatten_profiles_filter(self, freckles_metadata):
@@ -75,10 +123,12 @@ class FilterModule(object):
             for folder, f_vars in folder_vars.items():
 
                 profiles_to_use = freckles_metadata[folder]["folder_metadata"]["profiles_to_use"]
+                files = freckles_metadata[folder]["folder_metadata"]["files"]
 
                 if profile in profiles_to_use:
                     profiles_to_run.setdefault(profile, {}).setdefault(folder, {}).setdefault("vars", []).extend(f_vars.get("vars", []))
                     profiles_to_run[profile][folder]["extra_vars"] = f_vars["extra_vars"]
+                    profiles_to_run[profile][folder]["files"] = files
                 elif profile == "freckle":
                     for ptr in profiles_to_use:
                         profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
@@ -88,10 +138,12 @@ class FilterModule(object):
                                 profiles_to_run[ptr][folder]["vars"].append({"vars": t})
 
                         profiles_to_run[ptr][folder]["extra_vars"] = f_vars["extra_vars"]
+                        profiles_to_run[ptr][folder]["files"] = files
                 else:
                     for ptr in profiles_to_use:
                         profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
                         profiles_to_run[ptr][folder]["extra_vars"] = f_vars["extra_vars"]
+                        profiles_to_run[ptr][folder]["files"] = files
 
         # add some stats to be used by the profile dispatcher if necessary
         profiles_total = len(profiles_to_use)
