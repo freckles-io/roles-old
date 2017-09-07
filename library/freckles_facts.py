@@ -95,19 +95,21 @@ def find_freckles_folders(module, freckles_repos):
                 freckles_paths[root][METADATA_CONTENT_KEY] = data
 
                 freckles_paths[root]["extra_vars"] = {}
+                freckles_paths[root]["files"] = []
 
                 for sub_root, sub_dirnames, sub_filenames in os.walk(root, topdown=True):
 
                     sub_dirnames[:] = [sd for sd in sub_dirnames if sd not in DEFAULT_EXCLUDE_DIRS]
 
+                    freckles_paths[root]["files"].extend([os.path.join(sub_root, f) for f in sub_filenames])
                     # check for .freckles profiles
                     for sub_filename in fnmatch.filter(sub_filenames, "*{}".format(FRECKLES_FOLDER_MARKER_FILENAME)):
 
-                        if not sub_filename.startswith(".") or sub_filename == FRECKLES_FOLDER_MARKER_FILENAME:
-                            continue
-
                         sub_metadata_file = os.path.join(sub_root, sub_filename)
                         sub_metadata_path = os.path.relpath(sub_metadata_file, root)
+
+                        if not sub_filename.startswith(".") or sub_filename == FRECKLES_FOLDER_MARKER_FILENAME:
+                            continue
 
                         with open(sub_metadata_file, "r") as f:
                             data = f.read()
@@ -136,19 +138,22 @@ def find_freckles_folders(module, freckles_repos):
             freckles_paths[root][METADATA_CONTENT_KEY] = "" # would have picked it up before otherwise
 
             freckles_paths[root]["extra_vars"] = {}
+            freckles_paths[root]["files"] = []
 
             for sub_root, sub_dirnames, sub_filenames in os.walk(root, topdown=True):
 
                 sub_dirnames[:] = [sd for sd in sub_dirnames if sd not in DEFAULT_EXCLUDE_DIRS]
+                freckles_paths[root]["files"].extend([os.path.join(sub_root, f) for f in sub_filenames])
+
 
                 # check for .freckles profiles
                 for sub_filename in fnmatch.filter(sub_filenames, "*{}".format(FRECKLES_FOLDER_MARKER_FILENAME)):
 
-                    if not sub_filename.startswith(".") or sub_filename == FRECKLES_FOLDER_MARKER_FILENAME:
-                        continue
-
                     sub_metadata_file = os.path.join(sub_root, sub_filename)
                     sub_metadata_path = os.path.relpath(sub_metadata_file, root)
+
+                    if not sub_filename.startswith(".") or sub_filename == FRECKLES_FOLDER_MARKER_FILENAME:
+                        continue
 
                     with open(sub_metadata_file, "r") as f:
                         data = f.read()
