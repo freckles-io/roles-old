@@ -118,32 +118,58 @@ class FilterModule(object):
         profiles_available = list(profiles_available)
 
         profiles_to_run = {}
+        debug_freckle = False
+
         for profile, folder_vars in temp.items():
+            if debug_freckle:
+                break
+            for profile, folder_vars in temp.items():
+                if debug_freckle:
+                    break
+                for folder, f_vars in folder_vars.items():
+                    profiles_to_use_temp = freckles_metadata[folder]["folder_metadata"]["profiles_to_use"]
+                    if "debug-freckle" in profiles_to_use_temp:
+                        debug_freckle = True
+                        break
 
-            for folder, f_vars in folder_vars.items():
+        if debug_freckle:
+            profiles_to_run["debug-freckle"] = {}
+            profiles_to_use = ["debug-freckle"]
 
-                profiles_to_use = freckles_metadata[folder]["folder_metadata"]["profiles_to_use"]
-                files = freckles_metadata[folder]["folder_metadata"]["files"]
+            for profile, folder_vars in temp.items():
+                for folder, f_vars in folder_vars.items():
+                    files =  freckles_metadata[folder]["folder_metadata"]["files"]
+                    profiles_to_run["debug-freckle"].setdefault(folder, {}).setdefault("vars", []).extend(f_vars.get("vars", []))
+                    profiles_to_run["debug-freckle"][folder]["extra_vars"] = f_vars["extra_vars"]
+                    profiles_to_run["debug-freckle"][folder]["files"] = files
 
-                if profile in profiles_to_use:
-                    profiles_to_run.setdefault(profile, {}).setdefault(folder, {}).setdefault("vars", []).extend(f_vars.get("vars", []))
-                    profiles_to_run[profile][folder]["extra_vars"] = f_vars["extra_vars"]
-                    profiles_to_run[profile][folder]["files"] = files
-                elif profile == "freckle":
-                    for ptr in profiles_to_use:
-                        profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
-                        for f_var_item in f_vars.get("vars", []):
-                            t = f_var_item.get("vars", None)
-                            if t:
-                                profiles_to_run[ptr][folder]["vars"].append({"vars": t})
+        else:
+            for profile, folder_vars in temp.items():
 
-                        profiles_to_run[ptr][folder]["extra_vars"] = f_vars["extra_vars"]
-                        profiles_to_run[ptr][folder]["files"] = files
-                else:
-                    for ptr in profiles_to_use:
-                        profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
-                        profiles_to_run[ptr][folder]["extra_vars"] = f_vars["extra_vars"]
-                        profiles_to_run[ptr][folder]["files"] = files
+                for folder, f_vars in folder_vars.items():
+
+                    profiles_to_use = freckles_metadata[folder]["folder_metadata"]["profiles_to_use"]
+                    files = freckles_metadata[folder]["folder_metadata"]["files"]
+
+                    if profile in profiles_to_use:
+                        profiles_to_run.setdefault(profile, {}).setdefault(folder, {}).setdefault("vars", []).extend(f_vars.get("vars", []))
+                        profiles_to_run[profile][folder]["extra_vars"] = f_vars["extra_vars"]
+                        profiles_to_run[profile][folder]["files"] = files
+                    elif profile == "freckle":
+                        for ptr in profiles_to_use:
+                            profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
+                            for f_var_item in f_vars.get("vars", []):
+                                t = f_var_item.get("vars", None)
+                                if t:
+                                    profiles_to_run[ptr][folder]["vars"].append({"vars": t})
+
+                            profiles_to_run[ptr][folder]["extra_vars"] = f_vars["extra_vars"]
+                            profiles_to_run[ptr][folder]["files"] = files
+                    else:
+                        for ptr in profiles_to_use:
+                            profiles_to_run.setdefault(ptr, {}).setdefault(folder, {}).setdefault("vars", [])
+                            profiles_to_run[ptr][folder]["extra_vars"] = f_vars["extra_vars"]
+                            profiles_to_run[ptr][folder]["files"] = files
 
         # add some stats to be used by the profile dispatcher if necessary
         profiles_total = len(profiles_to_use)
