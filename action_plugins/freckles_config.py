@@ -54,53 +54,42 @@ class ActionModule(ActionBase):
         else:
             old_config = {}
 
-        if "enable_community_repo" in config_tasks:
-            self.enable_community_repo(old_config, enable=True)
-        elif "disable_community_repo" in config_tasks:
-            self.enable_community_repo(old_config, enable=False)
+        # defaults
+        if "trusted-repos" not in old_config.keys():
+            old_config["trusted-repos"] = ["default", "user"]
+
+        if "enable_repos" in config_tasks.keys():
+            self.enable_repos(old_config, config_tasks["enable_repos"])
+
+        if "disable_repos" in config_tasks.keys():
+            self.disable_repos(old_config, config_tasks["disable_repos"])
 
         with open(config_file, 'w') as f:
-            yaml.dump(old_config, f, default_flow_style=False)
+            yaml.safe_dump(old_config, f, default_flow_style=False, allow_unicode=True, encoding="utf-8")
 
+        result["ansible_facts"] = dict({"freckles_file_config": old_config})
         return result
 
-    def enable_community_repo(self, old_config, enable=True):
+    def enable_repos(self, old_config, repos):
 
-        trusted_repos = old_config.get("trusted-repos", ["default", "user"])
+        trusted_repos = old_config.get("trusted-repos", [])
 
-        if not "community" in trusted_repos:
-            if enable:
-                trusted_repos.append("community")
-        else:
-            if not enable:
-                while "community" in trusted_repos: trusted_repos.remove("community")
+        for repo in repos:
+            if not repo in trusted_repos:
+                trusted_repos.append(repo)
 
         old_config["trusted-repos"] = trusted_repos
 
-        trusted_profiles = old_config.get("trusted-profiles", ["default", "user"])
 
-        if not "community" in trusted_profiles:
-            if enable:
-                trusted_profiles.append("community")
-        else:
-            if not enable:
-                while "community" in trusted_profiles: trusted_profiles.remove("community")
+    def disable_repos(self, old_config, repos):
 
-        old_config["trusted-profiles"] = trusted_profiles
+        trusted_repos = old_config.get("trusted-repos", [])
 
-        trusted_frecklecutables = old_config.get("trusted-frecklecutables", ["default", "user"])
+        for repo in repos:
+            if repo in trusted_repos:
+                while repo in trusted_repos: trusted_repos.remove(repo)
 
-        if not "community" in trusted_frecklecutables:
-            if enable:
-                trusted_frecklecutables.append("community")
-        else:
-            if not enable:
-                while "community" in trusted_profiles: trusted_frecklecutables.remove("community")
-
-        old_config["trusted-frecklecutables"] = trusted_frecklecutables
-
-        return
-
+        old_config["trusted-repos"] = trusted_repos
 
 
 if __name__ == '__main__':

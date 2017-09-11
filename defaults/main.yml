@@ -1,4 +1,5 @@
 ---
 # defaults file for freckles-config
 
-freckles_config_tasks: []
+freckles_config_update_repos: no
+freckles_config_tasks: {}
