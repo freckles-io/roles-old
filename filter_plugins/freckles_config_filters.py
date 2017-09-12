@@ -32,21 +32,4 @@ class FilterModule(object):
 
     def expand_repos_filter(self, repos):
 
-        result = []
-        for repo in repos:
-            fields = ["url", "path"]
-            r = freckles.freckles_defaults.get_repo(repo)
-            role_tuples = r.get("roles", [])
-            if role_tuples:
-                temp = [dict(zip(fields, t)) for t in role_tuples]
-                result.extend(temp)
-            adapter_tuples = r.get("adapters", [])
-            if adapter_tuples:
-                temp = [dict(zip(fields, t)) for t in adapter_tuples]
-                result.extend(temp)
-            frecklecutable_tuples = r.get("frecklecutables", [])
-            if frecklecutable_tuples:
-                temp = [dict(zip(fields, t)) for t in frecklecutable_tuples]
-                result.extend(temp)
-
-        return result
+        return freckles.utils.expand_repos(repos)
