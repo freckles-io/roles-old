@@ -14,6 +14,7 @@ METADATA_CONTENT_KEY = "freckle_metadata_file_content"
 ROOT_FOLDER_NAME = "__freckles_folder_root__"
 DEFAULT_EXCLUDE_DIRS = [".git", ".tox", ".cache"]
 
+
 def find_freckles_folders(module, freckles_repos):
     """Walks through all the provided dotfiles, and creates a dictionary with values according to what it finds, per folder.
 
@@ -32,7 +33,7 @@ def find_freckles_folders(module, freckles_repos):
 
         if not dest:
             raise Exception("Dotfile repo description does not contain 'path' key: {}".format(repo))
-        # if not repo:
+            # if not repo:
             # raise Exception("Dotfile repo description does not contain 'repo' key: {}".format(repo))
 
         dest = os.path.expanduser(dest)
@@ -134,7 +135,7 @@ def find_freckles_folders(module, freckles_repos):
             rel_path = os.path.relpath(root, dest)
             freckles_paths[root]["relative_path"] = rel_path
 
-            freckles_paths[root][METADATA_CONTENT_KEY] = "" # would have picked it up before otherwise
+            freckles_paths[root][METADATA_CONTENT_KEY] = ""  # would have picked it up before otherwise
 
             freckles_paths[root]["extra_vars"] = {}
             freckles_paths[root]["files"] = []
@@ -143,7 +144,6 @@ def find_freckles_folders(module, freckles_repos):
 
                 sub_dirnames[:] = [sd for sd in sub_dirnames if sd not in DEFAULT_EXCLUDE_DIRS]
                 freckles_paths[root]["files"].extend([os.path.join(sub_root, f) for f in sub_filenames])
-
 
                 # check for .freckles profiles
                 for sub_filename in fnmatch.filter(sub_filenames, "*{}".format(FRECKLES_FOLDER_MARKER_FILENAME)):
@@ -207,8 +207,8 @@ def find_freckles_folders(module, freckles_repos):
 
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            freckles_repos = dict(required=True, type='list'),
+        argument_spec=dict(
+            freckles_repos=dict(required=True, type='list'),
         ),
         supports_check_mode=False
     )

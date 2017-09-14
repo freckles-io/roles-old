@@ -28,17 +28,17 @@ DEFAULT_PROFILE_VAR_FORMAT = {"child_marker": "profiles",
                               "key_move_map": {'*': "vars"}}
 
 DEFAULT_VAR_FORMAT = {"child_marker": "childs",
-                              "default_leaf": "vars",
-                              "default_leaf_key": "name",
-                              "key_move_map": {'*': "vars"}}
+                      "default_leaf": "vars",
+                      "default_leaf_key": "name",
+                      "key_move_map": {'*': "vars"}}
 
 DEFAULT_PACKAGE_FORMAT = {"child_marker": "packages",
                           "default_leaf": "vars",
                           "default_leaf_key": "name",
                           "key_move_map": {'*': "vars"}}
 
-class FilterModule(object):
 
+class FilterModule(object):
     def filters(self):
         return {
             'read_profile_vars_filter': self.read_profile_vars_filter,
@@ -92,7 +92,6 @@ class FilterModule(object):
             raise errors.AnsibleFilterError(
                 "Can't read freckle metadata file '{}/.freckle': {}".format(freckle_folder, e.message))
 
-
     def flatten_profiles_filter(self, freckles_metadata):
 
         temp = {}
@@ -101,7 +100,6 @@ class FilterModule(object):
 
             extra_vars = all_vars["extra_vars"]
             for metadata in all_vars["vars"]:
-
                 profile_md = metadata.pop("profile")
                 profile = profile_md["name"]
                 profiles_available.add(profile)
@@ -132,8 +130,9 @@ class FilterModule(object):
 
             for profile, folder_vars in temp.items():
                 for folder, f_vars in folder_vars.items():
-                    files =  freckles_metadata[folder]["folder_metadata"]["files"]
-                    profiles_to_run["debug-freckle"].setdefault(folder, {}).setdefault("vars", []).extend(f_vars.get("vars", []))
+                    files = freckles_metadata[folder]["folder_metadata"]["files"]
+                    profiles_to_run["debug-freckle"].setdefault(folder, {}).setdefault("vars", []).extend(
+                        f_vars.get("vars", []))
                     profiles_to_run["debug-freckle"][folder]["extra_vars"] = f_vars["extra_vars"]
                     profiles_to_run["debug-freckle"][folder]["files"] = files
 
@@ -146,7 +145,8 @@ class FilterModule(object):
                     files = freckles_metadata[folder]["folder_metadata"]["files"]
 
                     if profile in profiles_to_use:
-                        profiles_to_run.setdefault(profile, {}).setdefault(folder, {}).setdefault("vars", []).extend(f_vars.get("vars", []))
+                        profiles_to_run.setdefault(profile, {}).setdefault(folder, {}).setdefault("vars", []).extend(
+                            f_vars.get("vars", []))
                         profiles_to_run[profile][folder]["extra_vars"] = f_vars["extra_vars"]
                         profiles_to_run[profile][folder]["files"] = files
                     elif profile == "freckle":
@@ -205,7 +205,7 @@ class FilterModule(object):
                 md = yaml.safe_load(raw_metadata)
                 if not md:
                     md = []
-                # if isinstance(md, (list, tuple)):
+                    # if isinstance(md, (list, tuple)):
                     # md = {"vars": md}
             else:
                 md = [{"profile": {"name": "freckle"}, "vars": {}}]
@@ -248,7 +248,6 @@ class FilterModule(object):
 
         result = []
         for parent_vars in parent_vars_list:
-
             parent_vars_copy = copy.deepcopy(parent_vars.get("vars", {}))
             package_list = parent_vars_copy.pop(packages_key, [])
             pkg_config = {"vars": parent_vars_copy, "packages": package_list}
@@ -260,7 +259,6 @@ class FilterModule(object):
 
         return sorted(result, key=lambda k: k.get("vars", {}).get("name", "zzz"))
 
-
     def extra_pkg_mgrs_filter(self, freckles_profile_metadata):
 
         extra_pkg_mgrs = set()
@@ -269,12 +267,10 @@ class FilterModule(object):
 
             var_list = folder_metadata.get("vars", [])
             for metadata in var_list:
-
                 extras = metadata.get("vars", {}).get("pkg_mgrs", [])
                 extra_pkg_mgrs.update(extras)
 
         return list(extra_pkg_mgrs)
-
 
     def create_package_list_filter(self, freckles_profile_metadata):
 
@@ -284,7 +280,6 @@ class FilterModule(object):
 
             var_list = folder_metadata.get("vars", [])
             for metadata in var_list:
-
                 parent_vars = copy.deepcopy(metadata.get("vars", {}))
                 parent_vars.pop("packages", None)
 
@@ -305,7 +300,9 @@ class FilterModule(object):
         if isinstance(freckles, (string_types, dict)):
             freckles = [freckles]
         elif not isinstance(freckles, (list, tuple)):
-            raise Exception("Not a valid type for dotfile_repo, can only be dict, string, or a list of one of those: {}".format(freckles))
+            raise Exception(
+                "Not a valid type for dotfile_repo, can only be dict, string, or a list of one of those: {}".format(
+                    freckles))
 
         result = []
         # TODO: check valid

@@ -11,13 +11,12 @@ from requests.structures import CaseInsensitiveDict
 
 __metaclass__ = type
 
-
 try:
     from __main__ import display
 except ImportError:
     from ansible.utils.display import Display
-    display = Display()
 
+    display = Display()
 
 boolean = C.mk_boolean
 
@@ -25,11 +24,17 @@ IGNORE_KEY = "IGNORE_THIS_KEY"
 VARS_KEY = "vars"
 
 PKG_MGR_VARS = {
-    'apt': ["name", "state", "allow_unauthenticated", "autoclean", "autoremove", "cache_valid_time", "deb", "default_release", "dpkg_options", "force", "install_recommends", "only_upgrades", "purge", "update_cache", "upgrade"],
-    'yum': ["name", "state", "conf_file", "disable_gpg_check", "disablerepo", "enablerepo", "exclude", "installroot", "skip_broken", "update_cache", "validate_certs"],
+    'apt': ["name", "state", "allow_unauthenticated", "autoclean", "autoremove", "cache_valid_time", "deb",
+            "default_release", "dpkg_options", "force", "install_recommends", "only_upgrades", "purge", "update_cache",
+            "upgrade"],
+    'yum': ["name", "state", "conf_file", "disable_gpg_check", "disablerepo", "enablerepo", "exclude", "installroot",
+            "skip_broken", "update_cache", "validate_certs"],
     'nix': ["name", "state"],
-    'git': ["accept_hostkey", "archive", "bare", "clone", "depth", "dest", "executable", "force", "key_file", "recursive", "reference", "refspec", "repo", "ssh_opts", "track_submodules", "umask", "update", "verify_commit", "version"],
-    'pip': ["chdir", "editable", "executable", "extra_args", "name", "requirements", "state", "umask", "version", "virtualenv", "virtualenv_command", "virtualenv_python", "virtualenv_site_packages"],
+    'git': ["accept_hostkey", "archive", "bare", "clone", "depth", "dest", "executable", "force", "key_file",
+            "recursive", "reference", "refspec", "repo", "ssh_opts", "track_submodules", "umask", "update",
+            "verify_commit", "version"],
+    'pip': ["chdir", "editable", "executable", "extra_args", "name", "requirements", "state", "umask", "version",
+            "virtualenv", "virtualenv_command", "virtualenv_python", "virtualenv_site_packages"],
     'conda': ['conda_environment', 'upgrade', 'conda_channels', 'state', 'name'],
     'vagrant_plugin': ['name', 'update', 'plugin_source', 'version']
 }
@@ -38,8 +43,8 @@ DEFAULT_PKG_MGR_VARS = ["name", "state"]
 
 USE_TOP_LEVEL_AS_PKG_NAME = False
 
-class ActionModule(ActionBase):
 
+class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
         ''' handler for template operations '''
 
@@ -50,9 +55,9 @@ class ActionModule(ActionBase):
 
         result = super(ActionModule, self).run(tmp, task_vars)
         format = {"child_marker": "packages",
-              "default_leaf": "vars",
-              "default_leaf_key": "name",
-              "key_move_map": {'*': "vars"}}
+                  "default_leaf": "vars",
+                  "default_leaf_key": "name",
+                  "key_move_map": {'*': "vars"}}
         chain = [frkl.FrklProcessor(format)]
 
         frkl_obj = frkl.Frkl(self._task.args["packages"], chain)
@@ -73,7 +78,8 @@ class ActionModule(ActionBase):
         if pkg_mgr == 'auto':
             try:
                 if self._task.delegate_to:
-                    pkg_mgr = self._templar.template("{{hostvars['%s']['ansible_facts']['ansible_pkg_mgr']}}" % self._task.delegate_to)
+                    pkg_mgr = self._templar.template(
+                        "{{hostvars['%s']['ansible_facts']['ansible_pkg_mgr']}}" % self._task.delegate_to)
                 else:
                     pkg_mgr = self._templar.template('{{ansible_facts["ansible_pkg_mgr"]}}')
             except Exception as e:
@@ -113,7 +119,8 @@ class ActionModule(ActionBase):
 
         if pkg_mgr in ['auto', 'unknown']:
             result['failed'] = True
-            result['msg'] = 'Could not detect which package manager to use. Try gathering facts or setting the "use" option.'
+            result[
+                'msg'] = 'Could not detect which package manager to use. Try gathering facts or setting the "use" option.'
             return result
 
         if pkg_mgr not in self._shared_loader_obj.module_loader:
@@ -130,7 +137,6 @@ class ActionModule(ActionBase):
         else:
             calculated_package_pkg_mgr = None
 
-
         if full_version_string in (name.lower() for name in pkg_dict.keys()):
             calculated_package_platform = pkg_dict[full_version_string]
         elif full_release_string in (name.lower() for name in pkg_dict.keys()):
@@ -146,7 +152,7 @@ class ActionModule(ActionBase):
         else:
             calculated_package_platform = None
 
-        # if calculated_package_platform in ['ignore', 'omit'] or calculated_package_pkg_mgr in ['ignore', 'omit']:
+            # if calculated_package_platform in ['ignore', 'omit'] or calculated_package_pkg_mgr in ['ignore', 'omit']:
             # result['msg'] = "Ignoring package {}".format(package[VARS_KEY]["name"])
             # result['skipped'] = True
             # return result
@@ -235,7 +241,6 @@ class ActionModule(ActionBase):
 
         return result
 
-
     def prepare_generic(self, package, calculated_package, pkg_mgr, task_vars, result):
 
         result = {}
@@ -276,11 +281,12 @@ class ActionModule(ActionBase):
 
             if package[VARS_KEY].get("no_install", False):
                 skipped.append(pkg_id)
-                run = {"changed": False, "skipped": True, "msg": "Package '{}' tagged with 'no_install', ignoring".format(pkg_id)}
+                run = {"changed": False, "skipped": True,
+                       "msg": "Package '{}' tagged with 'no_install', ignoring".format(pkg_id)}
                 runs.append(run)
                 continue
 
-            #display.display("nsbl: installing {}".format(pkg_id))
+            # display.display("nsbl: installing {}".format(pkg_id))
 
             new_module_args = {}
             keys = PKG_MGR_VARS.get(pkg_mgr, None)
@@ -301,16 +307,18 @@ class ActionModule(ActionBase):
             display.vvvv("Running %s" % pkg_mgr)
             display.vvvv("Args: {}".format(new_module_args))
             if self.nsbl_env:
-                output = {"category": "nsbl_item_started", "action": "install", "item": "{} (using: {})".format(pkg_id, pkg_mgr)}
+                output = {"category": "nsbl_item_started", "action": "install",
+                          "item": "{} (using: {})".format(pkg_id, pkg_mgr)}
                 # env_id = task_vars['vars'].get('_env_id', None)
                 # if env_id != None:
-                    # msg["_env_id"] = env_id
+                # msg["_env_id"] = env_id
                 # task_id = task_vars['vars'].get('_tasks_id', None)
                 # if task_id != None:
-                    # msg["_task_id"] = task_id
+                # msg["_task_id"] = task_id
                 display.display(json.dumps(output, encoding='utf-8'))
             self._play_context.become = get_pkg_mgr_sudo(pkg_mgr)
-            run = self._execute_module(module_name=pkg_mgr, module_args=new_module_args, task_vars=task_vars, wrap_async=self._task.async)
+            run = self._execute_module(module_name=pkg_mgr, module_args=new_module_args, task_vars=task_vars,
+                                       wrap_async=self._task.async)
             # print("ignore: {}".format(run))
             runs.append(run)
 
@@ -356,7 +364,6 @@ class ActionModule(ActionBase):
                         output["status"] = "ok"
 
                 display.display(json.dumps(output, encoding='utf-8'))
-
 
         if len(runs) == 1:
             return runs[0]
