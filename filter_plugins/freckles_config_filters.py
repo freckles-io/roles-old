@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import freckles
+import freckles.utils
 
 try:
     set
@@ -15,4 +15,5 @@ class FilterModule(object):
         }
 
     def expand_repos_filter(self, repos):
-        return freckles.utils.expand_repos(repos)
+        result = freckles.utils.expand_repos(repos)
+        return result
