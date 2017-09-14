@@ -8,6 +8,7 @@ PKG_ENDING_MAP = {
     "Darwin": "dmg"
 }
 
+
 class FilterModule(object):
     def filters(self):
         return {
