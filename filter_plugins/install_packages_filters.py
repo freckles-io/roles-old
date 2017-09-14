@@ -9,12 +9,12 @@ SUPPORTED_ROLE_PACKAGES = {
     "vagrant": "makkus.install-vagrant"
 }
 
+
 class FilterModule(object):
     def filters(self):
         return {
             'pkg_mgr_filter': self.pkg_mgr_filter
         }
-
 
     def pkg_mgr_filter(self, package_list, default_pkg_mgr, prefix=None):
 
