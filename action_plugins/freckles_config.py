@@ -1,17 +1,8 @@
 from __future__ import absolute_import, division, print_function
 
-import os
-import pprint
-import sys
-
 from ansible import constants as C
-from ansible.errors import AnsibleError, AnsibleFileNotFound
-from ansible.module_utils._text import to_bytes, to_native, to_text
 from ansible.plugins.action import ActionBase
-from ansible.template import generate_ansible_template_vars
-from ansible.utils.hashing import checksum_s
 
-from six import string_types
 try:
     set
 except NameError:
@@ -30,7 +21,6 @@ boolean = C.mk_boolean
 import os
 import yaml
 
-from frkl.frkl import dict_merge
 
 class ActionModule(ActionBase):
 
