@@ -1,20 +1,14 @@
 #!/usr/bin/python
 
-import re
 import copy
-import fnmatch
-import os
-import pprint
-import subprocess
-from distutils import spawn
+import re
 
+import os
+import yaml
 from ansible import errors
 from frkl import frkl
 from nsbl.nsbl import ensure_git_repo_format
-from requests.structures import CaseInsensitiveDict
 from six import string_types
-
-import yaml
 
 try:
     set

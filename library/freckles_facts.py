@@ -1,5 +1,4 @@
 import fnmatch
-import os
 
 from ansible.module_utils.basic import *
 from ansible.module_utils.basic import AnsibleModule
