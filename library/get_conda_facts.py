@@ -10,9 +10,9 @@ OTHER_PATHS_TO_CHECK = [
     os.path.expanduser("~/anaconda/bin")
 ]
 
+
 # we assume that if freckles is installed with conda, the path to the binary has the token 'conda' in it
 def which(program, install_method):
-
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
@@ -55,8 +55,8 @@ def which(program, install_method):
 
     return (None, 'auto')
 
-def get_conda_info(module, conda_path):
 
+def get_conda_info(module, conda_path):
     cmd = "{} env list --json".format(conda_path)
     rc, stdout, stderr = module.run_command(cmd)
 
@@ -71,10 +71,10 @@ def get_conda_info(module, conda_path):
 
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            conda_binary = dict(required=True),
-            freckles_binary = dict(required=True),
-            install_method = dict(required=False, default="auto")
+        argument_spec=dict(
+            conda_binary=dict(required=True),
+            freckles_binary=dict(required=True),
+            install_method=dict(required=False, default="auto")
         ),
         supports_check_mode=False
     )
@@ -129,7 +129,8 @@ def main():
         executable_facts['freckles_parent_path'] = freckles_parent_path
         executable_facts['freckles_exists'] = True
         module.exit_json(changed=False, ansible_facts=dict(executable_facts))
-    #TODO freckles version?
+        # TODO freckles version?
+
 
 if __name__ == '__main__':
     main()
