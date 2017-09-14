@@ -13,12 +13,12 @@ DEFAULT_EXCLUDE_DIRS = [".git", ".tox", ".cache"]
 
 DEFAULT_FRECKLES_PROFILE_NAME = "__freckles_default__"
 
+
 def augment_freckles_metadata(module, freckles_folders_metadata):
     """Augments metadata using profile-specific lookups."""
 
     result = {}
     for folder, metadata in freckles_folders_metadata.items():
-
         result_md = get_dotfiles_metadata(folder, metadata)
         result[folder] = result_md
 
@@ -50,10 +50,11 @@ def get_dotfiles_metadata(folder, folder_details):
 
     return app_folders
 
+
 def main():
     module = AnsibleModule(
-        argument_spec = dict(
-            freckles_profile_folders = dict(required=True, type='dict')
+        argument_spec=dict(
+            freckles_profile_folders=dict(required=True, type='dict')
         ),
         supports_check_mode=False,
     )

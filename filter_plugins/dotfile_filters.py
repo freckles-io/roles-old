@@ -26,6 +26,7 @@ DEFAULT_PACKAGE_FORMAT = {"child_marker": "packages",
                           "default_leaf_key": "name",
                           "key_move_map": {'*': "vars"}}
 
+
 class FilterModule(object):
     def filters(self):
         return {
