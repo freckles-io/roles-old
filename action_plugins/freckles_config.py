@@ -14,6 +14,7 @@ try:
     from __main__ import display
 except ImportError:
     from ansible.utils.display import Display
+
     display = Display()
 
 boolean = C.mk_boolean
@@ -23,18 +24,17 @@ import yaml
 
 
 class ActionModule(ActionBase):
-
     def run(self, tmp=None, task_vars=None):
 
         if task_vars is None:
-             task_vars = dict()
+            task_vars = dict()
 
         result = super(ActionModule, self).run(tmp, task_vars)
 
         config_tasks = self._task.args.get('freckles_config_tasks')
 
         config_folder = os.path.join(os.path.expanduser("~"), ".freckles")
-        if  not os.path.exists(config_folder):
+        if not os.path.exists(config_folder):
             os.makedirs(config_folder)
 
         config_file = os.path.join(config_folder, 'config.yml')
@@ -69,7 +69,6 @@ class ActionModule(ActionBase):
                 trusted_repos.append(repo)
 
         old_config["trusted-repos"] = trusted_repos
-
 
     def disable_repos(self, old_config, repos):
 
