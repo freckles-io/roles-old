@@ -22,7 +22,7 @@
     freckles_metadata: "{{ freckles_folders_raw | read_profile_vars_filter }}"
 
 - name: "[including profile]"
-  include: "profile.yml"
+  include_tasks: "profile.yml"
   vars:
     freckles_profile_name: "{{ profile_loop_item.key }}"
     freckles_profile_folders: "{{ profile_loop_item.value }}"

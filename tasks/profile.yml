@@ -5,8 +5,7 @@
   register: init_file
   become: no
 - name: "[starting profile execution]"
-  include: "init-{{ freckles_profile_name }}.yml"
-  static: no
+  include_tasks: "init-{{ freckles_profile_name }}.yml"
   when: init_file.stat.exists
 
 - name: "[checking whether to run profile tasks]"
@@ -14,7 +13,7 @@
   register: items_file
   become: no
 - name: "[starting per-item profile execution]"
-  include: "items-{{ freckles_profile_name }}.yml"
+  include_tasks: "items-{{ freckles_profile_name }}.yml"
   vars:
     freckle_path: "{{ freckle_loop_item.key }}"
     freckle_vars: "{{ freckle_loop_item.value.vars | flatten_vars_filter }}"
@@ -24,11 +23,3 @@
   loop_control:
     loop_var: freckle_loop_item
 
-# - name: "starting profile execution for items"
-#   include: "items-{{ profile_loop_item.key }}.yml"
-#   vars:
-#     freckle_profile_folders: "{{ profile_loop_item.value }}"
-#   static: no
-#   with_dict: "{{ freckles_metadata | flatten_profiles_filter }}"
-#   loop_control:
-#     loop_var: profile_loop_item
