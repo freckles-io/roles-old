@@ -15,7 +15,6 @@
 - name: "[install extra package managers]"
   include_role:
     name: makkus.install-pkg-mgrs
-  static: no
   vars:
     pkg_mgrs: "{{ extra_package_managers }}"
   when: "extra_package_managers"
@@ -27,7 +26,6 @@
 - name: "[install packages from dotfiles]"
   include_role:
     name: makkus.install-packages
-  static: no
   vars:
     package_install_list: "{{ freckles_dotfiles_packages }}"
     profile_name: "dotfile folders"
@@ -40,7 +38,6 @@
 - name: "[preapring base packages]"
   include_role:
     name: makkus.install-packages
-  static: no
   vars:
     profile_name: "dotfiles packages-list"
     package_install_list: "{{ freckles_packages_list }}"
