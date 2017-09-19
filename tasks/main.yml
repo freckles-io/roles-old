@@ -11,7 +11,7 @@
     pkg_mgrs: "{{ required_package_managers }}"
 
 - name: "[installing freckle packages that need ansible roles]"
-  include: "role-install-{{ role_package['vars']['name'] }}.yml"
+  include_tasks: "role-install-{{ role_package['vars']['name'] }}.yml"
   when: "role_package['vars'].get('pkg_mgr', 'auto') == 'ansible_role'"
   with_items:
     - "{{ package_install_list }}"
