@@ -26,13 +26,13 @@
   # become: no
   # when: ansible_os_family == "Darwin"
 
-- include: debian.yml
+- include_tasks: debian.yml
   when: ansible_os_family == "Debian"
 
-- include: redhat.yml
+- include_tasks: redhat.yml
   when: ansible_os_family == "RedHat"
 
-- include: darwin.yml
+- include_tasks: darwin.yml
   when: ansible_os_family == "Darwin"
 
 - name: deleting downloaded Vagrant install package

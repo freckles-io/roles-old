@@ -6,5 +6,5 @@
     executables_to_check:
       - vagrant
 
-- include: common.yml
+- include_tasks: common.yml
   when: "'vagrant' in executables_missing or force_update"
