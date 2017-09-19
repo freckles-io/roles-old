@@ -16,19 +16,16 @@
     name: geerlingguy.homebrew
   vars:
     homebrew_cask_apps: []
-  static: no
   when: "ansible_os_family == 'Darwin' and 'brew' in executables_missing"
 
 - name: checking whether to install nix
   include_role:
     name: makkus.install-nix
-  static: no
   when: "'nix-env' in executables_missing"
 
 - name: checking whether to install conda
   include_role:
     name: makkus.install-conda
-  static: no
   when: "'conda' in executables_missing"
 
 - name: install git
@@ -41,6 +38,4 @@
 - name: checking whether to install Vagrant
   include_role:
     name: makkus.install-vagrant
-  static: no
   when: "'vagrant' in executables_missing"
-
