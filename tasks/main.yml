@@ -12,10 +12,10 @@
     install_method: "{{ install_method }}"
   become: no
 
-- include: conda.yml
+- include_tasks: conda.yml
   when: "install_method == 'conda' or existing_install_method == 'conda' or (not freckles_binary_path and install_method == 'auto')"
 
-- include: non-conda.yml
+- include_tasks: non-conda.yml
   when: "install_method == 'pip' or existing_install_method == 'pip'"
 
 - name: installing freckles

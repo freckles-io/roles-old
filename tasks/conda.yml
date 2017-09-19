@@ -6,7 +6,7 @@
   set_fact:
     conda_name: "conda"
 - name: "[checking whether to install conda]"
-  include: "include-{{ conda_name }}.yml"
+  include_tasks: "include-{{ conda_name }}.yml"
   when: "not conda_binary_path"
 
 - name: "[find conda binary]"
