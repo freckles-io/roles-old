@@ -16,10 +16,11 @@
     cache_valid_time: 3600
   when: "ansible_os_family == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt'))"
 
-- name: "[install required package managers]"
+- name: "install required package managers"
   include_role:
     name: makkus.install-pkg-mgrs
   vars:
+    base_pkg_mgr: "{{ system_pkg_mgr }}"
     pkg_mgrs:
       - git
       - homebrew
