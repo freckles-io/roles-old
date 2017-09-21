@@ -32,7 +32,7 @@
   install:
     packages:
       - git
-    pkg_mgr: "{{ pkg_mgr | default('auto') }}"
+    pkg_mgr: "{{ base_pkg_mgr }}"
   when: "'git' in executables_missing"
 
 - name: checking whether to install Vagrant
