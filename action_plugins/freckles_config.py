@@ -22,6 +22,7 @@ boolean = C.mk_boolean
 import os
 import yaml
 
+FRECKLE_MARKER_FILE_NAME = ".freckle"
 
 class ActionModule(ActionBase):
     def run(self, tmp=None, task_vars=None):
@@ -37,7 +38,7 @@ class ActionModule(ActionBase):
         if not os.path.exists(config_folder):
             os.makedirs(config_folder)
 
-        config_file = os.path.join(config_folder, 'config.yml')
+        config_file = os.path.join(config_folder, FRECKLE_MARKER_FILE_NAME)
         if os.path.exists(config_file):
             with open(config_file) as f:
                 old_config = yaml.safe_load(f)
