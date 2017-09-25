@@ -3,6 +3,7 @@
 import copy
 
 from frkl import frkl
+from freckles.freckles_defaults import DEFAULT_PROFILE_VAR_FORMAT, DEFAULT_VAR_FORMAT
 
 try:
     set
@@ -10,21 +11,6 @@ except NameError:
     from sets import Set as set
 
 METADATA_CONTENT_KEY = "freckle_metadata_file_content"
-DEFAULT_FRECKLES_PROFILE_NAME = "__freckles_default__"
-
-SUPPORTED_ROLE_PACKAGES = {
-    "vagrant": "makkus.install-vagrant"
-}
-
-DEFAULT_PROFILE_VAR_FORMAT = {"child_marker": "childs",
-                              "default_leaf": "vars",
-                              "default_leaf_key": "name",
-                              "key_move_map": {'*': "vars"}}
-
-DEFAULT_PACKAGE_FORMAT = {"child_marker": "packages",
-                          "default_leaf": "vars",
-                          "default_leaf_key": "name",
-                          "key_move_map": {'*': "vars"}}
 
 
 class FilterModule(object):

@@ -11,8 +11,6 @@ METADATA_CONTENT_KEY = "freckle_metadata_file_content"
 ROOT_FOLDER_NAME = "__freckles_folder_root__"
 DEFAULT_EXCLUDE_DIRS = [".git", ".tox", ".cache"]
 
-DEFAULT_FRECKLES_PROFILE_NAME = "__freckles_default__"
-
 
 def augment_freckles_metadata(module, freckles_folders_metadata):
     """Augments metadata using profile-specific lookups."""
