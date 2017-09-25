@@ -9,6 +9,7 @@ from ansible import errors
 from frkl import frkl
 from nsbl.nsbl import ensure_git_repo_format
 from six import string_types
+from freckles.freckles_defaults import DEFAULT_PROFILE_VAR_FORMAT, DEFAULT_VAR_FORMAT, DEFAULT_PACKAGE_FORMAT
 
 try:
     set
@@ -22,20 +23,20 @@ SUPPORTED_ROLE_PACKAGES = {
     "vagrant": "makkus.install-vagrant"
 }
 
-DEFAULT_PROFILE_VAR_FORMAT = {"child_marker": "profiles",
-                              "default_leaf": "profile",
-                              "default_leaf_key": "name",
-                              "key_move_map": {'*': "vars"}}
+# DEFAULT_PROFILE_VAR_FORMAT = {"child_marker": "profiles",
+#                               "default_leaf": "profile",
+#                               "default_leaf_key": "name",
+#                               "key_move_map": {'*': "vars"}}
 
-DEFAULT_VAR_FORMAT = {"child_marker": "childs",
-                      "default_leaf": "vars",
-                      "default_leaf_key": "name",
-                      "key_move_map": {'*': "vars"}}
+# DEFAULT_VAR_FORMAT = {"child_marker": "childs",
+#                       "default_leaf": "vars",
+#                       "default_leaf_key": "name",
+#                       "key_move_map": {'*': "vars"}}
 
-DEFAULT_PACKAGE_FORMAT = {"child_marker": "packages",
-                          "default_leaf": "vars",
-                          "default_leaf_key": "name",
-                          "key_move_map": {'*': "vars"}}
+# DEFAULT_PACKAGE_FORMAT = {"child_marker": "packages",
+#                           "default_leaf": "vars",
+#                           "default_leaf_key": "name",
+#                           "key_move_map": {'*': "vars"}}
 
 
 class FilterModule(object):
