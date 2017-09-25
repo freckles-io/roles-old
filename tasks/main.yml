@@ -57,7 +57,7 @@
             redhat: epel-release
             other: ignore
     pkg_mgr: "{{ pkg_mgr | default(omit) }}"
-  when: '"stow" in executables_missing'
+  when: '"stow" in executables_missing and not no_stow'
 
 - name: installing stow
   install:
