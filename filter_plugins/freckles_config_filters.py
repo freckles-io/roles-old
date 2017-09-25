@@ -1,19 +1,27 @@
 #!/usr/bin/python
 
-import freckles.utils
+import os
 
-try:
-    set
-except NameError:
-    from sets import Set as set
-
+from  freckles import utils, config, freckles_defaults
+from frkl import frkl
+from ansible import errors
 
 class FilterModule(object):
     def filters(self):
         return {
             'expand_repos_filter': self.expand_repos_filter,
+            'freckles_config_read': self.freckles_config_read
         }
 
+    def freckles_config_read(self, path):
+        try:
+            result = config.parse_config_file(os.path.join(path, freckles_defaults.FRECKLE_MARKER_FILE_NAME))
+        except (frkl.FrklConfigException) as e:
+            raise errors.AnsibleFilterError(
+                "Can't read freckle metadata file '{}': {}".format(path, e.message))
+
+        return result
+
     def expand_repos_filter(self, repos):
-        result = freckles.utils.expand_repos(repos)
+        result = utils.expand_repos(repos)
         return result
