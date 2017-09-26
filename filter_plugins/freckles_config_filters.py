@@ -14,8 +14,14 @@ class FilterModule(object):
         }
 
     def freckles_config_read(self, path):
+
+        config_file = os.path.join(path, freckles_defaults.FRECKLE_MARKER_FILE_NAME)
+
+        if not os.path.exists(config_file):
+            return {}
+
         try:
-            result = config.parse_config_file(os.path.join(path, freckles_defaults.FRECKLE_MARKER_FILE_NAME))
+            result = config.parse_config_file(config_file)
         except (frkl.FrklConfigException) as e:
             raise errors.AnsibleFilterError(
                 "Can't read freckle metadata file '{}': {}".format(path, e.message))
