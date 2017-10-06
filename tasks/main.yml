@@ -49,3 +49,12 @@
     extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
   become: no
   when: update
+
+- name: updating freckles
+  pip:
+    name: freckles
+    executable: "{{ pip_to_use }}"
+    extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
+    version: "{{ freckles_version }}"
+  become: no
+  when: not update and freckles_version is defined
