@@ -50,7 +50,7 @@
   become: no
   when: update
 
-- name: updating freckles
+- name: "changing freckles version"
   pip:
     name: freckles
     executable: "{{ pip_to_use }}"
