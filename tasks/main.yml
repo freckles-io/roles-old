@@ -9,4 +9,4 @@
 
 - name: "[include darwin tasks]"
   include_tasks: Darwin.yml
-
+  when: ansible_os_family == 'Darwin'
