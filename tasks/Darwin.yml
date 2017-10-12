@@ -1,0 +1,6 @@
+---
+- name: install {{package_names | join(' ')}} with homebrew cask
+  homebrew_cask:
+    name: "{{ package_name_darwin }}"
+    state: present
+  become: no

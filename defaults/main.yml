@@ -1,0 +1,4 @@
+---
+package_name_redhat: virtualbox
+package_name_debian: virtualbox-5.1
+package_name_darwin: virtualbox
