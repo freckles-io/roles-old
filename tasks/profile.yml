@@ -4,14 +4,17 @@
   local_action: stat path="{{ role_path }}/tasks/init-{{ freckles_profile_name }}.yml"
   register: init_file
   become: no
+
 - name: "[starting profile execution]"
   include_tasks: "init-{{ freckles_profile_name }}.yml"
   when: init_file.stat.exists
+
 
 - name: "[checking whether to run profile tasks]"
   local_action: stat path="{{ role_path }}/tasks/items-{{ freckles_profile_name }}.yml"
   register: items_file
   become: no
+
 - name: "[starting per-item profile execution]"
   include_tasks: "items-{{ freckles_profile_name }}.yml"
   vars:
@@ -22,4 +25,3 @@
   with_dict: "{{ freckles_profile_folders }}"
   loop_control:
     loop_var: freckle_loop_item
-
