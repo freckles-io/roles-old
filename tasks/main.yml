@@ -28,11 +28,11 @@
     packages:
       - epel-release:
           pkgs:
-            fedora: ignore
-            redhat: epel-release
+            # fedora: ignore
+            centos: epel-release
             other: ignore
     pkg_mgr: "{{ pkg_mgr | default(omit) }}"
-  when: '"stow" in executables_missing and not no_stow'
+  when: 'not no_stow'
   become: true
 
 - name: "[install packages from dotfiles]"
