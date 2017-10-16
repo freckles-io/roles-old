@@ -21,6 +21,16 @@
   become: yes
   when: "ansible_pkg_mgr == 'dnf' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'dnf'])"
 
+- name: "enable selinux python bindings"
+  install:
+    packages:
+      - selinux-python-bindings:
+          pkgs:
+            redhat: libselinux-python
+            other: omit
+  when: "ansible_selinux is defined and ansible_selinux != False and ansible_selinux.status == 'enabled'"
+
+
 - name: "install required package managers"
   include_role:
     name: makkus.install-pkg-mgrs
