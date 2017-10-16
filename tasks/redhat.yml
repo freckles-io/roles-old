@@ -1,5 +1,17 @@
 ---
+- name: check is dnf installed
+  shell: command -v dnf >/dev/null 2>&1
+  register: dnf_exists
+  ignore_errors: yes
 
-- name: installing Vagrant rpm package
+- name: "installing Vagrant rpm package (using 'yum')"
   yum:
     name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+  when: "dnf_exists.failed"
+  become: yes
+
+- name: "installing Vagrant rpm package (using 'dnf')"
+  dnf:
+    name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+  when: "not dnf_exists.failed"
+  become: yes
