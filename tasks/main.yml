@@ -16,6 +16,11 @@
     cache_valid_time: 3600
   when: "ansible_os_family == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt'))"
 
+- name: "ensure python2-dnf is installed"
+  command: "dnf install -y python2-dnf"
+  become: yes
+  when: "ansible_pkg_mgr == 'dnf'"
+
 - name: "install required package managers"
   include_role:
     name: makkus.install-pkg-mgrs
