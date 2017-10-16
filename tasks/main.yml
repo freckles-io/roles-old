@@ -23,7 +23,7 @@
   set_fact:
     freckles_dotfiles_packages: "{{ freckles_profile_dotfiles_metadata | create_dotfiles_packages }}"
 
-- name: "enabling 'epel-release' repository"
+- name: "enabling 'epel-release' repository (to be able to install 'stow')"
   install:
     packages:
       - epel-release:
