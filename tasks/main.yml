@@ -28,7 +28,9 @@
           pkgs:
             redhat: libselinux-python
             other: omit
-  when: "ansible_selinux is defined and ansible_selinux != False and ansible_selinux.status == 'enabled'"
+
+  # need libselinux-python to get a meaningful ansible_selinux var: https://github.com/ansible/ansible/pull/31065
+  # when: "ansible_selinux is defined and ansible_selinux != False and ansible_selinux.status == 'enabled'"
 
 
 - name: "install required package managers"
