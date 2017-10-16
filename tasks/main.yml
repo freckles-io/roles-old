@@ -19,7 +19,7 @@
 - name: "ensure python2-dnf is installed"
   command: "dnf install -y python2-dnf"
   become: yes
-  when: "ansible_pkg_mgr == 'dnf'"
+  when: "ansible_pkg_mgr == 'dnf' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'dnf'])"
 
 - name: "install required package managers"
   include_role:
