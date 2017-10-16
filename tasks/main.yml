@@ -14,7 +14,7 @@
   when: 'conda_binary.stat.exists == False and ansible_os_family == "Debian"'
 
 - name: installing conda dependencies for Redhat-based systems
-  yum: pkg="{{item}}" state=installed
+  package: pkg="{{item}}" state=installed
   with_items:
     - bzip2
   become: yes
