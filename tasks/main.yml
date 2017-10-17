@@ -33,7 +33,7 @@
   apt:
     update_cache: yes
     cache_valid_time: 3600
-  when: "ansible_os_family == 'Debian' and (base_pkg_mgr is defined and (base_pkg_mgr == 'auto' or base_pkg_mgr == 'apt'))"
+  when: "ansible_distribution == 'Debian' and (base_pkg_mgr is defined and (base_pkg_mgr == 'auto' or base_pkg_mgr == 'apt')) and 'git' in executables_missing"
   ignore_errors: false
 
 - name: install git
