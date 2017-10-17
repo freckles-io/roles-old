@@ -7,5 +7,5 @@
       - vagrant
 
 - name: "[include common tasks]"
-  include_tasks: common.yml
+  include_tasks: common_vagrant.yml
   when: "'vagrant' in executables_missing or force_update"
