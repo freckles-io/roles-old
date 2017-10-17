@@ -28,6 +28,14 @@
     name: makkus.install-conda
   when: "'conda' in executables_missing"
 
+- name: "update apt cache"
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: "ansible_os_family == 'Debian' and (base_pkg_mgr is defined and (base_pkg_mgr == 'auto' or base_pkg_mgr == 'apt'))"
+  ignore_errors: false
+
 - name: install git
   install:
     packages:
