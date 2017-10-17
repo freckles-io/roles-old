@@ -26,17 +26,54 @@
   # become: no
   # when: ansible_os_family == "Darwin"
 
-- name: "[including debian tasks]"
-  include_tasks: debian.yml
+- name: installing Vagrant Debian package
+  apt:
+    deb: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+  become: yes
   when: ansible_os_family == "Debian"
 
-- name: "[including redhat tasks]"
-  include_tasks: redhat.yml
+- name: check is dnf installed
+  shell: command -v dnf >/dev/null 2>&1
+  register: dnf_exists
+  ignore_errors: yes
   when: ansible_os_family == "RedHat"
 
-- name: "[including darwin tasks]"
-  include_tasks: darwin.yml
+- name: "installing Vagrant rpm package (using 'yum')"
+  yum:
+    name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+  when: "dnf_exists.failed"
+  become: yes
+  when: ansible_os_family == "RedHat"
+
+- name: "installing Vagrant rpm package (using 'dnf')"
+  dnf:
+    name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+  when: "not dnf_exists.failed"
+  become: yes
+  when: ansible_os_family == "RedHat"
+
+- name: installing Vagrant dmg package
+  mac_pkg:
+    archive_type: dmg
+    archive_path: Vagrant.pkg
+    pkg_name: com.vagrant.vagrant
+    pkg_version: "{{ vagrant_version }}"
+    url: "{{ vagrant_download_url }}/{{ vagrant_version }}/{{vagrant_binary_name }}"
+  become: yes
   when: ansible_os_family == "Darwin"
+
+# including those tasks doesn't work for some reason
+# - name: "[including debian tasks]"
+  # include_tasks: debian.yml
+  # when: ansible_os_family == "Debian"
+
+# - name: "[including redhat tasks]"
+#   include_tasks: redhat.yml
+#   when: ansible_os_family == "RedHat"
+
+# - name: "[including darwin tasks]"
+#   include_tasks: darwin.yml
+#   when: ansible_os_family == "Darwin"
 
 - name: deleting downloaded Vagrant install package
   file:
