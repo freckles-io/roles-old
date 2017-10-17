@@ -33,7 +33,6 @@
             other: ignore
     pkg_mgr: "{{ pkg_mgr | default(omit) }}"
   when: 'not no_stow'
-  become: true
 
 - name: "[install packages from dotfiles]"
   include_role:
