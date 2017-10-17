@@ -7,7 +7,7 @@
   register: conda_binary
 
 - name: installing conda dependencies for Debian-based systems
-  apt: pkg="{{item}}" state=installed
+  apt: pkg="{{item}}" state=installed update_cache=yes cache_valid_time=3600
   with_items:
     - bzip2
   become: yes
