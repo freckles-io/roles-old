@@ -3,3 +3,4 @@
 no_stow: false
 no_folder_install: false
 no_package_install: false
+unstow: false

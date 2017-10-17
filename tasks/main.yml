@@ -69,16 +69,29 @@
             - conda-forge
             - freckles
     pkg_mgr: "{{ pkg_mgr | default(omit) }}"
-  when: '"stow" in executables_missing and not no_stow'
+  when: '"stow" in executables_missing and not no_stow or unstow'
+
+
 
 - name: stowing folders
   stow:
     name: "{{ item.vars.stow_folder_name }}"
-    state: present
     source_dir: "{{ item.vars.stow_folder_parent }}"
     target_dir: "{{ item.vars.stow_target_dir | default(freckles_dotfiles_default_stow_target_dir) }}"
     delete_conflicts: "{{ item.vars.stow_delete_conflicts | default(freckles_dotfiles_default_delete_conflicts) }}"
   ignore_errors: "{{ ignore_errors | default(true) }}"
-  when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false and not no_stow'
+  when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false and not no_stow and not unstow'
+  with_items:
+    - "{{ freckles_dotfiles_packages }}"
+
+- name: unstowing folders
+  stow:
+    name: "{{ item.vars.stow_folder_name }}"
+    unstow: true
+    source_dir: "{{ item.vars.stow_folder_parent }}"
+    target_dir: "{{ item.vars.stow_target_dir | default(freckles_dotfiles_default_stow_target_dir) }}"
+    delete_conflicts: false
+  ignore_errors: "{{ ignore_errors | default(true) }}"
+  when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false and unstow'
   with_items:
     - "{{ freckles_dotfiles_packages }}"
