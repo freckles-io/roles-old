@@ -16,7 +16,7 @@
   apt:
     update_cache: yes
     cache_valid_time: 3600
-  when: "apt_result.failed and ansible_distribution == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt'))"
+  when: "ansible_distribution == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt')) and apt_result.failed"
 
 # TODO: refactor the below out into install-pkg-mgrs?
 # - name: "ensure python2-dnf is installed"
