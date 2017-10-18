@@ -1,8 +1,19 @@
 ---
 # tasks file for dotfiles
-- name: "basic init tasks"
+# - name: "basic init tasks"
+  # include_role:
+    # name: makkus.box-basics
+
+- name: "install required package managers"
   include_role:
-    name: makkus.box-basics
+    name: makkus.install-pkg-mgrs
+  vars:
+    base_pkg_mgr: "{{ pkg_mgr }}"
+    pkg_mgrs:
+      - git
+      - homebrew
+      - "{{ pkg_mgr }}"
+
 
 - name: checking out freckle(s)
   git:
