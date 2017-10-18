@@ -19,10 +19,10 @@
   when: "ansible_distribution == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt')) and apt_result.failed"
 
 # TODO: refactor the below out into install-pkg-mgrs?
-# - name: "ensure python2-dnf is installed"
-  # command: "dnf install -y python2-dnf"
-  # become: yes
-  # when: "ansible_pkg_mgr == 'dnf' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'dnf'])"
+- name: "ensure python2-dnf is installed"
+  command: "dnf install -y python-dnf"
+  become: yes
+  when: "ansible_pkg_mgr == 'dnf' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'dnf'])"
 
 # - name: "ensure python2-yum is installed"
   # command: "yum install -y python2-yum"
