@@ -50,11 +50,36 @@
   become: no
   when: update
 
-- name: "changing freckles version"
+- name: "[check if version is local folder]"
+  stat:
+    path: "{{ freckles_version }}"
+  register: version_folder
+
+- name: "[set version_is_folder fact]"
+  set_fact:
+    version_is_folder: "{{ version_folder.stat.isdir is defined and version_folder.stat.isdir }}"
+
+- name: "changing freckles version to local sources: {{ freckles_version }}"
+  pip:
+    name: "{{ freckles_version }}"
+    executable: "{{ pip_to_use }}"
+    extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U -e"
+  become: no
+  when: "version_is_folder and not update and freckles_version is defined and freckles_version != 'git'"
+
+- name: "changing freckles version to {{ freckles_version }}"
   pip:
     name: freckles
     executable: "{{ pip_to_use }}"
     extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
     version: "{{ freckles_version }}"
   become: no
-  when: not update and freckles_version is defined
+  when: "not version_is_folder and not update and freckles_version is defined and freckles_version != 'git'"
+
+- name: "changing freckles version to git master branch"
+  pip:
+    name: git+https://github.com/makkus/freckles.git
+    executable: "{{ pip_to_use }}"
+    extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
+  become: no
+  when: "not version_is_folder and not update and freckles_version is defined and freckles_version == 'git'"
