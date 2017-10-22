@@ -18,6 +18,11 @@
     cache_valid_time: 3600
   when: "ansible_distribution == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt')) and apt_result.failed"
 
+- name: "ensure python-apt is installed"
+  command: "apt-get install -y python-apt"
+  become: yes
+  when: "ansible_pkg_mgr == 'apt' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'apt'])"
+
 # TODO: refactor the below out into install-pkg-mgrs?
 - name: "ensure python2-dnf is installed"
   command: "dnf install -y python2-dnf"
