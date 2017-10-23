@@ -68,7 +68,7 @@
             - conda-forge
             - freckles
     pkg_mgr: "{{ pkg_mgr | default(omit) }}"
-  when: '"stow" in executables_missing and (not no_stow or unstow)'
+  when: '"stow" in executables_missing and (not dotfiles_no_stow or dotfiles_unstow)'
 
 - debug: msg="src {{ item.vars.stow_source }}  no_stow {{ item.vars.get("no_stow", "UNDEFINED") }} NO_STOW {{ no_stow | default("UNDEFINED") }} unstow {{ unstow | default("UNDEFINED") }}"
   when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false and not dotfiles_no_stow and not dotfiles_unstow'
