@@ -1,4 +1,5 @@
 ---
 package_name_redhat: virtualbox
-package_name_debian: virtualbox-5.1
+package_name_debian: virtualbox
 package_name_darwin: virtualbox
+use_virtualbox_oracle_repo: false
