@@ -2,7 +2,7 @@
 
 import copy
 import re
-
+from collections import OrderedDict
 import os
 import yaml
 from ansible import errors
@@ -46,6 +46,7 @@ class FilterModule(object):
             'git_repo_filter': self.git_repo_filter,
             'create_package_list_filter': self.create_package_list_filter,
             'create_package_list_from_var_filter': self.create_package_list_from_var_filter,
+            'create_result_list_filter': self.create_result_list_filter,
             'extra_pkg_mgrs_filter': self.extra_pkg_mgrs_filter,
             'flatten_profiles_filter': self.flatten_profiles_filter,
             'flatten_vars_filter': self.flatten_vars_filter,
@@ -64,6 +65,9 @@ class FilterModule(object):
         for item in other_defaults:
             if item:
                 return item
+
+        # return last element
+        return item
 
     def relative_path_filter(self, list_of_files, path):
 
@@ -123,7 +127,8 @@ class FilterModule(object):
 
         profiles_available = list(profiles_available)
 
-        profiles_to_run = {}
+        # profiles_to_run = OrderedDict()
+        profiles_to_run = []
         debug_freckle = False
 
         # TODO: simplify, can probably use profile_items list
@@ -137,45 +142,53 @@ class FilterModule(object):
                     break
 
         if debug_freckle:
-            profiles_to_run["debug-freckle"] = {}
+            #profiles_to_run["debug-freckle"] = {}
+            temp_vars = {}
             profiles_to_use = ["debug-freckle"]
 
             for profile, folder_vars in temp.items():
                 for folder, f_vars in folder_vars.items():
                     files = freckles_metadata[folder]["folder_metadata"]["files"]
-                    profiles_to_run["debug-freckle"].setdefault(folder, {}).setdefault("vars", []).extend(
+                    temp_vars.setdefault(folder, {}).setdefault("vars", []).extend(
                         f_vars.get("vars", []))
-                    profiles_to_run["debug-freckle"][folder]["extra_vars"] = f_vars.get("extra_vars", {})
-                    profiles_to_run["debug-freckle"][folder]["files"] = files
+                    temp_vars[folder]["extra_vars"] = f_vars.get("extra_vars", {})
+                    temp_vars[folder]["files"] = files
+            profiles_to_run.append(("debug-freckle", temp_vars))
 
         else:
 
             for profile in profile_items:
             # for profile, folder_vars in temp.items():
                 folder_vars = temp[profile]
+                temp_folder_vars = {}
 
                 for folder, f_vars in folder_vars.items():
 
-                    profiles_to_run.setdefault(profile, {}).setdefault(folder, {}).setdefault("vars", [])
 
-                    profiles_to_run[profile][folder]["extra_vars"] = f_vars["extra_vars"]
-                    profiles_to_run[profile][folder]["files"] = f_vars["files"]
+                    temp_folder_vars.setdefault(folder, {}).setdefault("vars", [])
+
+                    temp_folder_vars[folder]["extra_vars"] = f_vars["extra_vars"]
+                    temp_folder_vars[folder]["files"] = f_vars["files"]
 
                     if folder in temp.get('freckle', {}).keys():
 
                         for f_var_item in temp['freckle'][folder].get("vars", []):
                             t = f_var_item.get("vars", None)
                             if t:
-                                profiles_to_run[ptr][folder]["vars"].append({"vars": t})
+                                temp_folder_vars[folder]["vars"].append({"vars": t})
 
                     vars = f_vars.get("vars", [])
-                    profiles_to_run[profile][folder]["vars"] = vars
+                    temp_folder_vars[folder]["vars"] = vars
+
+                profiles_to_run.append((profile, temp_folder_vars))
 
 
         # add some stats to be used by the profile dispatcher if necessary
         profiles_total = len(profiles_to_run)
         profile_index = 0
-        for profile_name, folders in profiles_to_run.items():
+        for p in profiles_to_run:
+            profile_name = p[0]
+            folders = p[1]
             folders_total = len(folders)
             folder_index = 0
             for folder, folder_metadata in folders.items():
@@ -185,6 +198,7 @@ class FilterModule(object):
                 folder_metadata["stats"] = stats
                 folder_index = folder_index + 1
             profile_index = profile_index + 1
+
 
         return profiles_to_run
 
@@ -295,6 +309,29 @@ class FilterModule(object):
                 pkg_config = {"vars": parent_vars, "packages": packages}
 
                 chain = [frkl.FrklProcessor(DEFAULT_PACKAGE_FORMAT)]
+                frkl_obj = frkl.Frkl(pkg_config, chain)
+                pkgs = frkl_obj.process()
+
+                result = result + pkgs
+
+        return sorted(result, key=lambda k: k.get("vars", {}).get("name", "zzz"))
+
+    def create_result_list_filter(self, freckles_profile_metadata, var_to_extract, pkg_format):
+
+        result = []
+
+        for folder, folder_metadata in freckles_profile_metadata.items():
+
+            var_list = folder_metadata.get("vars", [])
+            for metadata in var_list:
+                parent_vars = copy.deepcopy(metadata.get("vars", {}))
+                parent_vars.pop(var_to_extract, None)
+
+                packages = metadata.get("vars", {}).get(var_to_extract, [])
+
+                pkg_config = {"vars": parent_vars, var_to_extract: packages}
+
+                chain = [frkl.FrklProcessor(pkg_format)]
                 frkl_obj = frkl.Frkl(pkg_config, chain)
                 pkgs = frkl_obj.process()
 
