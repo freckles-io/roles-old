@@ -103,7 +103,7 @@ class FilterModule(object):
             folder_metadata = all_vars["folder_metadata"]
             temp_profiles_to_use = folder_metadata["profiles_to_use"]
             files = folder_metadata["files"]
-            extra_vars = all_vars["extra_vars"]
+            extra_vars = all_vars.get("extra_vars", {})
 
             for t in temp_profiles_to_use:
                 temp.setdefault(t, {}).setdefault(folder, {})
@@ -145,7 +145,7 @@ class FilterModule(object):
                     files = freckles_metadata[folder]["folder_metadata"]["files"]
                     profiles_to_run["debug-freckle"].setdefault(folder, {}).setdefault("vars", []).extend(
                         f_vars.get("vars", []))
-                    profiles_to_run["debug-freckle"][folder]["extra_vars"] = f_vars["extra_vars"]
+                    profiles_to_run["debug-freckle"][folder]["extra_vars"] = f_vars.get("extra_vars", {})
                     profiles_to_run["debug-freckle"][folder]["files"] = files
 
         else:
