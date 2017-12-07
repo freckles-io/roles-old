@@ -1,9 +1,6 @@
 # ==============================================================================
 # getting all the metadata from the freckle folders
 
-- debug: var=freckles
-
-
 - name: "[checkout freckles]"
   include_tasks: "checkout_{{ checkout_item.1.type }}.yml"
   vars:
