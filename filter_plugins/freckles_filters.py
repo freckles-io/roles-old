@@ -54,10 +54,21 @@ class FilterModule(object):
             'file_list_filter': self.file_list_filter,
             'relative_path_filter': self.relative_path_filter,
             'first_valid_default_list_filter': self.first_valid_default_list_filter,
+            'calculate_local_freckle_folder': self.calculate_local_freckle_folder,
             # 'get_used_profile_names': self.get_used_profile_names,
             # 'create_profile_metadata': self.create_profile_metadata
         }
 
+    def calculate_local_freckle_folder(self, path, user_home):
+
+        if path.startswith("~"):
+            result = os.path.join(user_home, path[2:])
+        elif path.startswith("/"):
+            result = path
+        else:
+            result = os.path.join(user_home, path)
+
+        return result
 
     def first_valid_default_list_filter(self, default_item, *other_defaults):
 
