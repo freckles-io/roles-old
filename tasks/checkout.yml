@@ -1,11 +1,15 @@
 # ==============================================================================
 # getting all the metadata from the freckle folders
 
+- debug: var=freckles
+
+
 - name: "[checkout freckles]"
   include_tasks: "checkout_{{ checkout_item.1.type }}.yml"
   vars:
     freckle_item_metadata: "{{ checkout_item.1 }}"
-  when: not checkout_item.1.checkout_skip
+    freckle_local_parent_path: "{{ checkout_item.1.local_parent | calculate_local_freckle_folder(ansible_env.HOME) }}"
+  when: "not checkout_item.1.checkout_skip"
   with_nested:
     - "{{ freckles }}"
   loop_control:
@@ -32,7 +36,7 @@
   vars:
     freckle_folder_path: "{{ freckle_profile_folder.key }}"
     freckle_folder_metadata: "{{ freckle_profile_folder.value }}"
-  when: freckle_profile_folder.value.get("change_owner", False)
+  when: "freckle_profile_folder.value.get('change_owner', False)"
   with_dict: "{{ freckle_global_folder_vars }}"
   loop_control:
     loop_var: freckle_profile_folder
