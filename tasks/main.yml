@@ -15,46 +15,10 @@
       - "{{ pkg_mgr }}"
 
 
-- name: checking out freckle(s)
-  git:
-    dest: "{{ item.dest }}"
-    repo: "{{ item.repo }}"
-  when: "item.repo is defined and item.repo"
-  with_items:
-    - "{{ freckles | git_repo_filter }}"
+- name: "[checkout freckles tasks]"
+  include_tasks: "checkout.yml"
+  when: checkout_phase
 
-- name: "[finding freckles folders]"
-  freckles_facts:
-    freckles_repos: "{{ freckles }}"
-
-# can only do that on the controller, because dependency requirements
-- name: "[processing freckles folders]"
-  set_fact:
-    freckles_metadata: "{{ freckles_folders_raw | read_profile_vars_filter }}"
-
-- name: "[flattening profiles]"
-  set_fact:
-    flat_profiles_list: "{{ freckles_metadata | flatten_profiles_filter }}"
-
-- name: "[including profile]"
-  include_tasks: "profile.yml"
-  vars:
-    freckles_profile_name: "{{ profile_loop_item[0] }}"
-    freckles_profile_folders: "{{ profile_loop_item[1] }}"
-    freckles_user_vars: "{{ user_vars.get(profile_loop_item[0]) | default({}) }}"
-  with_list: "{{ flat_profiles_list }}"
-  loop_control:
-    loop_var: profile_loop_item
-
-
-# Ansible 2.3 doesn't support vars in include_role
-# - name: "starting profile execution"
-#   include_role:
-#     #name: "{{ profile_loop_item.key }}"
-#     name: "{{ role_name }}"
-#   vars:
-#     freckle_profile_folders: "{{ profile_loop_item.value }}"
-#   static: no
-#   with_dict: "{{ freckles_metadata | flatten_profiles_filter }}"
-#   loop_control:
-#     loop_var: profile_loop_item
+- name: "[checkout freckles tasks]"
+  include_tasks: "profile_tasks.yml"
+  when: not checkout_phase

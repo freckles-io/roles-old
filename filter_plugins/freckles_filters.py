@@ -50,12 +50,14 @@ class FilterModule(object):
             'extra_pkg_mgrs_filter': self.extra_pkg_mgrs_filter,
             'flatten_profiles_filter': self.flatten_profiles_filter,
             'flatten_vars_filter': self.flatten_vars_filter,
+            'folder_vars_filter': self.folder_vars_filter,
             'file_list_filter': self.file_list_filter,
             'relative_path_filter': self.relative_path_filter,
-            'first_valid_default_list_filter': self.first_valid_default_list_filter
+            'first_valid_default_list_filter': self.first_valid_default_list_filter,
             # 'get_used_profile_names': self.get_used_profile_names,
             # 'create_profile_metadata': self.create_profile_metadata
         }
+
 
     def first_valid_default_list_filter(self, default_item, *other_defaults):
 
@@ -79,6 +81,33 @@ class FilterModule(object):
         result = filter(r.match, list_of_files)
         return result
 
+    def folder_vars_filter(self, freckles_profile_folders, default_user, default_group, default_home):
+
+        result = {}
+        for folder, metadata in freckles_profile_folders.items():
+            folder_vars = metadata.get("vars", [])
+            temp_dict = {}
+            for fv in folder_vars:
+                frkl.dict_merge(temp_dict, fv, copy_dct=False)
+
+            if "change_owner" not in temp_dict.keys():
+                temp_dict["change_owner"] = "owner" in temp_dict.keys()
+
+            defaults_dict = { "vars": {
+                "owner": default_user,
+                 #"freckle_group": default_group,
+                "stow_root": default_home,
+                "staging_method": False,
+                "staging_force": False,
+                }
+            }
+
+            frkl.dict_merge(defaults_dict, temp_dict, copy_dct=False)
+
+            result[folder] = defaults_dict.get("vars", {})
+
+        return result
+
     def flatten_vars_filter(self, freckles_vars):
 
         if not freckles_vars:
@@ -91,13 +120,17 @@ class FilterModule(object):
             # frkl_callback = frkl.MergeDictResultCallback(mdrc_init)
             frkl_callback = frkl.MergeResultCallback()
             vars_new = frkl_obj.process(frkl_callback)
-
             return vars_new[0]["vars"]
+
         except (frkl.FrklConfigException) as e:
             raise errors.AnsibleFilterError(
                 "Can't read freckle metadata file '{}/.freckle': {}".format(freckle_folder, e.message))
 
     def flatten_profiles_filter(self, freckles_metadata):
+        """This function re-arranges a list of freckle folders.
+
+        Input is a list of folders, output is a dict of folder-profile/folders.
+        """
 
         temp = {}
         profiles_available = set()
@@ -105,17 +138,36 @@ class FilterModule(object):
         for folder, all_vars in freckles_metadata.items():
 
             folder_metadata = all_vars["folder_metadata"]
-            temp_profiles_to_use = folder_metadata["profiles_to_use"]
+            temp_profiles_to_use = ['freckle']
+            temp_profiles_to_use.extend(folder_metadata["profiles_to_use"])
             files = folder_metadata["files"]
             extra_vars = all_vars.get("extra_vars", {})
 
-            for t in temp_profiles_to_use:
-                temp.setdefault(t, {}).setdefault(folder, {})
-                temp[t][folder]["extra_vars"] = extra_vars
-                temp[t][folder]["files"] = files
+            if "__auto__" in temp_profiles_to_use:
+                auto_profiles = []
+                vars_temp = all_vars["vars"]
+                for v in vars_temp:
+                    tp = v["profile"]["name"]
+                    if tp not in auto_profiles:
+                        auto_profiles.append(tp)
+                new_profiles = []
 
-                if t not in profile_items:
-                    profile_items.append(t)
+                for p in temp_profiles_to_use:
+                    if p == "__auto__":
+                        new_profiles.extend(auto_profiles)
+                    else:
+                        new_profiles.append(p)
+
+                temp_profiles_to_use = new_profiles
+
+            for profile_name in temp_profiles_to_use:
+
+                temp.setdefault(profile_name, {}).setdefault(folder, {})
+                temp[profile_name][folder]["extra_vars"] = extra_vars
+                temp[profile_name][folder]["files"] = files
+
+                if profile_name not in profile_items:
+                    profile_items.append(profile_name)
 
             for metadata in all_vars["vars"]:
                 profile_md = metadata.pop("profile")
@@ -198,7 +250,6 @@ class FilterModule(object):
                 folder_metadata["stats"] = stats
                 folder_index = folder_index + 1
             profile_index = profile_index + 1
-
 
         return profiles_to_run
 

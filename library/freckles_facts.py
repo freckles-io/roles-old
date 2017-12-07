@@ -23,20 +23,18 @@ def find_freckles_folders(module, freckles_repos):
     """
 
     freckles_paths_all = {}
-    for r in freckles_repos:
+    for path, r in freckles_repos:
 
-        dest = r.get("path", False)
-        repo = r.get("url", None)
-        profiles = r.get("profiles", None)
-        include = r.get("include", None)
-        exclude = r.get("exclude", None)
+        local_parent = r.get("local_parent", "~/freckles")
+        local_name = r["local_name"]
+        dest = os.path.join(os.path.expanduser(local_parent), local_name)
 
-        if not dest:
-            raise Exception("Dotfile repo description does not contain 'path' key: {}".format(repo))
-            # if not repo:
-            # raise Exception("Dotfile repo description does not contain 'repo' key: {}".format(repo))
+        repo = r.get("remote_url", None)
+        # profiles = r.get("profiles", None)
+        include = r.get("includes", None)
+        exclude = r.get("excludes", None)
 
-        dest = os.path.expanduser(dest)
+        profiles = r.get("profiles", ["__auto__"])
 
         freckles_paths = {}
 
