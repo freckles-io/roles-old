@@ -1,0 +1,17 @@
+# flattened list of profiles, each profile contains a list of folders that is of the profile
+- name: "[flattening profiles]"
+  set_fact:
+    flat_profiles_list_all: "{{ freckles_metadata | flatten_profiles_filter }}"
+
+
+# split up 'normal' and special 'freckle' profile (the latter contains global
+# file-related metadata
+- name: "[extract special 'freckle' profile]"
+  set_fact:
+    freckle_profile: "{{ flat_profiles_list_all[0][1] }}"
+    flat_profiles_list: "{{ flat_profiles_list_all[1:] }}"
+
+# augment 'freckle' profile metadata with defaults
+- name: "[compute global vars]"
+  set_fact:
+    freckle_global_folder_vars: "{{ freckle_profile | folder_vars_filter(ansible_env.USER, ansible_env.GROUP, ansible_env.HOME) }}"

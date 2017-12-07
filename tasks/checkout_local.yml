@@ -1,0 +1,24 @@
+- name: "[calculating target]"
+  set_fact:
+    copy_target: "{{ freckle_item_metadata.local_parent | expanduser }}/{{ freckle_item_metadata.local_name }}"
+  when: "not freckle_item_metadata.checkout_skip"
+
+- name: "[check if rsync is available]"
+  required_executable_facts:
+    executables_to_check:
+      - rsync
+  when: "not freckle_item_metadata.checkout_skip"
+
+- name: "copying '{{ freckle_item_metadata.remote_url }}' to '{{ copy_target }}'"
+  copy:
+    src: "{{ freckle_item_metadata.remote_url }}/"
+    dest: "{{ copy_target }}"
+  become: "{{ freckle_item_metadata.checkout_become }}"
+  when: "not freckle_item_metadata.checkout_skip and 'rsync' in executables_missing"j
+
+- name: "rsyncing '{{ freckle_item_metadata.remote_url }}' to '{{ copy_target }}'"
+  synchronize:
+    src: "{{ freckle_item_metadata.remote_url }}/"
+    dest: "{{ copy_target }}"
+  become: "{{ freckle_item_metadata.checkout_become }}"
+  when: "not freckle_item_metadata.checkout_skip and 'rsync' not in executables_missing"
