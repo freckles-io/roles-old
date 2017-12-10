@@ -55,9 +55,55 @@ class FilterModule(object):
             'relative_path_filter': self.relative_path_filter,
             'first_valid_default_list_filter': self.first_valid_default_list_filter,
             'calculate_local_freckle_folder': self.calculate_local_freckle_folder,
+            'user_input_merge_filter': self.user_input_merge_filter,
+            'global_vars_filter': self.global_vars_filter
             # 'get_used_profile_names': self.get_used_profile_names,
             # 'create_profile_metadata': self.create_profile_metadata
         }
+
+
+    def global_vars_filter(self, global_folder_vars):
+
+        result = {}
+
+        for path, folder_vars in global_folder_vars.items():
+
+            frkl.dict_merge(result, folder_vars, copy_dct=False)
+
+        return result
+
+    def user_input_merge_filter(self, freckles_metadata, user_vars):
+
+        result = {}
+
+        for path, folder_metadata in freckles_metadata.items():
+
+            new_vars_list = []
+            profiles_to_use = folder_metadata["folder_metadata"]["profiles_to_use"]
+            vars_list = folder_metadata["vars"]
+
+            for vars_item in vars_list:
+                profile_md = vars_item["profile"]
+                profile_name = profile_md["name"]
+                if profile_name == "freckle":
+                    continue
+
+                new_v = copy.deepcopy(vars_item["vars"])
+                for profile, profile_vars in user_vars.items():
+                    if profile in profiles_to_use:
+                        frkl.dict_merge(new_v, profile_vars, copy_dct=False)
+                new_vars_list.append({"profile": profile_md, "vars": new_v})
+
+            # if there are no folder vars to merge, we just use the user input directly
+            if not new_vars_list and user_vars:
+                for profile, profile_vars in user_vars.items():
+
+                    new_vars_list.append({"profile": {"name": profile}, "vars": profile_vars})
+
+            folder_metadata["vars"] = new_vars_list
+
+        return freckles_metadata
+
 
     def calculate_local_freckle_folder(self, path, user_home):
 
@@ -92,17 +138,23 @@ class FilterModule(object):
         result = filter(r.match, list_of_files)
         return result
 
-    def folder_vars_filter(self, freckles_profile_folders, default_user, default_group, default_home):
+    def folder_vars_filter(self, freckles_profile_folders, freckles_metadata, default_user, default_group, default_home):
+        """Merge all vars of all profiles per folder.
+        """
 
         result = {}
         for folder, metadata in freckles_profile_folders.items():
-            folder_vars = metadata.get("vars", [])
             temp_dict = {}
+            freckle_vars = freckles_metadata[folder]["vars"]
+            for v_item in freckle_vars:
+                frkl.dict_merge(temp_dict, v_item, copy_dct=False)
+
+            folder_vars = metadata.get("vars", [])
             for fv in folder_vars:
                 frkl.dict_merge(temp_dict, fv, copy_dct=False)
 
             if "change_owner" not in temp_dict.keys():
-                temp_dict["change_owner"] = "owner" in temp_dict.keys()
+                temp_dict["vars"]["change_owner"] = "owner" in temp_dict.keys()
 
             defaults_dict = { "vars": {
                 "owner": default_user,

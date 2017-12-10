@@ -12,6 +12,10 @@
     flat_profiles_list: "{{ flat_profiles_list_all[1:] }}"
 
 # augment 'freckle' profile metadata with defaults
+- name: "[compute global folder vars]"
+  set_fact:
+    freckle_global_folder_vars: "{{ freckle_profile | folder_vars_filter(freckles_metadata, ansible_env.USER, ansible_env.GROUP, ansible_env.HOME) }}"
+
 - name: "[compute global vars]"
   set_fact:
-    freckle_global_folder_vars: "{{ freckle_profile | folder_vars_filter(ansible_env.USER, ansible_env.GROUP, ansible_env.HOME) }}"
+    freckles_global_vars: "{{ freckle_global_folder_vars | global_vars_filter }}"
