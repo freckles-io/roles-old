@@ -1,13 +1,8 @@
 ---
-
 - name: "[read freckle_repo_metadata]"
   include_vars:
     file: "{{ repo_metadata_file }}"
     name: freckles_metadata_without_user_vars
-
-- name: "[merge user input with folder metadata]"
-  set_fact:
-      freckles_metadata: "{{ freckles_metadata_without_user_vars | user_input_merge_filter(user_vars) }}"
 
 - name: "[setting metadata variables]"
   include_tasks: set_variables.yml

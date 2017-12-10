@@ -23,7 +23,7 @@
 # all metadata from all folders
 - name: "[processing freckles folders]"
   set_fact:
-    freckles_metadata: "{{ freckles_folders_raw | read_profile_vars_filter }}"
+    freckles_metadata_without_user_vars: "{{ freckles_folders_raw | read_profile_vars_filter }}"
 
 - name: "[setting metadata variables]"
   include_tasks: set_variables.yml

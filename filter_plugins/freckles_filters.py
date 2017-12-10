@@ -85,8 +85,8 @@ class FilterModule(object):
             for vars_item in vars_list:
                 profile_md = vars_item["profile"]
                 profile_name = profile_md["name"]
-                if profile_name == "freckle":
-                    continue
+                # if profile_name == "freckle":
+                    # continue
 
                 new_v = copy.deepcopy(vars_item["vars"])
                 for profile, profile_vars in user_vars.items():
@@ -153,8 +153,8 @@ class FilterModule(object):
             for fv in folder_vars:
                 frkl.dict_merge(temp_dict, fv, copy_dct=False)
 
-            if "change_owner" not in temp_dict.keys():
-                temp_dict["vars"]["change_owner"] = "owner" in temp_dict.keys()
+            if "change_owner" not in temp_dict.get("vars", {}).keys():
+                temp_dict.get("vars", {})["change_owner"] = "owner" in temp_dict.get("vars", {}).keys()
 
             defaults_dict = { "vars": {
                 "owner": default_user,

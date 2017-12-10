@@ -21,4 +21,3 @@
     group: "{{ freckle_folder_metadata.group | default(omit) }}"
     recurse: True
   become: yes
-
