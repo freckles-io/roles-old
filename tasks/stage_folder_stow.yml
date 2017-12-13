@@ -15,5 +15,4 @@
     target_dir: "{{ freckle_folder_metadata.stow_root }}"
     delete_conflicts: False
   become: true
-  become_user: "{{ freckle_folder_metadata.stow_user | default(freckle_folder_metadata.owner) }}"
-
+  #become_user: "{{ freckle_folder_metadata.stow_user | default(freckle_folder_metadata.owner) }}"
