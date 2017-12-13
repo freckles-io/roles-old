@@ -88,7 +88,7 @@ class FilterModule(object):
                 # if profile_name == "freckle":
                     # continue
 
-                new_v = copy.deepcopy(vars_item["vars"])
+                new_v = copy.deepcopy(vars_item.get("vars", {}))
                 for profile, profile_vars in user_vars.items():
                     if profile in profiles_to_use:
                         frkl.dict_merge(new_v, profile_vars, copy_dct=False)
