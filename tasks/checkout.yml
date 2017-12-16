@@ -48,5 +48,10 @@
   loop_control:
     loop_var: freckle_profile_folder
 
+- name: "[setting repo metadata file absolute path]"
+  set_fact:
+    repo_metadata_file_abs_path: "{{ playbook_dir }}/../logs/{{ repo_metadata_file }}"
+
+
 - name: "[storing freckle repo metadata for next runner]"
-  local_action: copy content="{{ freckles_metadata }}" dest="{{ repo_metadata_file }}"
+  local_action: copy content="{{ freckles_metadata }}" dest="{{ repo_metadata_file_abs_path }}"
