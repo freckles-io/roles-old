@@ -16,6 +16,11 @@
     freckle_profile: "{{ flat_profiles_list_all[0][1] }}"
     flat_profiles_list: "{{ flat_profiles_list_all[1:] }}"
 
+- name: "[sort profiles]"
+  set_fact:
+    flat_profiles_list: "{{ flat_profiles_list | sort_profiles_filter(profile_order) }}"
+  when: profile_order is defined
+
 # augment 'freckle' profile metadata with defaults
 - name: "[compute global folder vars]"
   set_fact:

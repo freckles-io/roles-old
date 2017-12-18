@@ -56,10 +56,22 @@ class FilterModule(object):
             'first_valid_default_list_filter': self.first_valid_default_list_filter,
             'calculate_local_freckle_folder': self.calculate_local_freckle_folder,
             'user_input_merge_filter': self.user_input_merge_filter,
-            'global_vars_filter': self.global_vars_filter
+            'global_vars_filter': self.global_vars_filter,
+            'sort_profiles_filter': self.sort_profiles_filter
             # 'get_used_profile_names': self.get_used_profile_names,
             # 'create_profile_metadata': self.create_profile_metadata
         }
+
+    def sort_profiles_filter(self, profile_list, profile_order):
+
+        result = []
+
+        for p in profile_order:
+            for pp in profile_list:
+                if pp[0] == p:
+                    result.append(pp)
+
+        return result
 
 
     def global_vars_filter(self, global_folder_vars):
