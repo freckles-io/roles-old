@@ -2,7 +2,6 @@
   set_fact:
       freckles_metadata: "{{ freckles_metadata_without_user_vars | user_input_merge_filter(user_vars) }}"
 
-
 # flattened list of profiles, each profile contains a list of folders that is of the profile
 - name: "[flattening profiles]"
   set_fact:

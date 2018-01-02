@@ -102,8 +102,10 @@ class FilterModule(object):
 
                 new_v = copy.deepcopy(vars_item.get("vars", {}))
                 for profile, profile_vars in user_vars.items():
-                    if profile in profiles_to_use:
+
+                    if profile == profile_name:
                         frkl.dict_merge(new_v, profile_vars, copy_dct=False)
+
                 new_vars_list.append({"profile": profile_md, "vars": new_v})
 
             # if there are no folder vars to merge, we just use the user input directly
