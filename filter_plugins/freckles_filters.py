@@ -10,6 +10,7 @@ from frkl import frkl
 from nsbl.nsbl import ensure_git_repo_format
 from six import string_types
 from freckles.freckles_defaults import DEFAULT_PROFILE_VAR_FORMAT, DEFAULT_VAR_FORMAT, DEFAULT_PACKAGE_FORMAT
+from freckles.utils import render_dict
 
 try:
     set
@@ -116,6 +117,13 @@ class FilterModule(object):
 
             folder_metadata["vars"] = new_vars_list
 
+        # replace variable strings
+        for folder, all_vars in freckles_metadata.items():
+            replacement_dict = {
+                "freckle_path": folder
+            }
+            freckles_metadata[folder] = render_dict(all_vars, replacement_dict)
+
         return freckles_metadata
 
 
@@ -212,6 +220,7 @@ class FilterModule(object):
         temp = {}
         profiles_available = set()
         profile_items = []
+
         for folder, all_vars in freckles_metadata.items():
 
             folder_metadata = all_vars["folder_metadata"]

@@ -23,6 +23,8 @@
   include_tasks: "items-{{ freckles_profile_name }}.yml"
   vars:
     freckle_path: "{{ freckle_loop_item.key }}"
+    freckle_folder_name: "{{ freckle_loop_item.key | basename }}"
+    freckle_owner: "{{ freckle_global_folder_vars[freckle_loop_item.key]['owner'] }}"
     freckle_vars: "{{ freckle_loop_item.value.vars | flatten_vars_filter }}"
     freckle_vars_raw: "{{ freckle_loop_item.value }}"
     freckle_folder_vars: "{{ freckle_global_folder_vars[freckle_loop_item.key] }}"
