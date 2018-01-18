@@ -111,8 +111,13 @@ def find_freckles_folders(module, freckles_repos):
 
                         with open(sub_metadata_file, "r") as f:
                             data = f.read()
+                        # we can't use anything that has jinja2 template in them, as it'll confuse things
+                        #TODO: log output for this case
                         if not data:
                             data = ""
+
+                        if '{{' in data:
+                            continue
 
                         freckles_paths[root]["extra_vars"][sub_metadata_path] = data
 
