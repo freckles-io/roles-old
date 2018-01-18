@@ -30,3 +30,12 @@
     dest: "{{ copy_target }}"
   become: "{{ freckle_item_metadata.checkout_become }}"
   when: "not freckle_item_metadata.checkout_skip and 'rsync' not in executables_missing"
+
+- name: "deleting blueprint source"
+  local_action:
+    module: file
+    path: "{{ freckle_item_metadata.remote_url }}"
+    state: absent
+  become: true
+  when: freckle_item_metadata.source_delete
+
