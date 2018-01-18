@@ -38,4 +38,3 @@
     state: absent
   become: true
   when: freckle_item_metadata.source_delete
-
