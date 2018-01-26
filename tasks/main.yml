@@ -1,2 +1,81 @@
 ---
 # tasks file for install-nodejs
+
+- name: "install dependencies"
+  install:
+    packages:
+      - build-deps:
+          pkgs:
+            apt:
+              - build-essential
+              - libssl-dev
+              - git
+            other: ignore
+
+
+- name: "create nvm folder"
+  file:
+    path: "{{ nodejs_nvm_path }}"
+    owner: "{{ nodejs_owner }}"
+    group: "{{ nodejs_group | default(omit) }}"
+    state: directory
+
+- name: "[check whether already checked out]"
+  stat:
+    path: "{{ nodejs_nvm_path }}/nvm.sh"
+  register: nvm_sh_file
+
+- name: "checking out nvm"
+  git:
+    repo: "{{ nodejs_nvm_repo }}"
+    dest: "{{ nodejs_nvm_path }}"
+    update: true
+  when: not nvm_sh_file.stat.exists
+
+- name: fetching remote nvm repo
+  command: git fetch origin
+  args:
+    chdir: "{{ nodejs_nvm_path }}"
+
+- name: checking out latest tag
+  shell: git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" origin`
+  args:
+    chdir: "{{ nodejs_nvm_path }}"
+
+- name: "ensure 'nvm.sh' is sourced in rc file(s)"
+  lineinfile:
+    dest: "{{ item }}"
+    line: "if [ -s \"{{ nodejs_nvm_path }}/nvm.sh\" ]; then source \"{{ nodejs_nvm_path }}/nvm.sh\"; fi   # added by freckles"
+    create: yes
+  ignore_errors: true
+  become: no
+  when: nodejs_add_source_nvm_sh
+  with_items:
+    - "{{ nodejs_nvm_rc_files }}"
+
+- name: "adding 'nvm use node' to rc file(s)"
+  lineinfile:
+    dest: "{{ item }}"
+    line: "if [ -s \"{{ nodejs_nvm_path }}/nvm.sh\" ]; then nvm use node; fi   # added by freckles"
+    create: yes
+  ignore_errors: true
+  become: no
+  when: nodejs_add_nvm_node_use
+  with_items:
+    - "{{ nodejs_nvm_rc_files }}"
+
+- name: "[setting version of nodejs to install]"
+  set_fact:
+    nodejs_version_to_install: "node"
+  when: "nodejs_version == 'latest'"
+
+- name: "[setting version of nodejs to install]"
+  set_fact:
+    nodejs_version_to_install: "{{ nodejs_version }}"
+  when: "nodejs_version != 'latest'"
+
+
+- name: "installing node ({{ nodejs_version }})"
+  shell: "source {{ nodejs_nvm_path }}/nvm.sh && nvm install {{ nodejs_version_to_install }}"
+  args:
+    executable: /bin/bash
