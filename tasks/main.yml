@@ -74,8 +74,51 @@
     nodejs_version_to_install: "{{ nodejs_version }}"
   when: "nodejs_version != 'latest'"
 
-
 - name: "installing node ({{ nodejs_version }})"
   shell: "source {{ nodejs_nvm_path }}/nvm.sh && nvm install {{ nodejs_version_to_install }}"
   args:
     executable: /bin/bash
+
+- name: "getting absolute path of node environment '{{ nodejs_version }}"
+  shell: "source {{ nodejs_nvm_path }}/nvm.sh && nvm which {{ nodejs_version_to_install }}"
+  args:
+    executable: /bin/bash
+  register: node_version_path
+
+- name: "[setting base path]"
+  set_fact:
+      node_version_path_base: "{{ node_version_path.stdout | dirname }}"
+
+- name: "sym-linking installed executables (to: {{ nodejs_symlink_target }})"
+  file:
+      src: "{{ node_version_path_base }}/{{ item }}"
+      dest: "{{ nodejs_symlink_target }}/{{ item }}"
+      state: link
+      force: true
+  when: "nodejs_symlink_target is defined"
+  with_items:
+      - "{{ nodejs_link_binaries }}"
+
+- name: "[assembling activation script]"
+  set_fact:
+       activation_script_content: |
+           #! /bin/bash
+
+           if [[ "$(basename -- "$0")" == "activate-node" ]]; then
+               echo "$0 needs to be sourced, running it won't work..." >&2
+               exit 1
+           fi
+
+           # TODO: allow optional nodejs version to run
+           source {{ nodejs_nvm_path }}/nvm.sh
+           nvm use {{ nodejs_version_to_install }}
+  when: "nodejs_add_activation_script == True"
+
+- name: "adding nvm/node activation script 'activate-node' to {{ nodejs_symlink_target }}"
+  copy:
+      content: "{{ activation_script_content }}"
+      dest: "{{ nodejs_symlink_target }}/activate-node"
+      owner: "{{ nodejs_owner }}"
+      group: "{{ nodejs_group | default(omit) }}"
+      mode: 0755
+  when: "nodejs_add_activation_script == True and nodejs_symlink_target is defined"

@@ -8,3 +8,5 @@ nodejs_nvm_path: "{{ ansible_env.HOME }}/.local/opt/nvm"
 nodejs_rc_files_to_add_path_to: []
 nodejs_add_source_nvm_sh: false
 nodejs_add_nvm_node_use: false
+nodejs_add_activation_script: true
+# nodejs_symlink_target: "{{ ansible_env.HOME }}
