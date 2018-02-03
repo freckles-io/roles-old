@@ -1,0 +1,11 @@
+---
+# defaults file for ansible-conda-pkg-mgr
+
+# using conda rel path in home dir to be able to use $HOME in .profile PATH=.. lineinfile directive
+conda_rel_path: ".local/inaugurate"
+conda_parent_dir: "{{ ansible_env.HOME }}/{{ conda_rel_path }}"
+add_to_path: true
+rc_files_to_add_path_to:
+  - "{{ ansible_env.HOME }}/.profile"
+validate_certs: true
+conda_extra_args: ""

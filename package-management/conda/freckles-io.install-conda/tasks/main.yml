@@ -1,0 +1,65 @@
+---
+# tasks to install the conda package manager
+
+- name: "[test whether conda executable exists]"
+  stat: path="{{ conda_parent_dir }}/conda/bin/conda"
+  become: no
+  register: conda_binary
+
+- name: installing conda dependencies for Debian-based systems
+  apt: pkg="{{item}}" state=installed update_cache=yes cache_valid_time=3600
+  with_items:
+    - bzip2
+  become: yes
+  when: 'conda_binary.stat.exists == False and ansible_os_family == "Debian"'
+
+- name: installing conda dependencies for Redhat-based systems
+  package: pkg="{{item}}" state=installed
+  with_items:
+    - bzip2
+  become: yes
+  when: 'conda_binary.stat.exists == False and ansible_os_family == "RedHat"'
+
+- name: creating conda parent directory
+  become: no
+  file: path="{{ conda_parent_dir }}" state=directory
+  when: 'conda_binary.stat.exists == False'
+
+- name: downloading linux miniconda install
+  become: no
+  get_url:
+    url: "{{ linux_miniconda_installer_url }}"
+    dest: "/tmp/miniconda_install.sh"
+    validate_certs: "{{ validate_certs }}"
+  when: conda_binary.stat.exists == False and ( ansible_os_family == "Debian" or ansible_os_family == "RedHat" )
+
+- name: downloading macos miniconda install
+  become: no
+  get_url:
+    url: "{{ macos_miniconda_installer_url }}"
+    dest: "/tmp/miniconda_install.sh"
+    validate_certs: "{{ validate_certs }}"
+  when: 'conda_binary.stat.exists == False and ansible_os_family == "Darwin"'
+
+- name: running miniconda installer
+  become: no
+  shell: bash /tmp/miniconda_install.sh -f -b -p "{{ conda_parent_dir }}/conda"
+  args:
+    creates: "{{ conda_parent_dir }}/conda/bin/conda }}"
+  when: 'conda_binary.stat.exists == False'
+
+- name: adding conda path
+  become: no
+  lineinfile:
+    dest: "{{ item }}"
+    line: "if [ -e \"$HOME/{{ conda_rel_path }}/conda/bin/conda\" ]; then export PATH=\"$HOME/{{ conda_rel_path }}/conda/bin:$PATH\"; fi   # added by freckles"
+    create: yes
+  when: 'conda_binary.stat.exists == False and add_to_path'
+  ignore_errors: true
+  with_items:
+    - "{{ rc_files_to_add_path_to }}"
+
+- name: updating conda
+  become: no
+  shell: "{{ conda_parent_dir }}/conda/bin/conda update {{ conda_extra_args }} --name root conda"
+  when: 'conda_binary.stat.exists == False'
