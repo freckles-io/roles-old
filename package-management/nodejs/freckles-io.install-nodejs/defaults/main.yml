@@ -1,0 +1,12 @@
+---
+# defaults file for install-nodejs
+
+nodejs_version: "latest"
+nodejs_owner: "{{ ansible_env.USER }}"
+nodejs_group: "{{ ansible_env.GROUP | default(omit) }}"
+nodejs_nvm_path: "{{ ansible_env.HOME }}/.local/opt/nvm"
+nodejs_rc_files_to_add_path_to: []
+nodejs_add_source_nvm_sh: false
+nodejs_add_nvm_node_use: false
+nodejs_add_activation_script: true
+# nodejs_symlink_target: "{{ ansible_env.HOME }}

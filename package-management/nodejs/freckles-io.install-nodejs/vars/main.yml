@@ -1,0 +1,8 @@
+---
+# vars file for install-nodejs
+
+nodejs_nvm_repo: "https://github.com/creationix/nvm.git"
+nodejs_link_binaries:
+    - node
+    - npm
+    - npx
