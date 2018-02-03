@@ -7,7 +7,7 @@
   apt:
     update_cache: yes
     cache_valid_time: 3600
-  when: "ansible_distribution == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt'))"
+  when: "ansible_pkg_mgr == 'apt' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt'))"
   ignore_errors: true
   register: apt_result
 
@@ -16,7 +16,7 @@
   apt:
     update_cache: yes
     cache_valid_time: 3600
-  when: "ansible_distribution == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt')) and apt_result.failed"
+  when: "ansible_pkg_mgr == 'apt' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt')) and apt_result.failed"
 
 - name: "ensure python-apt and rsync are installed"
   command: "apt-get install -y python-apt rsync"
