@@ -1,0 +1,80 @@
+---
+sudo: required
+language: generic
+os: osx
+env:
+  - OSX_IMAGE=xcode9.1 ANSIBLE_VERSION=2.4.0.0
+  - OSX_IMAGE=xcode9.1 ANSIBLE_VERSION=2.3.2.0
+  - OSX_IMAGE=xcode9.1 ANSIBLE_VERSION=2.2.3.0
+  - OSX_IMAGE=xcode8.3 ANSIBLE_VERSION=2.4.0.0
+  - OSX_IMAGE=xcode7.3 ANSIBLE_VERSION=2.4.0.0
+  - OSX_IMAGE=xcode6.4 ANSIBLE_VERSION=2.4.0.0
+
+osx_image: $OSX_IMAGE
+
+branches:
+  only:
+    - master
+    - /^\d+\.\d+(\.\d+)?(-\S*)?$/
+
+before_install:
+  # Install pip
+  - sudo easy_install pip
+
+  # Setup virtualenv
+  - sudo -H pip install -U virtualenv
+  - ls -l /usr/bin/python
+  - virtualenv --python=/usr/bin/python .venv
+  - virtualenv --version
+  - source .venv/bin/activate
+  - pip install -U pip
+  - pip install ansible==${ANSIBLE_VERSION}
+  - pip install ansible-lint
+  - pip install testinfra
+  - pip install yamllint
+
+  # Unwind the developer environment
+  - URL=https://raw.githubusercontent.com/Homebrew/install/master/uninstall
+  - curl -sLO "${URL}"
+  - chmod +x uninstall
+  - ./uninstall --force
+  - rm -rf /usr/local/Homebrew
+  - sudo rm -rf /usr/local/Caskroom
+  - sudo rm -rf /usr/local/bin/brew
+  - sudo rm -rf /Library/Developer/CommandLineTools
+
+install:
+  # Check versions
+  - python --version
+  - ansible --version
+  - ansible-lint --version
+  - py.test --version
+  - yamllint --version
+
+script:
+  # Lint all YAML files.
+  - yamllint .
+
+  # Check the role/playbook's syntax.
+  - ansible-playbook tests/playbook.yml --syntax-check
+
+  # Lint the playbook.
+  - ansible-lint tests/playbook.yml
+
+  # Test the playbook.
+  - ansible-playbook tests/playbook.yml
+
+  # Test the playbook's idempotence.
+  - idempotence=$(mktemp /private/tmp/XXXXXXXXX)
+  - ansible-playbook tests/playbook.yml | tee -a ${idempotence}
+  - >-
+      tail -25 ${idempotence} |
+      grep -q 'changed=0.*failed=0' &&
+      (echo 'Idempotence test: pass' && exit 0) ||
+      (echo 'Idempotence test: fail' && exit 1)
+
+  # Test host state
+  - py.test --connection=local --hosts=localhost --verbose tests
+
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
