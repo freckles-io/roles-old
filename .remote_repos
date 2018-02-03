@@ -8,3 +8,4 @@ virtualization/virtualbox/freckles-io.install-virtualbox=https://github.com/frec
 development/vagrant/freckles-io.install-vagrant=https://github.com/freckles-io/freckles-io.install-vagrant
 package-management/generic/freckles-io.install-packages=https://github.com/freckles-io/freckles-io.install-packages
 package-management/nix/freckles-io.install-nix=https://github.com/freckles-io/freckles-io.install-nix
+package-management/conda/freckles-io.install-conda=https://github.com/freckles-io/freckles-io.install-conda
