@@ -6,3 +6,4 @@ freckles/freckles-io.freckles-config=https://github.com/freckles-io/freckles-io.
 configuration-management/dotfiles/freckles-io.dotfiles=https://github.com/freckles-io/freckles-io.dotfiles
 virtualization/virtualbox/freckles-io.install-virtualbox=https://github.com/freckles-io/freckles-io.install-virtualbox
 development/vagrant/freckles-io.install-vagrant=https://github.com/freckles-io/freckles-io.install-vagrant
+package-management/generic/freckles-io.install-packages=https://github.com/freckles-io/freckles-io.install-packages
