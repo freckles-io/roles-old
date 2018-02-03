@@ -6,7 +6,7 @@ except NameError:
     from sets import Set as set
 
 SUPPORTED_ROLE_PACKAGES = {
-    "vagrant": "makkus.install-vagrant"
+    "vagrant": "freckles-io.install-vagrant"
 }
 
 

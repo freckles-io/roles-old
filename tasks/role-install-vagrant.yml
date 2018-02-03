@@ -1,3 +1,3 @@
-- name: "[including ansible role: install-vagrant]"
+- name: "starting Vagrant install"
   include_role:
-    name: "makkus.install-vagrant"
+    name: "freckles-io.install-vagrant"

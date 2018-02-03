@@ -15,11 +15,11 @@
 
 - name: "[installing required package managers]"
   include_role:
-    name: makkus.install-pkg-mgrs
+    name: freckles-io.install-pkg-mgrs
   vars:
     pkg_mgrs: "{{ required_package_managers }}"
 
-- name: "installing freckle packages that need ansible roles"
+- name: "[packages that need ansible roles]"
   include_tasks: "role-install-{{ role_package['vars']['name'] }}.yml"
   when: "role_package['vars'].get('pkg_mgr', 'auto') == 'ansible_role'"
   with_items:
@@ -27,7 +27,7 @@
   loop_control:
     loop_var: role_package
 
-- name: "install {{ profile_name }} packages"
+- name: "installing {{ profile_name }} packages"
   install:
     packages: "{{ item }}"
     pkg_mgr: "{{ pkg_mgr }}"

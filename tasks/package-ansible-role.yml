@@ -1,0 +1,17 @@
+---
+
+- debug: msg="{{ role_package['vars'] }}"
+
+- set_fact: {"{{ item.key }}":"{{ item.value }}"}
+  with_dict: "{{ role_package['vars'] }}"
+
+- debug: msg="key={{item.key}}, hostvar={{hostvars['localhost'][item.key]}}"
+  with_dict: "{{ role_package['vars'] }}"
+
+- name: "installing freckle packages that need ansible roles"
+  include_tasks: "role-install-{{ role_package['vars']['name'] }}.yml"
+
+
+
+# - set_fact: {"{{ item.key }}": None}
+  # with_dict: "{{ role_package['vars'] }}"
