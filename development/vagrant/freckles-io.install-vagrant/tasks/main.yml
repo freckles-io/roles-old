@@ -1,0 +1,11 @@
+---
+# tasks to install vagrant
+
+- name: "[checking for executable: vagrant]"
+  required_executable_facts:
+    executables_to_check:
+      - vagrant
+
+- name: "[include common tasks]"
+  include_tasks: common_vagrant.yml
+  when: "'vagrant' in executables_missing or force_update"

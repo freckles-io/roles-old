@@ -1,0 +1,81 @@
+---
+# tasks to install vagrant
+
+- name: "[calculating Vagrant download name]"
+  set_fact:
+    vagrant_binary_name: "{{ ansible_os_family | vagrant_binary_name_filter(vagrant_version, ansible_architecture) }}"
+
+- name: creating cache download dir
+  file:
+    name: "{{ vagrant_download_path }}"
+    state: directory
+  when: ansible_os_family != "Darwin"
+
+# errors out when 'validate_certs: true', needs to be fixed in ansible I think
+- name: downloading Vagrant
+  get_url:
+    url: "{{ vagrant_download_url }}/{{ vagrant_version }}/{{ vagrant_binary_name }}"
+    dest: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+    validate_certs: false # temporary, until ansible fixes this
+  become: no
+  when: ansible_os_family != "Darwin"
+
+# get_url errors out here, at least on El Capitain
+# - name: download Vagrant
+  # command: curl "{{ vagrant_download_url }}/{{ vagrant_version }}/{{vagrant_binary_name }}" --output "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+  # become: no
+  # when: ansible_os_family == "Darwin"
+
+- name: installing Vagrant Debian package
+  apt:
+    deb: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+  become: yes
+  when: ansible_os_family == "Debian"
+
+- name: check is dnf installed
+  shell: command -v dnf >/dev/null 2>&1
+  register: dnf_exists
+  ignore_errors: yes
+  when: ansible_os_family == "RedHat"
+
+- name: "installing Vagrant rpm package (using 'yum')"
+  yum:
+    name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+  become: yes
+  when: "ansible_os_family == 'RedHat' and dnf_exists.failed"
+
+- name: "installing Vagrant rpm package (using 'dnf')"
+  dnf:
+    name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+  become: yes
+  when: "ansible_os_family == 'RedHat' and not dnf_exists.failed"
+
+- name: installing Vagrant dmg package
+  mac_pkg:
+    archive_type: dmg
+    archive_path: Vagrant.pkg
+    pkg_name: com.vagrant.vagrant
+    pkg_version: "{{ vagrant_version }}"
+    url: "{{ vagrant_download_url }}/{{ vagrant_version }}/{{vagrant_binary_name }}"
+
+  become: yes
+  when: ansible_os_family == "Darwin"
+
+# including those tasks doesn't work for some reason
+# - name: "[including debian tasks]"
+  # include_tasks: debian.yml
+  # when: ansible_os_family == "Debian"
+
+# - name: "[including redhat tasks]"
+#   include_tasks: redhat.yml
+#   when: ansible_os_family == "RedHat"
+
+# - name: "[including darwin tasks]"
+#   include_tasks: darwin.yml
+#   when: ansible_os_family == "Darwin"
+
+- name: deleting downloaded Vagrant install package
+  file:
+    name: "{{ vagrant_download_path }}/{{ vagrant_binary_name }}"
+    state: absent
+  when: delete_download_after

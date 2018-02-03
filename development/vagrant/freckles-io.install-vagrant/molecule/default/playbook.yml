@@ -1,0 +1,6 @@
+---
+- hosts: all
+  roles:
+    - role: freckles-io.install-vagrant
+      force_update: true
+

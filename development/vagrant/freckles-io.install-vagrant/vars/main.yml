@@ -1,0 +1,5 @@
+---
+# vars file for install-vagrant
+
+vagrant_binary_path: "/usr/bin/vagrant"
+vagrant_binary_path_darwin: "/usr/local/bin/vagrant"

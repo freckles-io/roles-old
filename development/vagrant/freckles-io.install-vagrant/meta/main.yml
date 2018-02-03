@@ -1,0 +1,30 @@
+---
+galaxy_info:
+  author: Markus Binsteiner
+  description: Install Vagrant on Debian/RedHat/Darwin
+
+  license: license (GPLv3)
+
+  min_ansible_version: 2.3
+
+  # If this a Container Enabled role, provide the minimum Ansible Container version.
+  # min_ansible_container_version:
+
+  platforms:
+    - name: MacOSX
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+
+  galaxy_tags:
+    - vagrant
+
+dependencies: []
