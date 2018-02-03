@@ -19,3 +19,4 @@ web/letsencrypt/thefinn93.letsencrypt=https://github.com/freckles-io-external/an
 package-management/nodejs/freckles-io.install-nodejs=https://github.com/freckles-io/freckles-io.install-nodejs
 languages/php/geerlingguy.php=https://github.com/freckles-io-external/ansible-role-php
 services/databases/mysql/geerlingguy.mysql=https://github.com/freckles-io-external/ansible-role-mysql
+services/web-servers/apache/geerlingguy.apache=https://github.com/freckles-io-external/ansible-role-apache.git
