@@ -1,0 +1,6 @@
+---
+# defaults file for install-packages
+
+profile_name: default
+package_install_list: []
+pkg_mgr: 'auto'

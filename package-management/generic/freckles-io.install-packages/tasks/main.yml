@@ -1,0 +1,39 @@
+---
+# tasks file for install-packages
+- name: "[auto-detect package managers]"
+  set_fact:
+    required_package_managers: "{{ package_install_list | pkg_mgr_filter(pkg_mgr) }}"
+
+# sometimes this needs to be done on a new box, otherwise apt install fails
+# - name: "update apt cache"
+#   become: yes
+#   apt:
+#     update_cache: yes
+#     cache_valid_time: 3600
+#   when: "ansible_distribution == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt'))"
+
+
+- name: "[installing required package managers]"
+  include_role:
+    name: freckles-io.install-pkg-mgrs
+  vars:
+    pkg_mgrs: "{{ required_package_managers }}"
+
+- name: "[packages that need ansible roles]"
+  include_tasks: "role-install-{{ role_package['vars']['name'] }}.yml"
+  when: "role_package['vars'].get('pkg_mgr', 'auto') == 'ansible_role'"
+  with_items:
+    - "{{ package_install_list }}"
+  loop_control:
+    loop_var: role_package
+
+- name: "installing {{ profile_name }} packages"
+  install:
+    packages: "{{ item }}"
+    pkg_mgr: "{{ pkg_mgr }}"
+    conda_environment: "{{ conda_environment | default(omit) }}"
+    conda_channels: "{{ conda_channels | default(omit) }}"
+  ignore_errors: "{{ ignore_errors | default(true) }}"
+  when: "item['vars'].get('pkg_mgr', 'auto') != 'ansible_role'"
+  with_items:
+    - "{{ package_install_list }}"
