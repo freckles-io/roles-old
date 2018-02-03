@@ -14,3 +14,4 @@ platform-specific/darwin/commandline-tools/elliotweiser.osx-command-line-tools=h
 languages/java/ansiblebit.oracle-java=https://github.com/freckles-io-external/oracle-java
 package-management/homebrew/geerlingguy.homebrew=https://github.com/freckles-io-external/ansible-role-homebrew
 system/init/systemd/tumf.systemd-service=https://github.com/freckles-io-external/ansible-role-systemd-service
+services/web-servers/nginx/geerlingguy.nginx=https://github.com/freckles-io-external/ansible-role-nginx
