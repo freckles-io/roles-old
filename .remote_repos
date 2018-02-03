@@ -9,3 +9,4 @@ development/vagrant/freckles-io.install-vagrant=https://github.com/freckles-io/f
 package-management/generic/freckles-io.install-packages=https://github.com/freckles-io/freckles-io.install-packages
 package-management/nix/freckles-io.install-nix=https://github.com/freckles-io/freckles-io.install-nix
 package-management/conda/freckles-io.install-conda=https://github.com/freckles-io/freckles-io.install-conda
+package-management/generic/freckles-io.install-pkg-mgrs=https://github.com/freckles-io/freckles-io.install-pkg-mgrs
