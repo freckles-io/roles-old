@@ -1,0 +1,12 @@
+---
+- name: "[include epel tasks]"
+  include_tasks: RedHat.yml
+  when: ansible_os_family == 'RedHat'
+
+- name: "[include debian tasks]"
+  include_tasks: Debian.yml
+  when: ansible_os_family == 'Debian'
+
+- name: "[include darwin tasks]"
+  include_tasks: Darwin.yml
+  when: ansible_os_family == 'Darwin'

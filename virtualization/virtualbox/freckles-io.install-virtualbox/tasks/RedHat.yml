@@ -1,0 +1,3 @@
+---
+- name: "[not implemented message]"
+  fail: msg="Role does not support RedHat based distros yet"

@@ -1,0 +1,36 @@
+---
+galaxy_info:
+  author: Markus Binsteiner
+  description: ansible role to install virtualbox
+
+  license: license (GPLv3)
+
+  min_ansible_version: 2.3
+
+  # If this a Container Enabled role, provide the minimum Ansible Container version.
+  # min_ansible_container_version:
+
+  platforms:
+  - name: Ubuntu
+    versions:
+    - utopic
+    - vivid
+    - wily
+    - xenial
+    - yakkety
+  - name: Debian
+    versions:
+    - jessie
+    - stretch
+  # - name: EL
+    # versions:
+    # - 7
+  - name: MacOSX
+    versions:
+    - all
+
+  galaxy_tags:
+    - virtualbox
+    - vagrant
+
+dependencies: []
