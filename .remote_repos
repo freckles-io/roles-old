@@ -4,3 +4,4 @@ generic/freckles-io.box-basics=https://github.com/freckles-io/freckles-io.box-ba
 languages/python/freckles-io.python-dev=https://github.com/freckles-io/freckles-io.python-dev
 freckles/freckles-io.freckles-config=https://github.com/freckles-io/freckles-io.freckles-config
 configuration-management/dotfiles/freckles-io.dotfiles=https://github.com/freckles-io/freckles-io.dotfiles
+virtualization/virtualbox/freckles-io.install-virtualbox=https://github.com/freckles-io/freckles-io.install-virtualbox
