@@ -1,0 +1,7 @@
+---
+- hosts: all
+  roles:
+    - role: freckles-io.freckelize
+      freckles:
+        - url: https://github.com/makkus/dotfiles-test-full.git
+          path: ~/dotfiles-test-full

@@ -1,0 +1,32 @@
+- name: installing stow
+  install:
+    packages:
+      - stow:
+          conda_channels:
+            - conda-forge
+            - freckles
+    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+  # when: '"stow" in executables_missing and (not dotfiles_no_stow or dotfiles_unstow)'
+
+- stat:
+    path: "{{ freckle_folder_metadata.stow_root }}"
+  register: p
+
+- name: "ensuring stow target parent exists"
+  file:
+    path: "{{ freckle_folder_metadata.stow_root }}"
+    recurse: true
+    state: directory
+    owner: "{{ freckle_folder_metadata.owner }}"
+    group: "{{ freckle_folder_metadata.group | default(omit) }}"
+  when: p.stat.isdir is not defined or not p.stat.isdir
+  become: true
+
+- name: "stowing freckle folders"
+  stow:
+    name: "{{ freckle_folder_path | basename }}"
+    source_dir: "{{ freckle_folder_path | dirname }}"
+    target_dir: "{{ freckle_folder_metadata.stow_root }}"
+    delete_conflicts: False
+  become: true
+  #become_user: "{{ freckle_folder_metadata.stow_user | default(freckle_folder_metadata.owner) }}"

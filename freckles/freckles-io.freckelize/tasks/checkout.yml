@@ -1,0 +1,57 @@
+# ==============================================================================
+# getting all the metadata from the freckle folders
+
+- name: "[checkout freckles]"
+  include_tasks: "checkout_{{ checkout_item.1.type }}.yml"
+  vars:
+    freckle_item_metadata: "{{ checkout_item.1 }}"
+    freckle_local_parent_path: "{{ checkout_item.1.local_parent | calculate_local_freckle_folder(ansible_env.HOME) }}"
+  when: "not checkout_item.1.checkout_skip"
+  with_nested:
+    - "{{ freckles }}"
+  loop_control:
+    loop_var: checkout_item
+
+- name: "[finding freckles folders]"
+  freckles_facts:
+    freckles_repos: "{{ freckles }}"
+
+# ==============================================================================
+# compute folder metadata,
+# can only do that on the controller, because dependency requirements
+
+# all metadata from all folders
+- name: "[processing freckles folders]"
+  set_fact:
+    freckles_metadata_without_user_vars: "{{ freckles_folders_raw | read_profile_vars_filter }}"
+
+- name: "[setting metadata variables]"
+  include_tasks: set_variables.yml
+
+- name: "[processing folder permissions]"
+  include_tasks: folder_permissions.yml
+  vars:
+    freckle_folder_path: "{{ freckle_profile_folder.key }}"
+    freckle_folder_metadata: "{{ freckle_profile_folder.value }}"
+  when: "freckle_profile_folder.value.get('change_owner', False)"
+  with_dict: "{{ freckle_global_folder_vars }}"
+  loop_control:
+    loop_var: freckle_profile_folder
+
+- name: "[putting folders in place]"
+  include_tasks: "stage_folder_{{ freckle_profile_folder.value.staging_method }}.yml"
+  vars:
+    freckle_folder_path: "{{ freckle_profile_folder.key }}"
+    freckle_folder_metadata: "{{ freckle_profile_folder.value }}"
+  when: freckle_profile_folder.value.staging_method
+  with_dict: "{{ freckle_global_folder_vars }}"
+  loop_control:
+    loop_var: freckle_profile_folder
+
+- name: "[setting repo metadata file absolute path]"
+  set_fact:
+    repo_metadata_file_abs_path: "{{ playbook_dir }}/../logs/{{ repo_metadata_file }}"
+
+
+- name: "[storing freckle repo metadata for next runner]"
+  local_action: copy content="{{ freckles_metadata }}" dest="{{ repo_metadata_file_abs_path }}"

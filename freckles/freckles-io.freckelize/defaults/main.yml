@@ -1,0 +1,26 @@
+---
+# defaults file for dotfiles
+
+checkout_phase: false
+pkg_mgr: "auto"
+freckles_dotfiles_default_stow_target_dir: "{{ ansible_env.HOME }}"
+freckles_dotfiles_default_delete_conflicts: false
+freckles: {}
+# example for freckles var:
+# freckles:
+#   - path: ~/markus/projects/freckles
+#     url: https://github.com/makkus/dotfiles.git
+#     profiles:
+#       - dotfiles
+#     include:
+#       - nix
+#       - conda
+#     exclude:
+#       - misc
+#       - x
+
+# profile specific defaults:
+# python-dev
+
+conda_packages: []
+default_python_version: 2.7

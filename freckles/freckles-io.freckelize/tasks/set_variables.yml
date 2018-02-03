@@ -1,0 +1,29 @@
+- name: "[merge user input with folder metadata]"
+  set_fact:
+      freckles_metadata: "{{ freckles_metadata_without_user_vars | user_input_merge_filter(user_vars) }}"
+
+# flattened list of profiles, each profile contains a list of folders that is of the profile
+- name: "[flattening profiles]"
+  set_fact:
+    flat_profiles_list_all: "{{ freckles_metadata | flatten_profiles_filter }}"
+
+# split up 'normal' and special 'freckle' profile (the latter contains global
+# file-related metadata)
+- name: "[extract special 'freckle' profile]"
+  set_fact:
+    freckle_profile: "{{ flat_profiles_list_all[0][1] }}"
+    flat_profiles_list: "{{ flat_profiles_list_all[1:] }}"
+
+- name: "[sort profiles]"
+  set_fact:
+    flat_profiles_list: "{{ flat_profiles_list | sort_profiles_filter(profile_order) }}"
+  when: profile_order is defined
+
+# augment 'freckle' profile metadata with defaults
+- name: "[compute global folder vars]"
+  set_fact:
+    freckle_global_folder_vars: "{{ freckle_profile | folder_vars_filter(freckles_metadata, ansible_env.USER, ansible_env.GROUP, ansible_env.HOME) }}"
+
+- name: "[compute global vars]"
+  set_fact:
+    freckles_global_vars: "{{ freckle_global_folder_vars | global_vars_filter }}"

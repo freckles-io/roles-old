@@ -1,0 +1,23 @@
+- name: "creating group '{{ freckle_folder_metadata.group | default('n/a') }}' for folder '{{ freckle_folder_path }}'"
+  group:
+    name: "{{ freckle_folder_metadata.group }}"
+    state: present
+    gid: "{{ freckle_folder_metadata.gid | default(omit) }}"
+  when: freckle_folder_metadata.get('group', False)
+  become: yes
+
+- name: "creating user '{{ freckle_folder_metadata.owner | default('n/a') }} for folder '{{ freckle_folder_path }}'"
+  user:
+    name: "{{ freckle_folder_metadata['owner'] }}"
+    state: present
+    group: "{{ freckle_folder_metadata.group | default(omit) }}"
+    uid: "{{ freckle_folder_metadata.uid | default(omit) }}"
+  become: yes
+
+- name: "setting owner for folder '{{ freckle_folder_path }}' to be '{{ freckle_folder_metadata.owner | default('n/a') }}'"
+  file:
+    path: "{{ freckle_folder_path }}"
+    owner: "{{ freckle_folder_metadata.owner }}"
+    group: "{{ freckle_folder_metadata.group | default(omit) }}"
+    recurse: True
+  become: yes

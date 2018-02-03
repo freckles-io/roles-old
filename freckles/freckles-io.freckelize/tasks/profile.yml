@@ -1,0 +1,34 @@
+---
+# tasks per profiles
+- name: "starting adapter '{{ freckles_profile_name }}'"
+  debug: msg="Starting adapter '{{ freckles_profile_name }}'"
+
+- name: "[checking whether to run profile init]"
+  local_action: stat path="{{ role_path }}/tasks/init-{{ freckles_profile_name }}.yml"
+  register: init_file
+  become: no
+
+- name: "[starting adater init: {{ freckles_profile_name }}]"
+  include_tasks: "init-{{ freckles_profile_name }}.yml"
+  vars:
+      global_profile_vars: "{{ freckles_profile_folders | flatten_vars_filter }}"
+  when: init_file.stat.exists
+
+- name: "[checking whether to run profile tasks]"
+  local_action: stat path="{{ role_path }}/tasks/items-{{ freckles_profile_name }}.yml"
+  register: items_file
+  become: no
+
+- name: "[starting adapter tasks: {{ freckles_profile_name }}]"
+  include_tasks: "items-{{ freckles_profile_name }}.yml"
+  vars:
+    freckle_path: "{{ freckle_loop_item.key }}"
+    freckle_folder_name: "{{ freckle_loop_item.key | basename }}"
+    freckle_owner: "{{ freckle_global_folder_vars[freckle_loop_item.key]['owner'] }}"
+    freckle_vars: "{{ freckle_loop_item.value.vars | flatten_vars_filter }}"
+    freckle_vars_raw: "{{ freckle_loop_item.value }}"
+    freckle_folder_vars: "{{ freckle_global_folder_vars[freckle_loop_item.key] }}"
+  when: items_file.stat.exists
+  with_dict: "{{ freckles_profile_folders }}"
+  loop_control:
+    loop_var: freckle_loop_item

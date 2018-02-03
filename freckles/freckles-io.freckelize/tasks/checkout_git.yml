@@ -1,0 +1,5 @@
+- name: "checking out '{{ freckle_item_metadata.remote_url }}"
+  git:
+    repo: "{{ freckle_item_metadata.remote_url }}"
+    dest: "{{ freckle_local_parent_path }}/{{ freckle_item_metadata.local_name }}"
+  become: "{{ freckle_item_metadata.checkout_become }}"

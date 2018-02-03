@@ -1,0 +1,22 @@
+---
+- name: "[read freckle_repo_metadata]"
+  include_vars:
+    file: "{{ repo_metadata_file }}"
+    name: freckles_metadata_without_user_vars
+
+- name: "[setting metadata variables]"
+  include_tasks: set_variables.yml
+
+- name: "executing generic freckle tasks"
+  include_tasks: "freckle-generic.yml"
+
+- name: "[including profile specific tasks]"
+  include_tasks: "profile.yml"
+  vars:
+    freckles_profile_name: "{{ profile_loop_item[0] }}"
+    freckles_profile_folders: "{{ profile_loop_item[1] }}"
+    # freckles_user_vars: "{{ user_vars.get(profile_loop_item[0], {}) }}"
+    # freckles_global_vars: "{{ freckle_global_folder_vars }}"
+  with_list: "{{ flat_profiles_list }}"
+  loop_control:
+    loop_var: profile_loop_item
