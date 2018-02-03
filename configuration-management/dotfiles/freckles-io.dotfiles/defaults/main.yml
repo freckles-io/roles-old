@@ -1,0 +1,7 @@
+---
+# defaults file for dotfiles
+dotfiles_no_stow: false
+dotfiles_no_folder_install: false
+dotfiles_no_package_install: false
+dotfiles_unstow: false
+dotfiles_stow_method: 'stow'

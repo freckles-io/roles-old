@@ -1,0 +1,95 @@
+---
+# tasks file for dotfiles
+
+# - name: debug
+  # debug: var=freckle_profile_folders
+
+- name: "[get dotfile package metadata]"
+  dotfiles_facts:
+    freckles_profile_folders: "{{ dotfile_folders }}"
+
+- name: "[calculating extra package managers]"
+  set_fact:
+    extra_package_managers: "{{ freckles_metadata | extra_pkg_mgrs_filter }}"
+
+- name: "[install extra package managers]"
+  include_role:
+    name: freckles-io.install-pkg-mgrs
+  vars:
+    pkg_mgrs: "{{ extra_package_managers }}"
+  when: "extra_package_managers"
+
+- name: "[process dotfile package metadata]"
+  set_fact:
+    freckles_dotfiles_packages: "{{ freckles_profile_dotfiles_metadata | create_dotfiles_packages }}"
+
+- name: "enabling 'epel-release' repository (to be able to install 'stow')"
+  install:
+    packages:
+      - epel-release:
+          pkgs:
+            # fedora: ignore
+            centos: epel-release
+            other: ignore
+    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+  when: 'not dotfiles_no_stow'
+
+- name: "[install packages from dotfiles]"
+  include_role:
+    name: freckles-io.install-packages
+  vars:
+    package_install_list: "{{ freckles_dotfiles_packages }}"
+    profile_name: "dotfile folders"
+  when: "not dotfiles_no_package_install and not dotfiles_no_folder_install"
+
+# - name: "[calculating package list]"
+#   set_fact:
+#     freckles_packages_list: "{{ freckles_metadata | create_package_list_filter }}"
+
+# - name: "[preapring base packages]"
+#   include_role:
+#     name: freckles-io.install-packages
+#   vars:
+#     profile_name: "dotfiles packages-list"
+#     package_install_list: "{{ freckles_packages_list }}"
+#   when: "not dotfiles_no_package_install"
+
+- name: "[check required executables]"
+  required_executable_facts:
+    executables_to_check:
+      - stow
+
+- name: installing stow
+  install:
+    packages:
+      - stow:
+          conda_channels:
+            - conda-forge
+            - freckles
+    pkg_mgr: "{{ pkg_mgr | default(omit) }}"
+  when: '"stow" in executables_missing and (not dotfiles_no_stow or dotfiles_unstow)'
+
+- name: stowing folders
+  stow:
+    name: "{{ item.vars.stow_folder_name }}"
+    source_dir: "{{ item.vars.stow_folder_parent }}"
+    target_dir: "{{ item.vars.stow_target_dir | default(freckles_dotfiles_default_stow_target_dir) }}"
+    delete_conflicts: "{{ item.vars.stow_delete_conflicts | default(freckles_dotfiles_default_delete_conflicts) }}"
+  ignore_errors: "{{ ignore_errors | default(true) }}"
+  when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false and not dotfiles_no_stow and not dotfiles_unstow'
+  become: "{{ item.vars.stow_become | default(false) }}"
+  with_items:
+    - "{{ freckles_dotfiles_packages }}"
+
+- name: unstowing folders
+  stow:
+    name: "{{ item.vars.stow_folder_name }}"
+    unstow: true
+    source_dir: "{{ item.vars.stow_folder_parent }}"
+    target_dir: "{{ item.vars.stow_target_dir | default(freckles_dotfiles_default_stow_target_dir) }}"
+    delete_conflicts: false
+  ignore_errors: "{{ ignore_errors | default(true) }}"
+  when: 'item.vars.stow_source is defined and item.vars.no_stow|default(false)|bool == false and dotfiles_unstow'
+  become: "{{ item.vars.stow_become | default(false) }}"
+  with_items:
+    - "{{ freckles_dotfiles_packages }}"
