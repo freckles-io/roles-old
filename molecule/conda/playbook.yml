@@ -1,7 +1,7 @@
 ---
 - hosts: all
   roles:
-    - role: makkus.install-freckles
+    - role: freckles-io.install-freckles
       use_conda: true
       extra_pip_args: "--trusted-host pypi.python.org"
       extra_conda_args: "--insecure"

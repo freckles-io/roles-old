@@ -1,5 +1,5 @@
 ---
 - name: "[installing conda]"
   include_role:
-    name: makkus.install-conda
+    name: freckles-io.install-conda
   when: "not conda_binary_path"
