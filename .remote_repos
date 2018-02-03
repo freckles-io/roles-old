@@ -16,3 +16,4 @@ package-management/homebrew/geerlingguy.homebrew=https://github.com/freckles-io-
 system/init/systemd/tumf.systemd-service=https://github.com/freckles-io-external/ansible-role-systemd-service
 services/web-servers/nginx/geerlingguy.nginx=https://github.com/freckles-io-external/ansible-role-nginx
 web/letsencrypt/thefinn93.letsencrypt=https://github.com/freckles-io-external/ansible-letsencrypt
+package-management/nodejs/freckles-io.install-nodejs=https://github.com/freckles-io/freckles-io.install-nodejs
