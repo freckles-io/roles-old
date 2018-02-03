@@ -1,0 +1,57 @@
+---
+
+- name: installing Debian dependencies
+  apt:
+    name: "{{ item }}"
+  become: yes
+  with_items:
+    - build-essential
+    - git
+    - curl
+    - python-dev
+    - python-virtualenv
+    - libssl-dev
+    - libffi-dev
+  when: "ansible_os_family == 'Debian' and not freckles_exists"
+
+- name: installing RedHat dependencies
+  yum:
+    name: "{{ item }}"
+  become: yes
+  with_items:
+    - epel-release
+    - wget
+    - curl
+    - git
+    - python-virtualenv
+    - openssl-devel
+    - gcc
+    - libffi-devel
+    - python-devel
+  when: "ansible_os_family == 'RedHat' and not freckles_exists"
+
+# TODO: - name: install Mac OS X dependencies
+
+- name: creating virtualenv
+  command: virtualenv "{{ pip_base_dir }}" -p "{{ pip_python }}"
+  args:
+    creates: "{{ pip_base_dir }}"
+  when: "not freckles_exists"
+
+# this is really mostly used for testing this role using molecule and a transparent https proxy, to speed up testing...
+- name: trying different way to install pip, in case everything else fails
+  shell: "curl -k https://bootstrap.pypa.io/get-pip.py | PIP_TRUSTED_HOST=pypi.python.org {{ pip_base_dir }}/bin/python"
+  when: insecure_pip_install and not freckles_exists
+
+- name: "[setting executable: pip]"
+  set_fact:
+    pip_to_use: "{{ pip_base_dir }}/bin/pip"
+
+- name: preparing virtualenv
+  command: "{{ pip_to_use }} install {{ extra_pip_args }} --upgrade {{ item }}"
+  with_items:
+    - pip
+    - setuptools
+    - wheel
+    - requests
+  when: "not freckles_exists"

@@ -1,0 +1,9 @@
+---
+- hosts: all
+  roles:
+    - role: freckles-io.install-freckles
+      use_conda: true
+      extra_pip_args: "--trusted-host pypi.python.org"
+      extra_conda_args: "--insecure"
+      insecure_pip_install: true
+      validate_certs: false

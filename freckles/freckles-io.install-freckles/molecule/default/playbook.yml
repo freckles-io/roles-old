@@ -1,0 +1,7 @@
+---
+- hosts: all
+  roles:
+    - role: freckles-io.install-freckles
+      install_method: pip
+      extra_pip_args: "--trusted-host pypi.python.org"
+      insecure_pip_install: true

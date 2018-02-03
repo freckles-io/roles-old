@@ -1,0 +1,40 @@
+---
+# install freckles using conda, assuming the conda package manager is already installed
+
+# workaround to prevent ansible to do all the skipping (which takes a while) if not necessary
+- name: "[pre-checking conda requirements]"
+  set_fact:
+    conda_name: "conda"
+- name: "[checking whether to install conda]"
+  include_tasks: "include-{{ conda_name }}.yml"
+  when: "not conda_binary_path"
+
+- name: "[find conda binary]"
+  get_conda_facts:
+    conda_binary: "{{ conda_binary_name }}"
+    freckles_binary: "{{ freckles_binary_name }}"
+    install_method: "conda"
+  become: no
+  when: "not conda_binary_path"
+
+- name: "[checking for conda environment]"
+  set_fact:
+    env_exists: "{{ conda_info | environment_exists_filter(environment_name) }}"
+
+- name: creating conda environment
+  command: "{{ conda_binary_path }} create -y --name {{ environment_name }} {{ extra_conda_args }} python={{ conda_python_version }}"
+  become: no
+  when: not env_exists
+
+- name: installing freckles dependencies
+  command: "{{ conda_binary_path }} install -y --name {{ environment_name }} {{ extra_conda_args }} {{ item }}"
+  with_items:
+    - pip
+    - cryptography
+    - pycrypto
+    - git
+  when: "not freckles_exists"
+
+- name: "[setting executable: pip]"
+  set_fact:
+    pip_to_use: "{{ freckles_parent_path }}/pip"

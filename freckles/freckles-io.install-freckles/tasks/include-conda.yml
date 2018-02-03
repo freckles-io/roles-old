@@ -1,0 +1,5 @@
+---
+- name: "[installing conda]"
+  include_role:
+    name: freckles-io.install-conda
+  when: "not conda_binary_path"

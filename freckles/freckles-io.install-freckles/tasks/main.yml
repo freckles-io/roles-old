@@ -1,0 +1,87 @@
+---
+# tasks file for install-freckles
+- name: "[fail if wrong install method specified]"
+  fail:
+    msg: "'install_method' variable needs to be either 'auto', 'conda' or 'pip'"
+  when: "install_method not in ['auto', 'conda', 'pip']"
+
+- name: "[finding freckles binary]"
+  get_conda_facts:
+    conda_binary: "{{ conda_binary_name }}"
+    freckles_binary: "{{ freckles_binary_name }}"
+    install_method: "{{ install_method }}"
+  become: no
+
+- name: "[include conda tasks]"
+  include_tasks: conda.yml
+  when: "install_method == 'conda' or existing_install_method == 'conda' or (not freckles_binary_path and install_method == 'auto')"
+
+- name: "[include non-conda tasks]"
+  include_tasks: non-conda.yml
+  when: "install_method == 'pip' or existing_install_method == 'pip'"
+
+- name: installing freckles
+  pip:
+    name: freckles
+    executable: "{{ pip_to_use }}"
+    extra_args: "{{ extra_pip_args }}"
+  become: no
+  when: "not freckles_exists"
+
+# - name: updating frkl
+#   pip:
+#     name: frkl
+#     executable: "{{ pip_to_use }}"
+#     extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
+#   become: no
+#   when: update
+
+# - name: updating nsbl
+#   pip:
+#     name: nsbl
+#     executable: "{{ pip_to_use }}"
+#     extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
+#   become: no
+#   when: update
+
+- name: updating freckles
+  pip:
+    name: freckles
+    executable: "{{ pip_to_use }}"
+    extra_args: "--no-cache-dir --upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
+  become: no
+  when: update
+
+- name: "[check if version is local folder]"
+  stat:
+    path: "{{ freckles_version }}"
+  register: version_folder
+
+- name: "[set version_is_folder fact]"
+  set_fact:
+    version_is_folder: "{{ version_folder.stat.isdir is defined and version_folder.stat.isdir }}"
+
+- name: "changing freckles version to local sources: {{ freckles_version }}"
+  pip:
+    name: "{{ freckles_version }}"
+    executable: "{{ pip_to_use }}"
+    extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U -e"
+  become: no
+  when: "version_is_folder and not update and freckles_version is defined and freckles_version != 'git'"
+
+- name: "changing freckles version to {{ freckles_version }}"
+  pip:
+    name: freckles
+    executable: "{{ pip_to_use }}"
+    extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
+    version: "{{ freckles_version }}"
+  become: no
+  when: "not version_is_folder and not update and freckles_version is defined and freckles_version != 'git'"
+
+- name: "changing freckles version to git master branch"
+  pip:
+    name: git+https://github.com/makkus/freckles.git
+    executable: "{{ pip_to_use }}"
+    extra_args: "--upgrade-strategy only-if-needed {{ extra_pip_args }} -U"
+  become: no
+  when: "not version_is_folder and not update and freckles_version is defined and freckles_version == 'git'"
