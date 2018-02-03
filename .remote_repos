@@ -12,3 +12,4 @@ package-management/conda/freckles-io.install-conda=https://github.com/freckles-i
 package-management/generic/freckles-io.install-pkg-mgrs=https://github.com/freckles-io/freckles-io.install-pkg-mgrs
 platform-specific/darwin/commandline-tools/elliotweiser.osx-command-line-tools=https://github.com/freckles-io-external/ansible-osx-command-line-tools
 languages/java/ansiblebit.oracle-java=https://github.com/freckles-io-external/oracle-java
+package-management/homebrew/geerlingguy.homebrew=https://github.com/freckles-io-external/ansible-role-homebrew
