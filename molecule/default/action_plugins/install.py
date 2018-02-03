@@ -6,7 +6,7 @@ import os
 from ansible import constants as C
 from ansible.plugins.action import ActionBase
 from frkl import frkl
-from nsbl.nsbl import ensure_git_repo_format, get_pkg_mgr_sudo
+from nsbl.nsbl import ensure_git_repo_format
 from requests.structures import CaseInsensitiveDict
 
 __metaclass__ = type
@@ -317,6 +317,7 @@ class ActionModule(ActionBase):
                 # msg["_task_id"] = task_id
                 display.display(json.dumps(output, encoding='utf-8'))
             self._play_context.become = get_pkg_mgr_sudo(pkg_mgr)
+
             run = self._execute_module(module_name=pkg_mgr, module_args=new_module_args, task_vars=task_vars,
                                        wrap_async=self._task.async)
             # print("ignore: {}".format(run))

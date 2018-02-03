@@ -2,11 +2,11 @@
 # tasks file for dotfiles
 # - name: "basic init tasks"
   # include_role:
-    # name: makkus.box-basics
+    # name: freckles-io.box-basics
 
-- name: "install required package managers"
+- name: "installing required package managers"
   include_role:
-    name: makkus.install-pkg-mgrs
+    name: freckles-io.install-pkg-mgrs
   vars:
     base_pkg_mgr: "{{ pkg_mgr }}"
     pkg_mgrs:
@@ -15,10 +15,10 @@
       - "{{ pkg_mgr }}"
 
 
-- name: "[checkout freckles tasks]"
+- name: "[freckelize checkout tasks]"
   include_tasks: "checkout.yml"
   when: checkout_phase
 
-- name: "[checkout freckles tasks]"
+- name: "[freckelize checkout tasks]"
   include_tasks: "profile_tasks.yml"
   when: not checkout_phase

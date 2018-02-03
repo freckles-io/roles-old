@@ -21,7 +21,7 @@ METADATA_CONTENT_KEY = "freckle_metadata_file_content"
 DEFAULT_FRECKLES_PROFILE_NAME = "__freckles_default__"
 
 SUPPORTED_ROLE_PACKAGES = {
-    "vagrant": "makkus.install-vagrant"
+    "vagrant": "freckles-io.install-vagrant"
 }
 
 # DEFAULT_PROFILE_VAR_FORMAT = {"child_marker": "profiles",
@@ -431,6 +431,9 @@ class FilterModule(object):
         return list(extra_pkg_mgrs)
 
     def create_package_list_filter(self, freckles_profile_metadata):
+        """
+        Tries to get all packages from all freckle items.
+        """
 
         result = []
 
@@ -451,7 +454,8 @@ class FilterModule(object):
 
                 result = result + pkgs
 
-        return sorted(result, key=lambda k: k.get("vars", {}).get("name", "zzz"))
+        #return sorted(result, key=lambda k: k.get("vars", {}).get("name", "zzz"))
+        return result
 
     def create_result_list_filter(self, freckles_profile_metadata, var_to_extract, pkg_format):
 

@@ -7,6 +7,9 @@
 - name: "[setting metadata variables]"
   include_tasks: set_variables.yml
 
+- name: "executing generic freckle tasks"
+  include_tasks: "freckle-generic.yml"
+
 - name: "[including profile specific tasks]"
   include_tasks: "profile.yml"
   vars:

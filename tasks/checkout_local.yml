@@ -36,5 +36,5 @@
     module: file
     path: "{{ freckle_item_metadata.remote_url }}"
     state: absent
-  become: true
+  # become: true
   when: freckle_item_metadata.source_delete
