@@ -5,7 +5,8 @@ PKG_MGRS_EXECUTABLES_MAP = {
     "nix": "nix-env",
     "conda": "conda",
     "homebrew": "brew",
-    "vagrant_plugin": "vagrant"
+    "vagrant_plugin": "vagrant",
+    "npm": "npm"
 }
 
 
@@ -16,4 +17,4 @@ class FilterModule(object):
         }
 
     def pkg_mgr_executable_filter(self, pkg_mgrs):
-        return [PKG_MGRS_EXECUTABLES_MAP[pkg_mgr] for pkg_mgr in pkg_mgrs if pkg_mgr != "auto"]
+        return [PKG_MGRS_EXECUTABLES_MAP.get(pkg_mgr, pkg_mgr) for pkg_mgr in pkg_mgrs if pkg_mgr != "auto"]
