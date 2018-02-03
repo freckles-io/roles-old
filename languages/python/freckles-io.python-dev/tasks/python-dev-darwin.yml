@@ -1,0 +1,27 @@
+- name: "[installing xcode]"
+  include_role:
+    name: elliotweiser.osx-command-line-tools
+  when: "ansible_os_family == 'Darwin'"
+
+- name: installing pip (if necessary)
+  command: easy_install pip
+  args:
+    creates: /usr/local/bin/pip
+  environment:
+    PATH: /usr/local/bin:/usr/bin:/bin
+  become: yes
+  when: "ansible_os_family == 'Darwin' and (pkg_mgr is not defined or pkg_mgr != 'conda')"
+
+- name: upgrading pip
+  command: pip install -U pip
+  environment:
+    PATH: /usr/local/bin:/usr/bin:/bin
+  become: yes
+  when: "ansible_os_family == 'Darwin' and (pkg_mgr is not defined or pkg_mgr != 'conda')"
+
+- name: installing virtualenv (for Mac OS X)
+  command: pip install virtualenv
+  environment:
+    PATH: /usr/local/bin:/usr/bin:/bin
+  become: yes
+  when: "ansible_os_family == 'Darwin' and (pkg_mgr is not defined or pkg_mgr != 'conda')"

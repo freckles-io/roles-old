@@ -1,0 +1,6 @@
+---
+# defaults file for python-dev
+pkg_mgr: "auto"
+python_dev_setuptools_command: "develop"
+python_dev_setup: "pip"
+python_version: 2

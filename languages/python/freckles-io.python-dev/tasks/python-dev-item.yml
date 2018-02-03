@@ -1,0 +1,103 @@
+- name: "[setting project name]"
+  set_fact:
+    project_name: "{{ python_dev_project_path | project_name_filter }}"
+
+- name: "[setting environment name]"
+  set_fact:
+    env_name: "{{ project_name }}-dev"
+
+- name: creating conda environment
+  conda:
+    name: "python={{ python_version | default(default_python_version) }}"
+    conda_environment: "{{ env_name }}"
+  when: "pkg_mgr is defined and pkg_mgr == 'conda'"
+
+- name: installing python project dependencies
+  include_role:
+    name: freckles-io.install-packages
+  vars:
+    profile_name: "project dependency"
+    conda_environment: "{{ env_name }}"
+    package_install_list: "{{ python_dev_dependency_packages | default([]) }}"
+#  when: "pkg_mgr is defined and pkg_mgr == 'conda'"
+
+- name: updating pip and setuptools (in conda environment)
+  install:
+    pkg_mgr: pip
+    executable: "~/.local/inaugurate/conda/envs/{{ env_name }}/bin/pip"
+    packages:
+      - "{{ item }}"
+    state: latest
+  when: "pkg_mgr is defined and pkg_mgr == 'conda'"
+  with_items:
+    - "pip"
+    - "setuptools"
+
+- name: installing python dev requirements (into conda environment)
+  install:
+    pkg_mgr: pip
+    executable: "~/.local/inaugurate/conda/envs/{{ env_name }}/bin/pip"
+    packages:
+      - "{{ python_dev_project_path }}/{{ item }}"
+  when: "pkg_mgr is defined and pkg_mgr == 'conda'"
+  with_items:
+    - "{{ python_dev_requirements_files | default([]) }}"
+
+- name: create virtualenv
+  command: "virtualenv -p python{{ python_version }} ~/.virtualenvs/{{ env_name }}"
+  args:
+    creates: "~/.virtualenvs/{{ env_name }}"
+  environment:
+    PATH: /usr/local/bin:/usr/bin:/bin
+  when: "(pkg_mgr is not defined or pkg_mgr == 'auto')"
+
+- name: updating pip and setuptools (in virtualenv)
+  install:
+    pkg_mgr: pip
+    #executable: "~/.local/opt/conda/envs/{{ env_name}}/bin/pip"
+    virtualenv: "~/.virtualenvs/{{ env_name }}"
+    state: latest
+    packages:
+      - "{{ item }}"
+  when: "pkg_mgr is not defined or pkg_mgr == 'auto'"
+  # environment:
+    # PATH: /usr/local/bin:/usr/bin:/bin
+  with_items:
+    - "pip"
+    - "setuptools"
+
+- name: installing python dev requirements (into virtualenv)
+  install:
+    pkg_mgr: pip
+    #executable: "~/.local/opt/conda/envs/{{ env_name}}/bin/pip"
+    virtualenv: "~/.virtualenvs/{{ env_name }}"
+    packages:
+      - "{{ python_dev_project_path }}/{{ item }}"
+  when: "pkg_mgr is not defined or pkg_mgr == 'auto'"
+  # environment:
+  #   PATH: /usr/bin:/bin
+  with_items:
+    - "{{ python_dev_requirements_files | default([]) }}"
+
+- set_fact:
+    setup_command: "python setup.py {{ python_dev_setuptools_command }}"
+  when: "python_dev_setup == 'setuptools'"
+
+- set_fact:
+    setup_command: "pip install -e ."
+  when: "python_dev_setup == 'pip'"
+
+- fail: msg="Could not determine setup method. 'python_dev_setup' needs to be either 'pip' or 'setuptools'"
+  when: not setup_command
+
+- name: "installing project into conda environment '{{ env_name }}' (using: '{{ setup_command }}')"
+  command: "~/.local/inaugurate/conda/envs/{{ env_name }}/bin/{{ setup_command }}"
+  args:
+    chdir: "{{ python_dev_project_path }}"
+  when: "pkg_mgr is defined and pkg_mgr == 'conda'"
+
+- name: "installing project into virtualenv '{{ env_name }}' (using: '{{ setup_command }}')"
+  command: "~/.virtualenvs/{{ env_name }}/bin/{{ setup_command }}"
+  args:
+    chdir: "{{ python_dev_project_path }}"
+  when: "pkg_mgr is not defined or pkg_mgr == 'auto'"

@@ -1,0 +1,29 @@
+---
+# tasks file for python-dev
+- name: "[checking for Mac OS X dependencies]"
+  include_tasks: python-dev-darwin.yml
+  when: "ansible_os_family == 'Darwin'"
+
+- name: installing python dependencies
+  include_role:
+    name: freckles-io.install-packages
+  vars:
+    profile_name: python-dev
+    package_install_list:
+      - vars:
+          name: build-essential
+          pkgs:
+            debian:
+              - build-essential
+            other: omit
+      - vars:
+          name: build-dependencies
+          pkgs:
+            debian:
+              - python-dev
+              - python-virtualenv
+              - python-pip
+            redhat:
+              - python-virtualenv
+              - python-devel
+            other: omit
