@@ -14,7 +14,7 @@
 
 - name: "[install extra package managers]"
   include_role:
-    name: makkus.install-pkg-mgrs
+    name: freckles-io.install-pkg-mgrs
   vars:
     pkg_mgrs: "{{ extra_package_managers }}"
   when: "extra_package_managers"
@@ -36,24 +36,23 @@
 
 - name: "[install packages from dotfiles]"
   include_role:
-    name: makkus.install-packages
+    name: freckles-io.install-packages
   vars:
     package_install_list: "{{ freckles_dotfiles_packages }}"
     profile_name: "dotfile folders"
   when: "not dotfiles_no_package_install and not dotfiles_no_folder_install"
 
-- name: "[calculating package list]"
-  set_fact:
-    freckles_packages_list: "{{ freckles_metadata | create_package_list_filter }}"
+# - name: "[calculating package list]"
+#   set_fact:
+#     freckles_packages_list: "{{ freckles_metadata | create_package_list_filter }}"
 
-- name: "[preapring base packages]"
-  include_role:
-    name: makkus.install-packages
-  vars:
-    profile_name: "dotfiles packages-list"
-    package_install_list: "{{ freckles_packages_list }}"
-  when: "not dotfiles_no_package_install"
-
+# - name: "[preapring base packages]"
+#   include_role:
+#     name: freckles-io.install-packages
+#   vars:
+#     profile_name: "dotfiles packages-list"
+#     package_install_list: "{{ freckles_packages_list }}"
+#   when: "not dotfiles_no_package_install"
 
 - name: "[check required executables]"
   required_executable_facts:

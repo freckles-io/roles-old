@@ -17,8 +17,8 @@ Coming soon
 Dependencies
 ------------
 
-    - makkus.install-nix
-    - makkus.install-conda
+    - freckles-io.install-nix
+    - freckles-io.install-conda
     - elliotweiser.osx-command-line-tools
     - geerlingguy.homebrew
 
@@ -29,7 +29,7 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - role: makkus.dotfiles
+         - role: freckles-io.dotfiles
 
 License
 -------
