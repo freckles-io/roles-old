@@ -1,0 +1,54 @@
+---
+# tasks file for box-basics
+
+# sometimes this needs to be done on a new box, otherwise apt install fails
+- name: "update apt cache (ignoring errors)"
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: "ansible_pkg_mgr == 'apt' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt'))"
+  ignore_errors: true
+  register: apt_result
+
+- name: "update apt cache again"
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: "ansible_pkg_mgr == 'apt' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt')) and apt_result.failed"
+
+- name: "ensure python-apt and rsync are installed"
+  command: "apt-get install -y python-apt rsync"
+  become: yes
+  when: "ansible_pkg_mgr == 'apt' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'apt'])"
+
+# TODO: refactor the below out into install-pkg-mgrs?
+- name: "ensure python2-dnf and rsync are installed"
+  command: "dnf install -y python2-dnf rsync"
+  become: yes
+  when: "ansible_pkg_mgr == 'dnf' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'dnf'])"
+
+- name: "ensure yum is installed"
+  command: "dnf install -y yum"
+  become: yes
+  when: "ansible_pkg_mgr == 'dnf' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'dnf'])"
+
+# - name: "ensure python2-yum is installed"
+  # command: "yum install -y python2-yum"
+  # become: yes
+  # when: "ansible_pkg_mgr == 'yum' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'yum'])"
+
+- name: "enable selinux python bindings (using 'dnf')"
+  command: "dnf install -y libselinux-python"
+  become: yes
+  when: "ansible_os_family == 'RedHat' and ansible_pkg_mgr == 'dnf' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'dnf'])"
+
+- name: "enable selinux python bindings (using 'yum')"
+  command: "yum install -y libselinux-python"
+  become: yes
+  when: "ansible_os_family == 'RedHat' and ansible_pkg_mgr == 'yum' and (pkg_mgr is not defined or pkg_mgr in ['auto', 'yum'])"
+
+
+  # need libselinux-python to get a meaningful ansible_selinux var: https://github.com/ansible/ansible/pull/31065
+  # when: "ansible_selinux is defined and ansible_selinux != False and ansible_selinux.status == 'enabled'"

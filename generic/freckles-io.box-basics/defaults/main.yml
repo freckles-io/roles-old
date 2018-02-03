@@ -1,0 +1,5 @@
+---
+# defaults file for box-basics
+required_executables: []
+pkg_mgr: "auto"
+system_pkg_mgr: "auto"
