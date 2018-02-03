@@ -1,0 +1,15 @@
+- name: "[calculating extra package managers]"
+  set_fact:
+    freckles_extra_package_managers: "{{ freckles_metadata | extra_pkg_mgrs_filter }}"
+
+- name: "[calculating package list]"
+  set_fact:
+    freckles_packages_list: "{{ freckles_metadata | create_package_list_filter }}"
+
+- name: "[preapring base packages]"
+  include_role:
+    name: freckles-io.install-packages
+  vars:
+    profile_name: "all freckle folders"
+    package_install_list: "{{ freckles_packages_list }}"
+  when: "not dotfiles_no_package_install"

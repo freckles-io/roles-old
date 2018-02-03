@@ -1,0 +1,16 @@
+- name: "[create freckle parent folder]"
+  file:
+    state: directory
+    recurse: true
+    path: "{{ freckle_local_parent_path }}"
+  become: "{{ freckle_item_metadata.checkout_become }}"
+  when: "not freckle_item_metadata.checkout_skip"
+
+- name: "downloading extracting remote freckle archive"
+  unarchive:
+    src: "{{ freckle_item_metadata.remote_url }}"
+    dest: "{{ freckle_item_metadata.local_parent }}"
+    remote_src: true
+    keep_newer: true
+  become: "{{ freckle_item_metadata.checkout_become }}"
+
