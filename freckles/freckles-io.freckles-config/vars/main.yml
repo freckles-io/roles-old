@@ -1,0 +1,4 @@
+---
+# vars file for freckles-config
+
+freckles_config_default_folder: "{{ ansible_env.HOME }}/.freckles"

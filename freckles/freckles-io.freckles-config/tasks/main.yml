@@ -1,0 +1,52 @@
+---
+# tasks file for freckles-config
+
+# - name: (potentially) changing local config file
+  # freckles_config:
+    # freckles_config_tasks: "{{ freckles_config_tasks }}"
+
+- name: check existing folder
+  stat:
+    path: "{{ freckles_config_default_folder }}"
+  register: local_config
+
+- name: fail if folder already exists
+  fail: msg="Folder {{ freckles_config_default_folder }} already exists"
+  when: "local_config.stat.exists and not freckles_config_force_link and freckles_config_folder != freckles_config_default_folder"
+
+- name: delete existing link
+  file:
+    path: "{{ freckles_config_default_folder }}"
+    state: absent
+  when: "freckles_config_link_to_home and freckles_config_force_link and freckles_config_folder != freckles_config_default_folder"
+
+- name: link config folder to home dir
+  file:
+    src: "{{ freckles_config_folder }}"
+    dest: "{{ freckles_config_default_folder }}"
+    state: link
+  when: "freckles_config_link_to_home"
+
+- name: load config file
+  set_fact:
+    freckles_config_dict: "{{ freckles_config_folder | freckles_config_read }}"
+
+- name: checking out repos
+  local_action: git repo="{{ item.url }}" dest="{{ item.path }}" track_submodules=no update="{{ freckles_config_update_repos }}"
+  when: "item.url"
+  with_items: "{{ freckles_config_dict.get('trusted-repos', []) | expand_repos_filter }}"
+
+- name: checking out extra repos
+  local_action: git repo="{{ item.url }}" dest="{{ item.path }}" track_submodules=no update="{{ freckles_config_update_repos }}"
+  when: "item.url"
+  with_items: "{{ freckles_extra_repos | expand_repos_filter }}"
+
+# - name: updating repos
+#   local_action: git repo="{{ item.url }}" dest="{{ item.path }}" track_submodules=yes update="{{ freckles_config_update_repos }}"
+#   when: "item.url and freckles_config_update_repos"
+#   with_items: "{{ freckles_config_dict.get('trusted-repos', []) | expand_repos_filter }}"
+
+# - name: updating extra repos
+#   local_action: git repo="{{ item.url }}" dest="{{ item.path }}" track_submodules=yes update="{{ freckles_config_update_repos }}"
+#   when: "item.url and freckles_config_update_repos"
+#   with_items: "{{ freckles_extra_repos | expand_repos_filter }}"

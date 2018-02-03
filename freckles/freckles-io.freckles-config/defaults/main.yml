@@ -1,0 +1,9 @@
+---
+# defaults file for freckles-config
+
+freckles_config_folder: "{{ ansible_env.HOME }}/.freckles"
+freckles_config_update_repos: no
+freckles_config_link_to_home: no
+freckles_config_force_link: no
+freckles_extra_repos: []
+freckles_config_tasks: {}
