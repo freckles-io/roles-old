@@ -1,0 +1,5 @@
+---
+# defaults file for freckles-io.install-pkg-mgrs
+
+pkg_mgrs: []
+base_pkg_mgr: "auto"

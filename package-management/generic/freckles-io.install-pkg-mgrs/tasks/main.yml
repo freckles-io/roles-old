@@ -1,0 +1,58 @@
+# tasks file for freckles-io.install-pkg-mgrs
+
+# this doesn't work, bug in ansible, for now installing roles manually one by one
+# - name: ensure all package managers are installed
+#   include_role:
+#     name: "{{ item }}"
+#   with_items:
+#     - "{{ dotfiles_repos | pkg_mgr_filter('install-') }}"
+
+- name: "[check required executables]"
+  required_executable_facts:
+    executables_to_check: "{{ pkg_mgrs | pkg_mgr_executable_filter }}"
+#  environment:
+#    PATH: "{{ ansible_env.PATH }}:{{ ansible_env.HOME }}/.local/bin"
+
+- name: checking for Mac OS X
+  include_role:
+    name: geerlingguy.homebrew
+  vars:
+    homebrew_cask_apps: []
+  when: "ansible_os_family == 'Darwin' and 'brew' in executables_missing"
+
+- name: checking whether to install nix
+  include_role:
+    name: freckles-io.install-nix
+  when: "'nix-env' in executables_missing"
+
+- name: checking whether to install conda
+  include_role:
+    name: freckles-io.install-conda
+  when: "'conda' in executables_missing"
+
+- name: "update apt cache"
+  become: yes
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  when: "ansible_distribution == 'Debian' and (base_pkg_mgr is defined and (base_pkg_mgr == 'auto' or base_pkg_mgr == 'apt')) and 'git' in executables_missing"
+  ignore_errors: false
+
+- name: install git
+  install:
+    packages:
+      - git
+    pkg_mgr: "{{ base_pkg_mgr }}"
+  when: "'git' in executables_missing"
+
+- name: checking whether to install Vagrant
+  include_role:
+    name: freckles-io.install-vagrant
+  when: "'vagrant' in executables_missing"
+
+- name: checking whether to install nodejs
+  include_role:
+    name: freckles-io.install-nodejs
+  vars:
+    nodejs_symlink_target: "{{ ansible_env.HOME }}/.local/bin"
+  when: "'npm' in executables_missing"
