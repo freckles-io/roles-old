@@ -20,3 +20,4 @@ package-management/nodejs/freckles-io.install-nodejs=https://github.com/freckles
 languages/php/geerlingguy.php=https://github.com/freckles-io-external/ansible-role-php
 services/databases/mysql/geerlingguy.mysql=https://github.com/freckles-io-external/ansible-role-mysql
 services/web-servers/apache/geerlingguy.apache=https://github.com/freckles-io-external/ansible-role-apache.git
+services/web-servers/generic/freckles-io.webserver=https://github.com/freckles-io/freckles-io.webserver.git
