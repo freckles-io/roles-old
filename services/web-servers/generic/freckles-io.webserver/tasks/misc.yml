@@ -1,0 +1,17 @@
+---
+
+- name: restarting nginx webserver
+  service:
+  args:
+    state: restarted
+    name: "nginx"
+  become: true
+  # when: "grav_letsencrypt_email is not defined or not grav_letsencrypt_email"
+
+- name: copying docker run file
+  copy:
+    src: "{{ role_path }}/files/docker_run.sh"
+    dest: /opt/docker_run.sh
+    mode: 0775
+  become: true
+  when: grav_add_docker_run_wrapper

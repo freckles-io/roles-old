@@ -1,0 +1,9 @@
+---
+
+- name: "[starting php role]"
+  include_role:
+    name: geerlingguy.php
+  vars:
+    php_fpm_pool_user: "{{ webserver_user }}"
+    php_webserver_daemon: "{{ webserver_type }}"
+  become: true

@@ -1,44 +1,6 @@
-- name: setting https options for 'nginx'
+- name: "[setting generic nginx options]"
   set_fact:
-    nginx_https_options_1: "ssl http2"
-    nginx_https_options_2: |
-      ssl_certificate      /etc/letsencrypt/live/{{ webserver_domain }}/fullchain.pem;
-      ssl_certificate_key  /etc/letsencrypt/live/{{ webserver_domain }}/privkey.pem;
-      ssl_trusted_certificate   /etc/letsencrypt/live/{{ webserver_domain }}/fullchain.pem;
-      ssl_protocols        TLSv1.1 TLSv1.2;
-      ssl_ciphers          HIGH:!aNULL:!MD5;
-  when: request_https_cert
-
-- name: setting empty https nginx options
-  set_fact:
-    nginx_https_options_1: ""
-    nginx_https_options_2: ""
-  when: not request_https_cert
-
-- name: adding http -> https redirect
-  set_fact:
-    nginx_vhost_http:
-      - listen: "webserver_http_port"
-        server_name: "{{ webserver_domain }}"
-        return: "301 https://{{ webserver_domain }}$request_uri"
-        filename: "{{ webserver_domain }}.80.conf"
-  when: request_https_cert
-
-- name: "[setting webserver vars]"
-  set_fact:
-    nginx_remove_default_vhost: true
-    nginx_vhosts:
-      - listen: "{{ webserver_default_port }} {{ nginx_https_options_1 }}"
-        server_name: "{{ webserver_domain }}"
-        extra_parameters: |
-          {{ nginx_extra_parameters }}
-
-          {{ nginx_https_options_2 }}
-
-- name: "[adding http -> https redirect if necessary]"
-  set_fact:
-    nginx_vhosts: "{{ nginx_vhost_http }} + {{ nginx_vhosts }}"
-  when: request_https_cert
+    nginx_user: "{{ webserver_user }}"
 
 - name: installing and configuring nginx
   include_role:
