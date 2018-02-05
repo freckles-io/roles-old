@@ -1,0 +1,63 @@
+---
+# tasks file for freckles-io.webserver
+- name: "[setting facts]"
+  set_fact:
+    webserver_type: "nginx"
+    webserver_http_port: 80
+    webserver_https_port: 443
+    webserver_domain: 127.0.0.1
+    webserver_webroot_path: /var/www/html
+    request_https_cert: false
+    letsencrypt_email: makkus@posteo.de
+    nginx_extra_parameters: |
+      xxxx
+
+- name: "[setting default port when using https]"
+  set_fact:
+    webserver_default_port: "{{ webserver_https_port }}"
+  when: "request_https_cert"
+
+- name: "[setting default port when not using https]"
+  set_fact:
+    webserver_default_port: "{{ webserver_http_port }}"
+  when: "not request_https_cert"
+
+
+- name: "[fail if unsupported webserver]"
+  fail: msg="webserver '{{ webserver }}' not supported. Only 'nginx' is allowed so far."
+  when: webserver_type != 'nginx'
+
+
+- name: "[check if letsencrypt email is set]"
+  fail: msg="'letsencrypt_email' not set."
+  when: "request_https_cert and (letsencrypt_email not defined or not letsencrypt_email)"
+
+
+- name: "[stopping {{ webserver_type }} if running]"
+  service:
+    name: "{{ webserver_type }}"
+    state: stopped
+  register: unused_disable
+  failed_when: "unused_disable|failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)"
+  when: request_https_cert and
+
+- name: "managing https certificate for {{ webserver_domain }}"
+  include_role:
+    name: thefinn93.letsencrypt
+  vars:
+    letsencrypt_cert_domains:
+      - "{{ webserver_domain }}"
+    letsencrypt_webroot_path: "{{ webserver_webroot_path }}"
+    letsencrypt_renewal_command_args: '--renew-hook "systemctl restart {{ webserver_type }}"'
+  when: request_https_cert
+
+- name: "[start {{ webserver_type }} if exists]"
+  service:
+    name: "{{ webserver_type }}"
+    state: started
+  register: unused_disable
+  failed_when: "unused_disable|failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)"
+  when: request_https_cert
+
+- name: "[setting up {{ webserver_type }}]"
+  include_tasks: "{{ webserver_type }}.yml"
