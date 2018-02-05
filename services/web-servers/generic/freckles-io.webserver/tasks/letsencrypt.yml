@@ -1,7 +1,7 @@
 ---
 - name: "[check if letsencrypt email is set]"
   fail: msg="'webserver_letsencrypt_email' not set."
-  when: "webserver_enable_https and ( webserver_letsencrypt_email is not defined or not webserver_letsencrypt_email or webserver_letsencrypt_email in ['none', 'no', 'false')"
+  when: "webserver_enable_https and ( webserver_letsencrypt_email is not defined or not webserver_letsencrypt_email or webserver_letsencrypt_email in ['none', 'no', 'false'])"
 
 - name: "[stopping {{ webserver_type }} if running]"
   service:
