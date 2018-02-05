@@ -25,10 +25,3 @@
     letsencrypt_webroot_path: "{{ webserver_webroot_path }}"
     letsencrypt_renewal_command_args: '--renew-hook "systemctl restart {{ webserver_type }}"'
   notify: restart webserver
-
-# - name: "[start {{ webserver_type }} if exists]"
-  # service:
-    # name: "{{ webserver_type }}"
-    # state: started
-  # register: unused_disable
-  # failed_when: "unused_disable|failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)"
