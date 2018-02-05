@@ -1,2 +1,7 @@
 ---
 # handlers file for freckles-io.webserver
+- name: restart webserver
+  service:
+      name: "{{ webserver_type }}"
+      state: restarted
+  become: true
