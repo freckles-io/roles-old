@@ -9,7 +9,6 @@
     state: stopped
   register: unused_disable
   failed_when: "unused_disable|failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)"
-  when: request_https_cert
 
 - name: "managing https certificate for {{ webserver_domain }}"
   include_role:
@@ -19,7 +18,6 @@
       - "{{ webserver_domain }}"
     letsencrypt_webroot_path: "{{ webserver_webroot_path }}"
     letsencrypt_renewal_command_args: '--renew-hook "systemctl restart {{ webserver_type }}"'
-  when: request_https_cert
 
 - name: "[start {{ webserver_type }} if exists]"
   service:
@@ -27,4 +25,3 @@
     state: started
   register: unused_disable
   failed_when: "unused_disable|failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)"
-  when: request_https_cert
