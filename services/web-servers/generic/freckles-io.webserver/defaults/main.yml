@@ -7,5 +7,6 @@ webserver_group: "www-data"
 webserver_domain: 127.0.0.1
 webserver_webroot_path: /var/www/html
 webserver_enable_https: false
+webserver_letsencrypt_staging: false
 webserver_enable_php: false
 # webserver_letsencrypt_email: <valid_email>   # necessary when webserver_enable_https is 'true'

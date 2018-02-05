@@ -10,6 +10,11 @@
   register: unused_disable
   failed_when: "unused_disable|failed and ('find' not in unused_disable.msg and 'found' not in unused_disable.msg)"
 
+- name: "[setting staging server]"
+  set_fact:
+    letsencrypt_server: https://acme-staging.api.letsencrypt.org/directory
+  when: webserver_letsencrypt_staging
+
 - name: "managing https certificate for {{ webserver_domain }}"
   include_role:
     name: thefinn93.letsencrypt
