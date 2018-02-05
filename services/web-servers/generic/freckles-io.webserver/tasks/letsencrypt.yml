@@ -19,6 +19,7 @@
   include_role:
     name: thefinn93.letsencrypt
   vars:
+    letsencrypt_email: "{{ webserver_letsencrypt_email }}"
     letsencrypt_cert_domains:
       - "{{ webserver_domain }}"
     letsencrypt_webroot_path: "{{ webserver_webroot_path }}"
