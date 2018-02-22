@@ -22,7 +22,7 @@
 # augment 'freckle' profile metadata with defaults
 - name: "[compute global folder vars]"
   set_fact:
-    freckle_global_folder_vars: "{{ freckle_profile | folder_vars_filter(freckles_metadata, ansible_env.USER, ansible_env.GROUP, ansible_env.HOME) }}"
+    freckle_global_folder_vars: "{{ freckle_profile | folder_vars_filter(freckles_metadata, ansible_env) }}"
 
 - name: "[compute global vars]"
   set_fact:
