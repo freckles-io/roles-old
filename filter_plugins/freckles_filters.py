@@ -160,7 +160,7 @@ class FilterModule(object):
         result = filter(r.match, list_of_files)
         return result
 
-    def folder_vars_filter(self, freckles_profile_folders, freckles_metadata, default_user, default_group, default_home):
+    def folder_vars_filter(self, freckles_profile_folders, freckles_metadata, ansible_env):
         """Merge all vars of all profiles per folder.
         """
 
@@ -178,6 +178,8 @@ class FilterModule(object):
             if "change_owner" not in temp_dict.get("vars", {}).keys():
                 temp_dict.get("vars", {})["change_owner"] = "owner" in temp_dict.get("vars", {}).keys()
 
+            default_user = ansible_env.get("USER", "root")
+            default_home = ansible_env.get("HOME", "/root")
             defaults_dict = { "vars": {
                 "owner": default_user,
                  #"freckle_group": default_group,
