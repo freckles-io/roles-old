@@ -21,3 +21,4 @@ languages/php/geerlingguy.php=https://github.com/freckles-io-external/ansible-ro
 services/databases/mysql/geerlingguy.mysql=https://github.com/freckles-io-external/ansible-role-mysql
 services/web-servers/apache/geerlingguy.apache=https://github.com/freckles-io-external/ansible-role-apache.git
 services/web-servers/generic/freckles-io.webserver=https://github.com/freckles-io/freckles-io.webserver.git
+system/init/supervisord/geerlingguy.supervisor=https://github.com/freckles-io-external/ansible-role-supervisor.git
