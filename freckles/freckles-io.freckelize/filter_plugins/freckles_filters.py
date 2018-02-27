@@ -88,11 +88,12 @@ class FilterModule(object):
     def user_input_merge_filter(self, freckles_metadata, user_vars):
 
         result = {}
+        profiles_already_done = set()
 
         for path, folder_metadata in freckles_metadata.items():
 
             new_vars_list = []
-            profiles_to_use = folder_metadata["folder_metadata"]["profiles_to_use"]
+            # profiles_to_use = folder_metadata["folder_metadata"]["profiles_to_use"]
             vars_list = folder_metadata["vars"]
 
             for vars_item in vars_list:
@@ -106,13 +107,13 @@ class FilterModule(object):
 
                     if profile == profile_name:
                         frkl.dict_merge(new_v, profile_vars, copy_dct=False)
+                        profiles_already_done.add(profile)
 
                 new_vars_list.append({"profile": profile_md, "vars": new_v})
 
             # if there are no folder vars to merge, we just use the user input directly
-            if not new_vars_list and user_vars:
-                for profile, profile_vars in user_vars.items():
-
+            for profile, profile_vars in user_vars.items():
+                if profile not in profiles_already_done:
                     new_vars_list.append({"profile": {"name": profile}, "vars": profile_vars})
 
             folder_metadata["vars"] = new_vars_list
