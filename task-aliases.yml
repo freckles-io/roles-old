@@ -80,6 +80,16 @@ tasks:
       vars:
         update: true
         install_method: auto
+
+  - remove-freckles:
+      meta:
+        task-type: ansible-role
+        task_desc: removing freckles
+        task-name: freckles-io.install-freckles
+      vars:
+        install_method: auto
+        remove: true
+
   - use-freckles-version:
       meta:
         task-type: ansible-role
