@@ -66,6 +66,3 @@
     regexp: '^export APACHE_RUN_GROUP='
     line: 'export APACHE_RUN_GROUP={{ apache_group }}'
   when: "apache_group != 'www-data'"
-
-- debug: var=apache_user
-- debug: var=apache_group
