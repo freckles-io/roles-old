@@ -38,6 +38,8 @@ def find_freckles_folders(module, freckles_repos):
         include = r.get("includes", None)
         exclude = r.get("excludes", None)
 
+        non_recursive = r.get("non_recursive", "XXX")
+
         profiles = r.get("profiles", ["__auto__"])
 
         freckles_paths = {}
@@ -55,100 +57,100 @@ def find_freckles_folders(module, freckles_repos):
                 local_path = os.path.join(os.path.expanduser(dest), root)
                 ignore_paths.append(local_path)
 
+        if not non_recursive:
+            # find all freckles folders
+            for root, dirnames, filenames in os.walk(dest, topdown=True):
+                dirnames[:] = [d for d in dirnames if d not in DEFAULT_EXCLUDE_DIRS]
 
-        # find all freckles folders
-        for root, dirnames, filenames in os.walk(dest, topdown=True):
-            dirnames[:] = [d for d in dirnames if d not in DEFAULT_EXCLUDE_DIRS]
+                # check for .freckles profiles
+                for filename in fnmatch.filter(filenames, FRECKLES_FOLDER_MARKER_FILENAME):
 
-            # check for .freckles profiles
-            for filename in fnmatch.filter(filenames, FRECKLES_FOLDER_MARKER_FILENAME):
+                    # check whether we only should consider certain folders
+                    if include:
+                        match = False
+                        for token in include:
+                            if root.endswith(token):
+                                match = True
+                                break
 
-                # check whether we only should consider certain folders
-                if include:
-                    match = False
-                    for token in include:
-                        if root.endswith(token):
-                            match = True
-                            break
-
-                    if not match:
-                        continue
-
-                if exclude:
-                    match = False
-                    for token in exclude:
-                        if root.endswith(token):
-                            match = True
-                            break
-
-                    if match:
-                        continue
-
-                folder_name = os.path.basename(root)
-                local_path = os.path.join(os.path.expanduser(dest), root)
-
-                ignore = False
-                for ip in ignore_paths:
-                    if local_path.startswith(ip):
-                        ignore = True
-                        break
-
-                if ignore:
-                    continue
-
-                freckles_paths.setdefault(root, {})
-
-                freckles_paths[root]["folder_name"] = folder_name
-                freckles_paths[root]["is_base_folder"] = False
-                freckles_paths[root]["remote_repo"] = repo
-                freckles_paths[root]["repo_local_dest"] = dest
-                freckles_paths[root]["parent_freckle_path"] = dest
-                freckles_paths[root]["profiles_to_use"] = profiles
-                rel_path = os.path.relpath(root, dest)
-                freckles_paths[root]["relative_path"] = rel_path
-
-                metadata_file = os.path.join(local_path, filename)
-
-                if os.path.exists(metadata_file):
-                    with open(metadata_file, "r") as f:
-                        data = f.read()
-                    if not data:
-                        data = ""
-                else:
-                    data = ""
-
-                # don't use any templates in here, it'd just be super confusing
-                if "{{"  not in metadata_file and "{{" not in data:
-                    freckles_paths[root][METADATA_CONTENT_KEY] = data
-
-                freckles_paths[root]["extra_vars"] = {}
-                freckles_paths[root]["files"] = []
-
-                for sub_root, sub_dirnames, sub_filenames in os.walk(root, topdown=True):
-
-                    sub_dirnames[:] = [sd for sd in sub_dirnames if sd not in DEFAULT_EXCLUDE_DIRS]
-
-                    freckles_paths[root]["files"].extend([os.path.join(sub_root, f).replace("{{", "\{\{").replace("}}", "\}\}") for f in sub_filenames])
-                    # check for .freckles profiles
-                    for sub_filename in fnmatch.filter(sub_filenames, "*{}".format(FRECKLES_FOLDER_MARKER_FILENAME)):
-
-                        sub_metadata_file = os.path.join(sub_root, sub_filename)
-                        sub_metadata_path = os.path.relpath(sub_metadata_file, root)
-
-                        if not sub_filename.startswith(".") or sub_filename == FRECKLES_FOLDER_MARKER_FILENAME:
+                        if not match:
                             continue
 
-                        with open(sub_metadata_file, "r") as f:
+                    if exclude:
+                        match = False
+                        for token in exclude:
+                            if root.endswith(token):
+                                match = True
+                                break
+
+                        if match:
+                            continue
+
+                    folder_name = os.path.basename(root)
+                    local_path = os.path.join(os.path.expanduser(dest), root)
+
+                    ignore = False
+                    for ip in ignore_paths:
+                        if local_path.startswith(ip):
+                            ignore = True
+                            break
+
+                    if ignore:
+                        continue
+
+                    freckles_paths.setdefault(root, {})
+
+                    freckles_paths[root]["folder_name"] = folder_name
+                    freckles_paths[root]["is_base_folder"] = False
+                    freckles_paths[root]["remote_repo"] = repo
+                    freckles_paths[root]["repo_local_dest"] = dest
+                    freckles_paths[root]["parent_freckle_path"] = dest
+                    freckles_paths[root]["profiles_to_use"] = profiles
+                    rel_path = os.path.relpath(root, dest)
+                    freckles_paths[root]["relative_path"] = rel_path
+
+                    metadata_file = os.path.join(local_path, filename)
+
+                    if os.path.exists(metadata_file):
+                        with open(metadata_file, "r") as f:
                             data = f.read()
-                        # we can't use anything that has jinja2 template in them, as it'll confuse things
-                        #TODO: log output for this case
                         if not data:
                             data = ""
+                    else:
+                        data = ""
 
-                        if '{{' in data:
-                            continue
+                    # don't use any templates in here, it'd just be super confusing
+                    if "{{"  not in metadata_file and "{{" not in data:
+                        freckles_paths[root][METADATA_CONTENT_KEY] = data
 
-                        freckles_paths[root]["extra_vars"][sub_metadata_path] = data
+                    freckles_paths[root]["extra_vars"] = {}
+                    freckles_paths[root]["files"] = []
+
+                    for sub_root, sub_dirnames, sub_filenames in os.walk(root, topdown=True):
+
+                        sub_dirnames[:] = [sd for sd in sub_dirnames if sd not in DEFAULT_EXCLUDE_DIRS]
+
+                        freckles_paths[root]["files"].extend([os.path.join(sub_root, f).replace("{{", "\{\{").replace("}}", "\}\}") for f in sub_filenames])
+                        # check for .freckles profiles
+                        for sub_filename in fnmatch.filter(sub_filenames, "*{}".format(FRECKLES_FOLDER_MARKER_FILENAME)):
+
+                            sub_metadata_file = os.path.join(sub_root, sub_filename)
+                            sub_metadata_path = os.path.relpath(sub_metadata_file, root)
+
+                            if not sub_filename.startswith(".") or sub_filename == FRECKLES_FOLDER_MARKER_FILENAME:
+                                continue
+
+                            with open(sub_metadata_file, "r") as f:
+                                data = f.read()
+                            # we can't use anything that has jinja2 template in them, as it'll confuse things
+                            #TODO: log output for this case
+                            if not data:
+                                data = ""
+
+                            if '{{' in data:
+                                continue
+
+                            freckles_paths[root]["extra_vars"][sub_metadata_path] = data
 
         if freckles_paths:
             freckles_paths_all.update(freckles_paths)
