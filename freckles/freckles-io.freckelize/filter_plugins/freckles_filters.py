@@ -90,6 +90,16 @@ class FilterModule(object):
         result = {}
         profiles_already_done = set()
 
+        # pre-process user_vars
+        user_vars_folder_endings = {}
+        user_vars_default = {}
+        for key, v in user_vars.items():
+            if ':' not in key:
+                user_vars_default[key] = v
+            else:
+                path_ending, profile = key.rsplit(':', 1)
+                user_vars_folder_endings.setdefault(profile, {}).setdefault(path_ending, []).append(v)
+
         for path, folder_metadata in freckles_metadata.items():
 
             new_vars_list = []
@@ -103,18 +113,36 @@ class FilterModule(object):
                     # continue
 
                 new_v = copy.deepcopy(vars_item.get("vars", {}))
-                for profile, profile_vars in user_vars.items():
+                for profile, profile_vars in user_vars_default.items():
 
                     if profile == profile_name:
                         frkl.dict_merge(new_v, profile_vars, copy_dct=False)
                         profiles_already_done.add(profile)
 
+                for profile, folder_endings_dict in user_vars_folder_endings.items():
+
+                    if profile == profile_name:
+                        for ending, profile_vars_list in folder_endings_dict.items():
+                            if path.endswith(ending):
+                                for profile_vars in profile_vars_list:
+                                    frkl.dict_merge(new_v, profile_vars, copy_dct=False)
+                                    profiles_already_done.add(profile)
+
                 new_vars_list.append({"profile": profile_md, "vars": new_v})
 
             # if there are no folder vars to merge, we just use the user input directly
-            for profile, profile_vars in user_vars.items():
+            for profile, profile_vars in user_vars_default.items():
                 if profile not in profiles_already_done:
                     new_vars_list.append({"profile": {"name": profile}, "vars": profile_vars})
+
+            for profile, folder_endings_dict in user_vars_folder_endings.items():
+
+                if profile not in profiles_already_done:
+                    for ending, profile_vars_list in folder_endings_dict.items():
+                        if path.endswith(ending):
+                            for profile_vars in profile_vars_list:
+                                frkl.dict_merge(new_v, profile_vars, copy_dct=False)
+
 
             folder_metadata["vars"] = new_vars_list
 
