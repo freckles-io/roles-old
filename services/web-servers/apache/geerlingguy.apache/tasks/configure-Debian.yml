@@ -52,3 +52,17 @@
     state: absent
   notify: restart apache
   when: apache_remove_default_vhost
+
+- name: "Change user to run Apache under to: '{{ apache_user }}'"
+  lineinfile:
+    path: /etc/apache2/envvars
+    regexp: '^export APACHE_RUN_USER='
+    line: 'export APACHE_RUN_USER={{ apache_user }}'
+  when: "apache_user != 'www-data'"
+
+- name: "Change group to run Apache under to: '{{ apache_group }}'"
+  lineinfile:
+    path: /etc/apache2/envvars
+    regexp: '^export APACHE_RUN_USER='
+    line: 'export APACHE_RUN_USER={{ apache_group }}'
+when: "apache_group != 'www-data'"

@@ -56,3 +56,7 @@ apache_restart_state: restarted
 # Apache package state; use `installed` to make sure it's installed, or `latest` if
 # you want to upgrade or switch versions using a new repo.
 apache_packages_state: installed
+
+# User to run Apache under, currently only Debian supported
+apache_user: www-data
+apache_group: www-data
