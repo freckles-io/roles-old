@@ -63,6 +63,9 @@
 - name: "Change group to run Apache under to: '{{ apache_group }}'"
   lineinfile:
     path: /etc/apache2/envvars
-    regexp: '^export APACHE_RUN_USER='
-    line: 'export APACHE_RUN_USER={{ apache_group }}'
-when: "apache_group != 'www-data'"
+    regexp: '^export APACHE_RUN_GROUP='
+    line: 'export APACHE_RUN_GROUP={{ apache_group }}'
+  when: "apache_group != 'www-data'"
+
+- debug: var=apache_user
+- debug: var=apache_group
