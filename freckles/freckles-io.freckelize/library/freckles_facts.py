@@ -38,7 +38,7 @@ def find_freckles_folders(module, freckles_repos):
         include = r.get("includes", None)
         exclude = r.get("excludes", None)
 
-        non_recursive = r.get("non_recursive", "XXX")
+        non_recursive = r["non_recursive"]
 
         profiles = r.get("profiles", ["__auto__"])
 
