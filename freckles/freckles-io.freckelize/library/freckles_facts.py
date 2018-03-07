@@ -25,7 +25,6 @@ def find_freckles_folders(module, freckles_repos):
 
     freckles_paths_all = {}
     for path, r in freckles_repos:
-
         local_parent = r.get("local_parent", "~/freckles")
         local_name = r.get("local_name", None)
         if local_name:
@@ -171,7 +170,19 @@ def find_freckles_folders(module, freckles_repos):
             rel_path = os.path.relpath(root, dest)
             freckles_paths[root]["relative_path"] = rel_path
 
-            freckles_paths[root][METADATA_CONTENT_KEY] = ""  # would have picked it up before otherwise
+            metadata_file = os.path.join(root, FRECKLES_FOLDER_MARKER_FILENAME)
+
+            if os.path.exists(metadata_file):
+                with open(metadata_file, "r") as f:
+                    data = f.read()
+                if not data:
+                    data = ""
+            else:
+                data = ""
+
+            # don't use any templates in here, it'd just be super confusing
+            if "{{"  not in metadata_file and "{{" not in data:
+                freckles_paths[root][METADATA_CONTENT_KEY] = data
 
             freckles_paths[root]["extra_vars"] = {}
             freckles_paths[root]["files"] = []
