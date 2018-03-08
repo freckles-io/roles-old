@@ -4,6 +4,11 @@
     file: "{{ repo_metadata_file }}"
     name: freckles_metadata_without_user_vars
 
+- name: "[delete freckle_repo_metadata file]"
+  file:
+    path: "{{ repo_metadata_file }}"
+    state: absent
+
 - name: "[setting metadata variables]"
   include_tasks: set_variables.yml
 
