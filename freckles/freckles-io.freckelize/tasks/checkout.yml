@@ -58,4 +58,4 @@
 
 
 - name: "[storing freckle repo metadata for next runner]"
-  local_action: copy content="{{ freckles_metadata }}" dest="{{ repo_metadata_file_abs_path }}"
+  local_action: copy content="{{ freckles_metadata }}" dest="{{ repo_metadata_file_abs_path }}" mode="0600"
