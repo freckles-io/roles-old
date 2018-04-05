@@ -2,9 +2,9 @@ from ansible.module_utils.basic import *
 from ansible.module_utils.basic import AnsibleModule
 
 OTHER_PATHS_TO_CHECK = [
-    os.path.expanduser("~/.local/inaugurate/conda/bin"),
-    os.path.expanduser("~/.local/inaugurate/conda/envs/inaugurate/bin"),
-    os.path.expanduser("~/.local/inaugurate/virtualenvs/inaugurate/bin"),
+    os.path.expanduser("~/.local/share/inaugurate/conda/bin"),
+    os.path.expanduser("~/.local/share/inaugurate/conda/envs/inaugurate/bin"),
+    os.path.expanduser("~/.local/share/inaugurate/virtualenvs/inaugurate/bin"),
     os.path.expanduser("~/.local/bin"),
     os.path.expanduser("~/miniconda3/bin"),
     os.path.expanduser("~/anaconda/bin")

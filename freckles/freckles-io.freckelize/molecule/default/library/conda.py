@@ -17,7 +17,7 @@ from distutils.spawn import find_executable
 from ansible.module_utils.basic import *
 
 POTENTIAL_CONDA_PATHS = [
-    os.path.expanduser("~/.local/inaugurate/conda/bin"),
+    os.path.expanduser("~/.local/share/inaugurate/conda/bin"),
     os.path.expanduser("~/.local/opt/conda/bin"),
     os.path.expanduser("~/.local/bin"),
     os.path.expanduser("~/.freckles/opt/conda/bin"),

@@ -13,7 +13,7 @@ install-pkg-mgrs
 
     use_conda: true   # otherwise use pip and sudo to install dependencies
     environment_name: "inaugurate"
-    pip_base_dir: "{{ ansible_env.HOME }}/.local/inaugurate/virtualenvs/{{ environment_name }}"  # only used when 'use_conda: false'
+    pip_base_dir: "{{ ansible_env.HOME }}/.local/share/inaugurate/virtualenvs/{{ environment_name }}"  # only used when 'use_conda: false'
     update: true  # whether to update freckles
 
 Dependencies
@@ -38,4 +38,3 @@ Author Information
 ------------------
 
 Markus Binsteiner
-

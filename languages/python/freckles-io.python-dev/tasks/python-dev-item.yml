@@ -24,7 +24,7 @@
 - name: updating pip and setuptools (in conda environment)
   install:
     pkg_mgr: pip
-    executable: "~/.local/inaugurate/conda/envs/{{ env_name }}/bin/pip"
+    executable: "~/.local/share/inaugurate/conda/envs/{{ env_name }}/bin/pip"
     packages:
       - "{{ item }}"
     state: latest
@@ -36,7 +36,7 @@
 - name: installing python dev requirements (into conda environment)
   install:
     pkg_mgr: pip
-    executable: "~/.local/inaugurate/conda/envs/{{ env_name }}/bin/pip"
+    executable: "~/.local/share/inaugurate/conda/envs/{{ env_name }}/bin/pip"
     packages:
       - "{{ python_dev_project_path }}/{{ item }}"
   when: "pkg_mgr is defined and pkg_mgr == 'conda'"
@@ -91,7 +91,7 @@
   when: not setup_command
 
 - name: "installing project into conda environment '{{ env_name }}' (using: '{{ setup_command }}')"
-  command: "~/.local/inaugurate/conda/envs/{{ env_name }}/bin/{{ setup_command }}"
+  command: "~/.local/share/inaugurate/conda/envs/{{ env_name }}/bin/{{ setup_command }}"
   args:
     chdir: "{{ python_dev_project_path }}"
   when: "pkg_mgr is defined and pkg_mgr == 'conda'"
