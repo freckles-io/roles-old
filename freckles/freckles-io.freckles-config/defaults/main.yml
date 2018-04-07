@@ -7,3 +7,4 @@ freckles_config_link_to_home: no
 freckles_config_force_link: no
 freckles_extra_repos: []
 freckles_config_tasks: {}
+freckles_checkout_config_file_repos: yes

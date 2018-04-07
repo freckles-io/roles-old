@@ -33,7 +33,7 @@
 
 - name: checking out repos
   local_action: git repo="{{ item.url }}" dest="{{ item.path }}" track_submodules=no update="{{ freckles_config_update_repos }}"
-  when: "item.url"
+  when: "freckles_checkout_config_file_repos and item.url"
   with_items: "{{ freckles_config_dict.get('trusted-repos', []) | expand_repos_filter }}"
 
 - name: checking out extra repos
