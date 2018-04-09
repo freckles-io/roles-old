@@ -29,6 +29,10 @@
   set_fact:
     freckles_metadata_without_user_vars: "{{ freckles_folders_raw | read_profile_vars_filter }}"
 
+- name: "[merge user input with folder metadata]"
+  set_fact:
+      freckles_metadata: "{{ freckles_metadata_without_user_vars | user_input_merge_filter(user_vars) }}"
+
 - name: "[setting metadata variables]"
   include_tasks: set_variables.yml
 
@@ -55,7 +59,6 @@
 - name: "[setting repo metadata file absolute path]"
   set_fact:
     repo_metadata_file_abs_path: "{{ playbook_dir }}/../logs/{{ repo_metadata_file }}"
-
 
 - name: "[storing freckle repo metadata for next runner]"
   local_action: copy content="{{ freckles_metadata }}" dest="{{ repo_metadata_file_abs_path }}" mode="0600"
