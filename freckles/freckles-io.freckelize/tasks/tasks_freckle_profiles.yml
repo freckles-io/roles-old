@@ -1,0 +1,8 @@
+---
+
+- name: "[executing task lists for freckle folder]"
+  include_tasks: "../plays/task_lists/{{ task_item_name['target'] }}"
+  with_items:
+    - "{{ adapters_files_map.get(freckles_profile_name, {}).get('freckle', []) }}"
+  loop_control:
+    loop_var: task_item_name
