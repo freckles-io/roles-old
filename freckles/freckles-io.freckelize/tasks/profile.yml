@@ -4,7 +4,7 @@
   debug: msg="Starting adapter '{{ freckles_profile_name }}'"
 
 - name: "[starting adater init: {{ freckles_profile_name }}]"
-  include_tasks: "../plays/task_lists/{{ freckle_init_item['target'] }}"
+  include_tasks: "{{ playbook_dir }}/../task_lists/{{ freckle_init_item['target'] }}"
   vars:
       global_profile_vars: "{{ freckles_profile_folders | flatten_vars_filter }}"
   with_items:
