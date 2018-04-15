@@ -1,27 +1,38 @@
 ---
-- name: "[read freckle_repo_metadata]"
-  include_vars:
-    file: "{{ repo_metadata_file }}"
-    name: freckles_metadata
+- debug: var=freckelize_profiles_metadata
+- debug: var=freckelize_freckle_metadata
 
-- name: "[delete freckle_repo_metadata file]"
-  file:
-    path: "{{ repo_metadata_file }}"
-    state: absent
 
-- name: "[setting metadata variables]"
-  include_tasks: set_variables.yml
+- name: "[processing folder permissions]"
+  include_tasks: folder_permissions.yml
+  vars:
+    freckle_folder_path: "{{ freckelize_folder_metadata['folder_metadata']['full_path'] }}"
+    freckle_folder_metadata: "{{ freckelize_folder_metadata['folder_vars'] }}"
+  when: "freckelize_folder_metadata['folder_vars'].get('change_owner', False)"
+  with_items:
+      - "{{ freckelize_freckle_metadata.values() }}"
+  loop_control:
+    loop_var: freckelize_folder_metadata
 
-- name: "executing generic freckle tasks"
-  include_tasks: "freckle-generic.yml"
+- name: "[putting folders in place]"
+  include_tasks: "stage_folder_{{ freckelize_folder_metadata['folder_vars']['staging_method'] }}.yml"
+  vars:
+    freckle_folder_path: "{{ freckelize_folder_metadata['folder_metadata']['full_path'] }}"
+    freckle_folder_metadata: "{{ freckelize_folder_metadata['folder_vars'] }}"
+  when: "freckelize_folder_metadata['folder_vars'].get('staging_method', False)"
+  with_items:
+      - "{{ freckelize_freckle_metadata.values() }}"
+  loop_control:
+    loop_var: freckelize_folder_metadata
+
+# - name: "executing generic freckle tasks"
+  # include_tasks: "freckle-generic.yml"
 
 - name: "[including profile specific tasks]"
   include_tasks: "profile.yml"
   vars:
-    freckles_profile_name: "{{ profile_loop_item[0] }}"
-    freckles_profile_folders: "{{ profile_loop_item[1] }}"
-    # freckles_user_vars: "{{ user_vars.get(profile_loop_item[0], {}) }}"
-    # freckles_global_vars: "{{ freckle_global_folder_vars }}"
-  with_list: "{{ flat_profiles_list }}"
+    freckles_profile_folders: "{{ freckelize_profiles_metadata[freckelize_profile_name] }}"
+  with_items:
+      - "{{ profile_order }}"
   loop_control:
-    loop_var: profile_loop_item
+    loop_var: freckelize_profile_name

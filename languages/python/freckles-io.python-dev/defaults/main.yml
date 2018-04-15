@@ -4,3 +4,4 @@ python_dev_env_type: "virtualenv"
 python_dev_setuptools_command: "develop"
 python_dev_setup_type: "pip"
 python_dev_python_version: 2
+python_dev_default_python_version: 3

@@ -12,12 +12,14 @@
     state: present
     group: "{{ freckle_folder_metadata.group | default(omit) }}"
     uid: "{{ freckle_folder_metadata.uid | default(omit) }}"
+  when: freckle_folder_metadata.get('owner', False)
   become: yes
 
 - name: "setting owner for folder '{{ freckle_folder_path }}' to be '{{ freckle_folder_metadata.owner | default('n/a') }}'"
   file:
     path: "{{ freckle_folder_path }}"
-    owner: "{{ freckle_folder_metadata.owner }}"
+    owner: "{{ freckle_folder_metadata.owner | default(omit) }}"
     group: "{{ freckle_folder_metadata.group | default(omit) }}"
     recurse: True
+  when: freckle_folder_metadata.get('owner', False) or freckle_folder_metadata.get('group', False)
   become: yes

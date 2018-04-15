@@ -1,27 +1,30 @@
 ---
 # tasks per profiles
-- name: "starting adapter '{{ freckles_profile_name }}'"
-  debug: msg="Starting adapter '{{ freckles_profile_name }}'"
+- name: "starting adapter '{{ freckelize_profile_name }}'"
+  debug: msg="Starting adapter '{{ freckelize_profile_name }}'"
 
-- name: "[starting adater init: {{ freckles_profile_name }}]"
+- debug: var=freckles_profile_folders
+- debug: var=adapters_files_map
+
+- name: "[starting adater init: {{ freckelize_profile_name }}]"
   include_tasks: "{{ playbook_dir }}/../task_lists/{{ freckle_init_item['target'] }}"
   vars:
-      global_profile_vars: "{{ freckles_profile_folders | flatten_vars_filter }}"
+      profile_vars: "{{ freckles_profile_folders | flatten_profile_vars }}"
+      profile_vars_folders: "{{ freckles_profile_folders }}"
   with_items:
-    - "{{ adapters_files_map.get(freckles_profile_name, {}).get('init', []) }}"
+    - "{{ adapters_files_map.get(freckelize_profile_name, {}).get('init', []) }}"
   loop_control:
     loop_var: freckle_init_item
 
-- name: "[starting adapter tasks: {{ freckles_profile_name }}]"
-  # include_tasks: "items-{{ freckles_profile_name }}.yml"
+- name: "[starting adapter tasks: {{ freckelize_profile_name }}]"
   include_tasks: "tasks_freckle_profiles.yml"
   vars:
-    freckle_path: "{{ freckle_loop_item.key }}"
-    freckle_folder_name: "{{ freckle_loop_item.key | basename }}"
-    freckle_owner: "{{ freckle_global_folder_vars[freckle_loop_item.key]['owner'] }}"
-    freckle_vars: "{{ freckle_loop_item.value.vars | flatten_vars_filter }}"
-    freckle_vars_raw: "{{ freckle_loop_item.value }}"
-    freckle_folder_vars: "{{ freckle_global_folder_vars[freckle_loop_item.key] }}"
-  with_dict: "{{ freckles_profile_folders }}"
+    freckle_path: "{{ profile_folder_metadata['folder_metadata']['full_path'] }}"
+    freckle_vars: "{{ profile_folder_metadata['vars'] }}"
+    freckle_folder_metadata: "{{ profile_folder_metadata['folder_metadata'] }}"
+    freckle_extra_vars: "{{ profile_folder_metadata['extra_vars'] }}"
+    freckle_base_vars: "{{ freckelize_freckle_metadata[profile_folder['folder_metadata']['full_path']] }}"
+  with_items:
+    - "{{ freckles_profile_folders }}"
   loop_control:
-    loop_var: freckle_loop_item
+    loop_var: profile_folder_metadata

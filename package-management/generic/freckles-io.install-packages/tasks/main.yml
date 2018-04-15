@@ -12,12 +12,15 @@
 #     cache_valid_time: 3600
 #   when: "ansible_distribution == 'Debian' and (pkg_mgr is defined and (pkg_mgr == 'auto' or pkg_mgr == 'apt'))"
 
+- name: "[setting all pkg mgrs]"
+  set_fact:
+      all_pkg_mgrs: "{{ required_package_managers }} + {{ extra_pkg_mgrs }}"
 
-- name: "[installing required package managers]"
+- name: "calculating required package managers: {{ all_pkg_mgrs | unique }}"
   include_role:
     name: freckles-io.install-pkg-mgrs
   vars:
-    pkg_mgrs: "{{ required_package_managers }}"
+    pkg_mgrs: "{{ all_pkg_mgrs | unique }}"
 
 - name: "[packages that need ansible roles]"
   include_tasks: "role-install-{{ role_package['vars']['name'] }}.yml"

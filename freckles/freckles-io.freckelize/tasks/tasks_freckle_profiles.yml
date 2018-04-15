@@ -1,8 +1,29 @@
 ---
 
+# TODO: maybe save old vars and re-apply after execution?
+- name: "[using vars]"
+  debug: var=freckle_vars
+
+- name: "[setting variables]"
+  set_fact:
+      "{{ var_item.key }}": "{{ var_item.value }}"
+  with_dict: "{{ freckle_vars }}"
+  loop_control:
+      loop_var: var_item
+
 - name: "[executing task lists for freckle folder]"
   include_tasks: "{{ playbook_dir }}/../task_lists/{{ task_item_name['target'] }}"
+  vars:
+    freckle_folder_name: "{{ freckle_folder_metadata['folder_name'] }}"
+    freckle_owner: "{{ freckle_base_vars.get('owner', None) }}"
   with_items:
-    - "{{ adapters_files_map.get(freckles_profile_name, {}).get('freckle', []) }}"
+    - "{{ adapters_files_map.get(freckelize_profile_name, {}).get('freckle', []) }}"
   loop_control:
     loop_var: task_item_name
+
+- name: "[unsetting variables]"
+  set_fact:
+      "{{ var_item.key }}": null
+  with_dict: "{{ freckle_vars }}"
+  loop_control:
+      loop_var: var_item

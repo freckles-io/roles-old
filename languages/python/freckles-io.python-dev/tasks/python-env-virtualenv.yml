@@ -1,0 +1,45 @@
+- name: "installing python project dependencies"
+  include_role:
+    name: freckles-io.install-packages
+  vars:
+    profile_name: "project dependency"
+    package_install_list: "{{ freckle_vars | assemble_package_list('python_dev_dependency_packages', 'auto') }}"
+    pkg_mgr: "auto"
+
+- name: "creating virtualenv '{{ python_dev_project_name }}'"
+  command: "virtualenv -p python{{ python_dev_python_version | default(python_dev_default_python_version) }} ~/.virtualenvs/{{ python_dev_project_name }}"
+  args:
+    creates: "~/.virtualenvs/{{ python_dev_project_name }}"
+  environment:
+    PATH: /usr/local/bin:/usr/bin:/bin
+
+- name: "updating pip and setuptools"
+  install:
+    pkg_mgr: pip
+    #executable: "~/.local/opt/conda/envs/{{ env_name}}/bin/pip"
+    virtualenv: "~/.virtualenvs/{{ python_dev_project_name }}"
+    state: latest
+    packages:
+      - "{{ item }}"
+  # environment:
+    # PATH: /usr/local/bin:/usr/bin:/bin
+  with_items:
+    - "pip"
+    - "setuptools"
+
+- name: "installing python dev requirements into virtualenv '{{ python_dev_project_name }}'"
+  install:
+    pkg_mgr: pip
+    #executable: "~/.local/opt/conda/envs/{{ python_dev_project_name}}/bin/pip"
+    virtualenv: "~/.virtualenvs/{{ python_dev_project_name }}"
+    packages:
+      - "{{ python_dev_project_path }}/{{ item }}"
+  # environment:
+  #   PATH: /usr/bin:/bin
+  with_items:
+    - "{{ python_dev_requirements_files | default([]) }}"
+
+- name: "installing project into virtualenv '{{ python_dev_project_name }}' (using: '{{ setup_command }}')"
+  command: "~/.virtualenvs/{{ python_dev_project_name }}/bin/{{ setup_command }}"
+  args:
+    chdir: "{{ python_dev_project_path }}"

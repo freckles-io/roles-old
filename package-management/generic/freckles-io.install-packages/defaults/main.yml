@@ -4,3 +4,4 @@
 profile_name: default
 package_install_list: []
 pkg_mgr: 'auto'
+extra_pkg_mgrs: []

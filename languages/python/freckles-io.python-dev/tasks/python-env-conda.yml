@@ -1,0 +1,40 @@
+---
+
+- name: "creating conda environment '{{ python_dev_project_name }}'"
+  conda:
+    name: "python={{ python_dev_python_version | default(python_dev_default_python_version) }}"
+    conda_environment: "{{ python_dev_project_name }}"
+
+- name: "installing python project conda dependencies"
+  include_role:
+    name: freckles-io.install-packages
+  vars:
+    profile_name: "project dependency"
+    conda_environment: "{{ python_dev_project_name }}"
+    package_install_list: "{{ freckle_vars | assemble_package_list('python_dev_dependency_packages', 'conda') }}"
+    pkg_mgr: "conda"
+
+- name: "updating pip and setuptools"
+  install:
+    pkg_mgr: pip
+    executable: "~/.local/share/inaugurate/conda/envs/{{ python_dev_project_name }}/bin/pip"
+    packages:
+      - "{{ item }}"
+    state: latest
+  with_items:
+    - "pip"
+    - "setuptools"
+
+- name: "installing python dev requirements into conda environment '{{ python_dev_project_name }}'"
+  install:
+    pkg_mgr: pip
+    executable: "~/.local/share/inaugurate/conda/envs/{{ python_dev_project_name }}/bin/pip"
+    packages:
+      - "{{ python_dev_project_path }}/{{ item }}"
+  with_items:
+    - "{{ python_dev_requirements_files | default([]) }}"
+
+- name: "installing project into conda environment '{{ python_dev_project_name }}' (using: '{{ setup_command }}')"
+  command: "~/.local/share/inaugurate/conda/envs/{{ python_dev_project_name }}/bin/{{ setup_command }}"
+  args:
+    chdir: "{{ python_dev_project_path }}"

@@ -43,22 +43,22 @@ SUPPORTED_ROLE_PACKAGES = {
 class FilterModule(object):
     def filters(self):
         return {
-            'read_profile_vars_filter': self.read_profile_vars_filter,
+            # 'read_profile_vars_filter': self.read_profile_vars_filter,
             'git_repo_filter': self.git_repo_filter,
             'create_package_list_filter': self.create_package_list_filter,
             'create_package_list_from_var_filter': self.create_package_list_from_var_filter,
             'create_result_list_filter': self.create_result_list_filter,
             'extra_pkg_mgrs_filter': self.extra_pkg_mgrs_filter,
-            'flatten_profiles_filter': self.flatten_profiles_filter,
+            # 'flatten_profiles_filter': self.flatten_profiles_filter,
             'flatten_vars_filter': self.flatten_vars_filter,
-            'folder_vars_filter': self.folder_vars_filter,
+            # 'folder_vars_filter': self.folder_vars_filter,
             'file_list_filter': self.file_list_filter,
             'relative_path_filter': self.relative_path_filter,
             'first_valid_default_list_filter': self.first_valid_default_list_filter,
             'calculate_local_freckle_folder': self.calculate_local_freckle_folder,
-            'user_input_merge_filter': self.user_input_merge_filter,
-            'global_vars_filter': self.global_vars_filter,
-            'sort_profiles_filter': self.sort_profiles_filter
+            # 'user_input_merge_filter': self.user_input_merge_filter,
+            # 'global_vars_filter': self.global_vars_filter,
+            # 'sort_profiles_filter': self.sort_profiles_filter
             # 'get_used_profile_names': self.get_used_profile_names,
             # 'create_profile_metadata': self.create_profile_metadata
         }
@@ -85,75 +85,75 @@ class FilterModule(object):
 
         return result
 
-    def user_input_merge_filter(self, freckles_metadata, user_vars):
+    # def user_input_merge_filter(self, freckles_metadata, user_vars):
 
-        result = {}
-        profiles_already_done = set()
+    #     result = {}
+    #     profiles_already_done = set()
 
-        # pre-process user_vars
-        user_vars_folder_endings = {}
-        user_vars_default = {}
-        for key, v in user_vars.items():
-            if ':' not in key:
-                user_vars_default[key] = v
-            else:
-                path_ending, profile = key.rsplit(':', 1)
-                user_vars_folder_endings.setdefault(profile, {}).setdefault(path_ending, []).append(v)
+    #     # pre-process user_vars
+    #     user_vars_folder_endings = {}
+    #     user_vars_default = {}
+    #     for key, v in user_vars.items():
+    #         if ':' not in key:
+    #             user_vars_default[key] = v
+    #         else:
+    #             path_ending, profile = key.rsplit(':', 1)
+    #             user_vars_folder_endings.setdefault(profile, {}).setdefault(path_ending, []).append(v)
 
-        for path, folder_metadata in freckles_metadata.items():
+    #     for path, folder_metadata in freckles_metadata.items():
 
-            new_vars_list = []
-            # profiles_to_use = folder_metadata["folder_metadata"]["profiles_to_use"]
-            vars_list = folder_metadata["vars"]
+    #         new_vars_list = []
+    #         # profiles_to_use = folder_metadata["folder_metadata"]["profiles_to_use"]
+    #         vars_list = folder_metadata["vars"]
 
-            for vars_item in vars_list:
-                profile_md = vars_item["profile"]
-                profile_name = profile_md["name"]
-                # if profile_name == "freckle":
-                    # continue
+    #         for vars_item in vars_list:
+    #             profile_md = vars_item["profile"]
+    #             profile_name = profile_md["name"]
+    #             # if profile_name == "freckle":
+    #                 # continue
 
-                new_v = copy.deepcopy(vars_item.get("vars", {}))
-                for profile, profile_vars in user_vars_default.items():
+    #             new_v = copy.deepcopy(vars_item.get("vars", {}))
+    #             for profile, profile_vars in user_vars_default.items():
 
-                    if profile == profile_name:
-                        frkl.dict_merge(new_v, profile_vars, copy_dct=False)
-                        profiles_already_done.add(profile)
+    #                 if profile == profile_name:
+    #                     frkl.dict_merge(new_v, profile_vars, copy_dct=False)
+    #                     profiles_already_done.add(profile)
 
-                for profile, folder_endings_dict in user_vars_folder_endings.items():
+    #             for profile, folder_endings_dict in user_vars_folder_endings.items():
 
-                    if profile == profile_name:
-                        for ending, profile_vars_list in folder_endings_dict.items():
-                            if path.endswith(ending):
-                                for profile_vars in profile_vars_list:
-                                    frkl.dict_merge(new_v, profile_vars, copy_dct=False)
-                                    profiles_already_done.add(profile)
+    #                 if profile == profile_name:
+    #                     for ending, profile_vars_list in folder_endings_dict.items():
+    #                         if path.endswith(ending):
+    #                             for profile_vars in profile_vars_list:
+    #                                 frkl.dict_merge(new_v, profile_vars, copy_dct=False)
+    #                                 profiles_already_done.add(profile)
 
-                new_vars_list.append({"profile": profile_md, "vars": new_v})
+    #             new_vars_list.append({"profile": profile_md, "vars": new_v})
 
-            # if there are no folder vars to merge, we just use the user input directly
-            for profile, profile_vars in user_vars_default.items():
-                if profile not in profiles_already_done:
-                    new_vars_list.append({"profile": {"name": profile}, "vars": profile_vars})
+    #         # if there are no folder vars to merge, we just use the user input directly
+    #         for profile, profile_vars in user_vars_default.items():
+    #             if profile not in profiles_already_done:
+    #                 new_vars_list.append({"profile": {"name": profile}, "vars": profile_vars})
 
-            for profile, folder_endings_dict in user_vars_folder_endings.items():
+    #         for profile, folder_endings_dict in user_vars_folder_endings.items():
 
-                if profile not in profiles_already_done:
-                    for ending, profile_vars_list in folder_endings_dict.items():
-                        if path.endswith(ending):
-                            for profile_vars in profile_vars_list:
-                                frkl.dict_merge(new_v, profile_vars, copy_dct=False)
+    #             if profile not in profiles_already_done:
+    #                 for ending, profile_vars_list in folder_endings_dict.items():
+    #                     if path.endswith(ending):
+    #                         for profile_vars in profile_vars_list:
+    #                             frkl.dict_merge(new_v, profile_vars, copy_dct=False)
 
 
-            folder_metadata["vars"] = new_vars_list
+    #         folder_metadata["vars"] = new_vars_list
 
-        # replace variable strings
-        for folder, all_vars in freckles_metadata.items():
-            replacement_dict = {
-                "freckle_path": folder
-            }
-            freckles_metadata[folder] = render_dict(all_vars, replacement_dict)
+    #     # replace variable strings
+    #     for folder, all_vars in freckles_metadata.items():
+    #         replacement_dict = {
+    #             "freckle_path": folder
+    #         }
+    #         freckles_metadata[folder] = render_dict(all_vars, replacement_dict)
 
-        return freckles_metadata
+    #     return freckles_metadata
 
 
     def calculate_local_freckle_folder(self, path, user_home):
@@ -179,15 +179,7 @@ class FilterModule(object):
         # return last element
         return item
 
-    def relative_path_filter(self, list_of_files, path):
 
-        return [os.path.relpath(f, path) for f in list_of_files]
-
-    def file_list_filter(self, list_of_files, filter_regex):
-
-        r = re.compile(filter_regex)
-        result = filter(r.match, list_of_files)
-        return result
 
     def folder_vars_filter(self, freckles_profile_folders, freckles_metadata, ansible_env):
         """Merge all vars of all profiles per folder.
@@ -382,53 +374,53 @@ class FilterModule(object):
 
     #     return list(profile_names)
 
-    def read_profile_vars_filter(self, folders_metadata):
+    # def read_profile_vars_filter(self, folders_metadata):
 
-        temp_vars = {}
-        extra_vars = {}
+    #     temp_vars = {}
+    #     extra_vars = {}
 
-        for folder, metadata in folders_metadata.items():
+    #     for folder, metadata in folders_metadata.items():
 
-            raw_metadata = metadata.pop(METADATA_CONTENT_KEY, False)
-            if raw_metadata:
-                md = yaml.safe_load(raw_metadata)
-                if not md:
-                    md = []
-                    # if isinstance(md, (list, tuple)):
-                    # md = {"vars": md}
-            else:
-                md = [{"profile": {"name": "freckle"}, "vars": {}}]
+    #         raw_metadata = metadata.pop(METADATA_CONTENT_KEY, False)
+    #         if raw_metadata:
+    #             md = yaml.safe_load(raw_metadata)
+    #             if not md:
+    #                 md = []
+    #                 # if isinstance(md, (list, tuple)):
+    #                 # md = {"vars": md}
+    #         else:
+    #             md = [{"profile": {"name": "freckle"}, "vars": {}}]
 
-            temp_vars.setdefault(folder, []).append(md)
+    #         temp_vars.setdefault(folder, []).append(md)
 
-            extra_vars_raw = metadata.pop("extra_vars", False)
-            if extra_vars_raw:
-                for rel_path, extra_metadata_raw in extra_vars_raw.items():
-                    extra_metadata = yaml.safe_load(extra_metadata_raw)
-                    if not extra_metadata:
-                        # this means there was an empty file. We interprete that as setting a flag to true
-                        extra_metadata = True
+    #         extra_vars_raw = metadata.pop("extra_vars", False)
+    #         if extra_vars_raw:
+    #             for rel_path, extra_metadata_raw in extra_vars_raw.items():
+    #                 extra_metadata = yaml.safe_load(extra_metadata_raw)
+    #                 if not extra_metadata:
+    #                     # this means there was an empty file. We interprete that as setting a flag to true
+    #                     extra_metadata = True
 
-                    sub_path, filename = os.path.split(rel_path)
-                    extra_vars.setdefault(folder, {}).setdefault(sub_path, {})[filename[1:-8]] = extra_metadata
+    #                 sub_path, filename = os.path.split(rel_path)
+    #                 extra_vars.setdefault(folder, {}).setdefault(sub_path, {})[filename[1:-8]] = extra_metadata
 
-        result = {}
-        for freckle_folder, metadata_list in temp_vars.items():
+    #     result = {}
+    #     for freckle_folder, metadata_list in temp_vars.items():
 
-            chain = [frkl.FrklProcessor(DEFAULT_PROFILE_VAR_FORMAT)]
-            try:
-                frkl_obj = frkl.Frkl(metadata_list, chain)
-                # mdrc_init = {"append_keys": "vars/packages"}
-                # frkl_callback = frkl.MergeDictResultCallback(mdrc_init)
-                frkl_callback = frkl.MergeResultCallback()
-                profile_vars_new = frkl_obj.process(frkl_callback)
-                result.setdefault(freckle_folder, {})["vars"] = profile_vars_new
-                result[freckle_folder]["extra_vars"] = extra_vars.get(freckle_folder, {})
-                result[freckle_folder]["folder_metadata"] = folders_metadata[freckle_folder]
-            except (frkl.FrklConfigException) as e:
-                raise errors.AnsibleFilterError(
-                    "Can't read freckle metadata file '{}/.freckle': {}".format(freckle_folder, e.message))
-        return result
+    #         chain = [frkl.FrklProcessor(DEFAULT_PROFILE_VAR_FORMAT)]
+    #         try:
+    #             frkl_obj = frkl.Frkl(metadata_list, chain)
+    #             # mdrc_init = {"append_keys": "vars/packages"}
+    #             # frkl_callback = frkl.MergeDictResultCallback(mdrc_init)
+    #             frkl_callback = frkl.MergeResultCallback()
+    #             profile_vars_new = frkl_obj.process(frkl_callback)
+    #             result.setdefault(freckle_folder, {})["vars"] = profile_vars_new
+    #             result[freckle_folder]["extra_vars"] = extra_vars.get(freckle_folder, {})
+    #             result[freckle_folder]["folder_metadata"] = folders_metadata[freckle_folder]
+    #         except (frkl.FrklConfigException) as e:
+    #             raise errors.AnsibleFilterError(
+    #                 "Can't read freckle metadata file '{}/.freckle': {}".format(freckle_folder, e.message))
+    #     return result
 
     def create_package_list_from_var_filter(self, parent_vars_list, packages_key):
 

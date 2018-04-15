@@ -8,7 +8,7 @@
   include_role:
     name: freckles-io.install-packages
   vars:
-    profile_name: python-dev
+    profile_name: base python development
     package_install_list:
       - vars:
           name: build-essential

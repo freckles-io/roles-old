@@ -1,7 +1,8 @@
+---
 
 - set_fact:
-    freckle_branch: "{{ freckle_item_metadata['repo_details']['branch'] }}"
-  when: freckle_item_metadata['repo_details'].get('branch', False)
+    freckle_branch: "{{ freckle_item_metadata['remote_branch'] }}"
+  when: freckle_item_metadata.get('remote_branch', False)
 
 - set_fact:
     branch_string: ", '{{ freckle_branch }}' branch"
