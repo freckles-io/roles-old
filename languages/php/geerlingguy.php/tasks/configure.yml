@@ -7,6 +7,7 @@
   with_flattened:
     - "{{ php_conf_paths }}"
     - "{{ php_extension_conf_paths }}"
+  become: true
 
 - name: Place PHP configuration file in place.
   template:
@@ -18,3 +19,4 @@
   with_items: "{{ php_conf_paths }}"
   notify: restart webserver
   when: php_use_managed_ini
+  become: true

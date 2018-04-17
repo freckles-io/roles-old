@@ -5,6 +5,7 @@
     contains: 'zend_extension(\s+)?=(\s+)?opcache\.so'
   register: php_installed_opcache_confs
   with_items: "{{ php_extension_conf_paths }}"
+  become: true
 
 - name: Remove any non-role-supplied OpCache config files.
   file:
@@ -15,6 +16,7 @@
     - "{{ php_installed_opcache_confs.results }}"
     - files
   notify: restart webserver
+  become: true
 
 - name: Ensure OpCache config file is present.
   template:
@@ -27,6 +29,7 @@
   with_items: "{{ php_extension_conf_paths }}"
   when: php_opcache_enable
   notify: restart webserver
+  become: true
 
 - name: Remove OpCache config file if OpCache is disabled.
   file:
@@ -35,3 +38,4 @@
   with_items: "{{ php_extension_conf_paths }}"
   when: not php_opcache_enable
   notify: restart webserver
+  become: true

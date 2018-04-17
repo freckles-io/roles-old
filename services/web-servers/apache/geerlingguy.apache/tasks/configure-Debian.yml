@@ -7,6 +7,7 @@
     state: present
   with_items: "{{ apache_ports_configuration_items }}"
   notify: restart apache
+  become: true
 
 - name: Enable Apache mods.
   file:
@@ -15,6 +16,7 @@
     state: link
   with_items: "{{ apache_mods_enabled }}"
   notify: restart apache
+  become: true
 
 - name: Disable Apache mods.
   file:
@@ -22,11 +24,13 @@
     state: absent
   with_items: "{{ apache_mods_disabled }}"
   notify: restart apache
+  become: true
 
 - name: Check whether certificates defined in vhosts exist.
   stat: "path={{ item.certificate_file }}"
   register: apache_ssl_certificates
   with_items: "{{ apache_vhosts_ssl }}"
+  become: true
 
 - name: Add apache vhosts configuration.
   template:
@@ -37,6 +41,7 @@
     mode: 0644
   notify: restart apache
   when: apache_create_vhosts
+  become: true
 
 - name: Add vhost symlink in sites-enabled.
   file:
@@ -45,6 +50,7 @@
     state: link
   notify: restart apache
   when: apache_create_vhosts
+  become: true
 
 - name: Remove default vhost in sites-enabled.
   file:
@@ -52,6 +58,7 @@
     state: absent
   notify: restart apache
   when: apache_remove_default_vhost
+  become: true
 
 - name: "Change user to run Apache under to: '{{ apache_user }}'"
   lineinfile:
@@ -59,6 +66,7 @@
     regexp: '^export APACHE_RUN_USER='
     line: 'export APACHE_RUN_USER={{ apache_user }}'
   when: "apache_user != 'www-data'"
+  become: true
 
 - name: "Change group to run Apache under to: '{{ apache_group }}'"
   lineinfile:
@@ -66,3 +74,4 @@
     regexp: '^export APACHE_RUN_GROUP='
     line: 'export APACHE_RUN_GROUP={{ apache_group }}'
   when: "apache_group != 'www-data'"
+  become: true

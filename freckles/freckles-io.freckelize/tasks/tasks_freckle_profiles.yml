@@ -1,9 +1,61 @@
 ---
 
-# TODO: maybe save old vars and re-apply after execution?
-- name: "[using vars]"
+- name: "path: '{{ freckle_path }}'"
+  debug:
+      msg: "Path to process: '{{ freckle_path }}'"
+
+- name: "[base vars]"
+  debug: var=freckle_base_vars
+
+- name: "[freckle vars]"
   debug: var=freckle_vars
 
+# setting permissions
+- name: "creating group '{{ freckle_base_vars.group }}' (for folder '{{ freckle_path }}')"
+  group:
+    name: "{{ freckle_base_vars.group }}"
+    state: present
+    gid: "{{ freckle_base_vars.gid | default(omit) }}"
+  when: "'group' in freckle_base_vars.keys()"
+  become: yes
+
+# TODO: should we do this group assignment?
+- name: "creating user '{{ freckle_base_vars.owner }} (for folder '{{ freckle_path }}')"
+  user:
+    name: "{{ freckle_base_vars['owner'] }}"
+    state: present
+    group: "{{ freckle_base_vars.group | default(omit) }}"
+    uid: "{{ freckle_base_vars.uid | default(omit) }}"
+  when: "'owner' in freckle_base_vars.keys()"
+  become: yes
+
+- name: "setting owner/group permissions for: {{ freckle_path }}"
+  file:
+    path: "{{ freckle_path }}"
+    owner: "{{ freckle_base_vars.owner | default(omit) }}"
+    group: "{{ freckle_base_vars.group | default(omit) }}"
+    recurse: True
+  when: freckle_base_vars.get('owner', False) or freckle_base_vars.get('group', False)
+  become: yes
+
+- name: "[get freckle folder owner/group]"
+  stat:
+      path: "{{ freckle_path }}"
+  register: freckle_path_info
+
+- name: "[easier access to info var]"
+  set_fact:
+      freckle_path_info: "{{ freckle_path_info.stat }}"
+
+- name: "[setting freckle_owner, freckle_uid, freckle_group, freckle_gid]"
+  set_fact:
+      freckle_owner: "{{ freckle_path_info.pw_name }}"
+      freckle_uid: "{{ freckle_path_info.uid }}"
+      freckle_group: "{{ freckle_path_info.gr_name }}"
+      freckle_gid: "{{ freckle_path_info.gid }}"
+
+# setting freckle vars
+# TODO: maybe save old vars and re-apply after execution?
 - name: "[setting variables]"
   set_fact:
       "{{ var_item.key }}": "{{ var_item.value }}"
@@ -27,3 +79,10 @@
   with_dict: "{{ freckle_vars }}"
   loop_control:
       loop_var: var_item
+
+- name: "[unsetting freckle_owner, freckle_uid, freckle_group, freckle_gid]"
+  set_fact:
+      freckle_owner: null
+      freckle_uid: null
+      freckle_group: null
+      freckle_gid: null

@@ -8,6 +8,7 @@
     mode: 0644
     force: "{{ overwrite_global_mycnf }}"
   notify: restart mysql
+  become: true
 
 - name: Verify mysql include directory exists.
   file:
@@ -17,6 +18,7 @@
     group: root
     mode: 0755
   when: mysql_config_include_files | length
+  become: true
 
 - name: Copy my.cnf override files into include directory.
   template:
@@ -28,6 +30,7 @@
     force: "{{ item.force | default(False) }}"
   with_items: "{{ mysql_config_include_files }}"
   notify: restart mysql
+  become: true
 
 - name: Create slow query log file (if configured).
   command: "touch {{ mysql_slow_query_log_file }}"
@@ -35,6 +38,7 @@
     creates: "{{ mysql_slow_query_log_file }}"
     warn: no
   when: mysql_slow_query_log_enabled
+  become: true
 
 - name: Create datadir if it does not exist
   file:
@@ -45,6 +49,7 @@
     mode:  0755
     follow: yes
     setype: mysqld_db_t
+  become: true
 
 - name: Set ownership on slow query log file (if configured).
   file:
@@ -54,6 +59,7 @@
     group: mysql
     mode: 0640
   when: mysql_slow_query_log_enabled
+  become: true
 
 - name: Create error log file (if configured).
   command: "touch {{ mysql_log_error }}"
@@ -61,6 +67,7 @@
     creates: "{{ mysql_log_error }}"
     warn: no
   when: mysql_log == "" and mysql_log_error != ""
+  become: true
 
 - name: Set ownership on error log file (if configured).
   file:
@@ -70,7 +77,9 @@
     group: mysql
     mode: 0640
   when: mysql_log == "" and mysql_log_error != ""
+  become: true
 
 - name: Ensure MySQL is started and enabled on boot.
   service: "name={{ mysql_daemon }} state=started enabled={{ mysql_enabled_on_startup }}"
   register: mysql_service_configuration
+  become: true

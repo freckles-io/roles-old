@@ -23,6 +23,7 @@
   stat:
     path: "{{ php_fpm_pool_conf_path | dirname }}"
   register: php_fpm_pool_conf_path_dir_stat
+  become: true
 
 - name: Ensure the default pool directory exists.
   file:
@@ -32,6 +33,7 @@
     group: root
     mode: 0755
   when: php_fpm_pool_conf_path_dir_stat.stat.islnk is not defined
+  become: true
 
 - name: Ensure the default pool exists.
   template:
@@ -42,6 +44,7 @@
     mode: 0644
     force: no
   when: php_enable_php_fpm
+  become: true
 
 - name: Configure php-fpm pool (if enabled).
   lineinfile:
@@ -68,6 +71,7 @@
       line: "pm.max_spare_servers = {{ php_fpm_pm_max_spare_servers }}"
   when: php_enable_php_fpm
   notify: restart php-fpm
+  become: true
 
 - name: Ensure php-fpm is started and enabled at boot (if configured).
   service:
@@ -75,6 +79,7 @@
     state: started
     enabled: yes
   when: php_enable_php_fpm and ansible_distribution != "Debian"
+  become: true
 
 # See: https://github.com/ansible/ansible/issues/22303
 - name: Ensure php-fpm is started and enabled at boot (if configured, Debian).
@@ -84,3 +89,4 @@
     enabled: yes
     use: service
   when: php_enable_php_fpm and ansible_distribution == "Debian"
+  become: true

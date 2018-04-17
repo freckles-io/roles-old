@@ -24,10 +24,12 @@
     - mariadb-devel
     - gmp-devel
   when: ansible_os_family == 'RedHat'
+  become: true
 
 - name: Update apt cache (Debian).
   apt: update_cache=yes cache_valid_time=86400
   when: ansible_os_family == 'Debian'
+  become: true
 
 - name: Ensure dependencies for building from source are installed (Debian).
   apt: "pkg={{ item }} state=installed"
@@ -53,15 +55,18 @@
     - librecode-dev
     - libssl-dev
   when: ansible_os_family == 'Debian'
+  become: true
 
 - name: Define php_fpm_daemon (if not defined already).
   set_fact:
     php_fpm_daemon: "php-fpm"
   when: php_fpm_daemon is not defined
+  become: true
 
 - name: Check if gmp.h is already in a location accessible to gcc.
   stat: path=/usr/include/gmp.h
   register: gmp_file
+  become: true
 
 - name: Ensure gmp.h is symlinked into a location accessible to gcc.
   file:
@@ -69,12 +74,14 @@
     dest: /usr/include/gmp.h
     state: link
   when: gmp_file.stat.exists == false
+  become: true
 
 - name: Check if PHP is installed.
   command: which php
   changed_when: false
   failed_when: false
   register: php_installed
+  become: true
 
 - name: Clone the PHP repository.
   git:
@@ -84,6 +91,7 @@
     accept_hostkey: yes
     depth: "{{ php_source_clone_depth }}"
   when: php_installed.rc != 0
+  become: true
 
 - name: Ensure PHP installation path exists.
   file:
@@ -91,18 +99,21 @@
     state: directory
     mode: 0755
   when: php_installed.rc != 0
+  become: true
 
 - name: Build configure script.
   shell: >
     ./buildconf --force
     chdir={{ php_source_clone_dir }}
   when: php_installed.rc != 0
+  become: true
 
 - name: Run configure script.
   shell: >
     {{ php_source_configure_command }}
     chdir={{ php_source_clone_dir }}
   when: php_installed.rc != 0
+  become: true
 
 - name: Make and install PHP.
   shell: >
@@ -112,12 +123,14 @@
     - "{{ php_source_make_command }}"
     - make install
   when: php_installed.rc != 0
+  become: true
 
 - name: Ensure php executable is symlinked into a standard path.
   file:
     src: "{{ php_source_install_path }}/bin/php"
     dest: /usr/bin/php
     state: link
+  become: true
 
 # PHP FPM configuration.
 - name: Ensure php-fpm executable is symlinked into a standard path.
@@ -126,6 +139,7 @@
     dest: "/usr/sbin/{{ php_fpm_daemon }}"
     state: link
   when: "'--enable-fpm' in php_source_configure_command"
+  become: true
 
 - name: Ensure php-fpm init script is installed.
   template:
@@ -134,12 +148,14 @@
     mode: 0755
   when: "'--enable-fpm' in php_source_configure_command"
   notify: restart php-fpm
+  become: true
 
 - name: Ensure php-fpm config directory exists.
   file:
     path: "{{ php_fpm_conf_path }}"
     state: directory
   when: "'--enable-fpm' in php_source_configure_command"
+  become: true
 
 - name: Ensure php-fpm config file is installed.
   template:
@@ -148,3 +164,4 @@
     mode: 0644
   when: "'--enable-fpm' in php_source_configure_command"
   notify: restart php-fpm
+  become: true

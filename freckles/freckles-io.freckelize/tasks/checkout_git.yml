@@ -1,13 +1,17 @@
 ---
 
-- set_fact:
+- name: "[setting branch]"
+  set_fact:
     freckle_branch: "{{ freckle_item_metadata['remote_branch'] }}"
   when: freckle_item_metadata.get('remote_branch', False)
 
-- set_fact:
+- name: "[pretty print branch]"
+  set_fact:
     branch_string: ", '{{ freckle_branch }}' branch"
   when: freckle_branch is defined
-- set_fact:
+
+- name: "[pretty print branch]"
+  set_fact:
     branch_string: ""
   when: freckle_branch is not defined
 

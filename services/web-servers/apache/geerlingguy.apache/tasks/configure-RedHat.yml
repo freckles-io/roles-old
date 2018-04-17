@@ -7,11 +7,13 @@
     state: present
   with_items: "{{ apache_ports_configuration_items }}"
   notify: restart apache
+  become: true
 
 - name: Check whether certificates defined in vhosts exist.
   stat: path={{ item.certificate_file }}
   register: apache_ssl_certificates
   with_items: "{{ apache_vhosts_ssl }}"
+  become: true
 
 - name: Add apache vhosts configuration.
   template:
@@ -22,3 +24,4 @@
     mode: 0644
   notify: restart apache
   when: apache_create_vhosts
+  become: true

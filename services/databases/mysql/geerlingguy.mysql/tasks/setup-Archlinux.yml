@@ -1,12 +1,15 @@
 ---
 - name: Ensure MySQL Python libraries are installed.
   pacman: "name=mysql-python state=present"
+  become: true
 
 - name: Ensure MySQL packages are installed.
   pacman: "name={{ item }} state=present"
   with_items: "{{ mysql_packages }}"
   register: arch_mysql_install_packages
+  become: true
 
 # Init the database if mysql is newly installed
 - command: mysql_install_db --user=mysql --basedir=/usr --datadir=/var/lib/mysql
   when: arch_mysql_install_packages.changed
+  become: true

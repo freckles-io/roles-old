@@ -5,3 +5,4 @@
     state: "{{ apache_packages_state }}"
     enablerepo: "{{ apache_enablerepo }}"
   with_items: "{{ apache_packages }}"
+  become: true

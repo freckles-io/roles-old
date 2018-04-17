@@ -16,11 +16,12 @@
   set_fact:
       all_pkg_mgrs: "{{ required_package_managers }} + {{ extra_pkg_mgrs }}"
 
-- name: "calculating required package managers: {{ all_pkg_mgrs | unique }}"
+- name: "required package managers for {{ profile_name }}: {{ all_pkg_mgrs | unique | pretty_list }}"
   include_role:
     name: freckles-io.install-pkg-mgrs
   vars:
     pkg_mgrs: "{{ all_pkg_mgrs | unique }}"
+  when: "all_pkg_mgrs"
 
 - name: "[packages that need ansible roles]"
   include_tasks: "role-install-{{ role_package['vars']['name'] }}.yml"

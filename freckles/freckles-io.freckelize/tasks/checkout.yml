@@ -19,6 +19,7 @@
 - name: "[finding freckles folders]"
   freckles_facts:
     freckles_repos: "{{ freckles }}"
+  become: true
 
 - name: "[setting repo metadata file absolute path]"
   set_fact:

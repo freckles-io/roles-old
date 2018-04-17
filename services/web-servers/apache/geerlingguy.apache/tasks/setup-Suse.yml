@@ -4,3 +4,4 @@
     name: "{{ item }}"
     state: "{{ apache_packages_state }}"
   with_items: "{{ apache_packages }}"
+  become: true

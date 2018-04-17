@@ -3,9 +3,6 @@
 - name: "starting adapter '{{ freckelize_profile_name }}'"
   debug: msg="Starting adapter '{{ freckelize_profile_name }}'"
 
-- debug: var=freckles_profile_folders
-- debug: var=adapters_files_map
-
 - name: "[starting adater init: {{ freckelize_profile_name }}]"
   include_tasks: "{{ playbook_dir }}/../task_lists/{{ freckle_init_item['target'] }}"
   vars:
@@ -21,9 +18,10 @@
   vars:
     freckle_path: "{{ profile_folder_metadata['folder_metadata']['full_path'] }}"
     freckle_vars: "{{ profile_folder_metadata['vars'] }}"
+    freckle_profile_vars: "{{ profile_folder_metadata['folder_vars'] }}"
     freckle_folder_metadata: "{{ profile_folder_metadata['folder_metadata'] }}"
     freckle_extra_vars: "{{ profile_folder_metadata['extra_vars'] }}"
-    freckle_base_vars: "{{ freckelize_freckle_metadata[profile_folder['folder_metadata']['full_path']] }}"
+    freckle_base_vars: "{{ freckelize_freckle_metadata[profile_folder_metadata['folder_metadata']['full_path']]['vars'] }}"
   with_items:
     - "{{ freckles_profile_folders }}"
   loop_control:

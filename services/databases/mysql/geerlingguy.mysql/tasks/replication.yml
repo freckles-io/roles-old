@@ -10,6 +10,7 @@
     (mysql_replication_role == 'master')
     and mysql_replication_user
     and (mysql_replication_master != '')
+  become: true
 
 - name: Check slave replication status.
   mysql_replication:
@@ -21,6 +22,7 @@
   when: >
     mysql_replication_role == 'slave'
     and (mysql_replication_master != '')
+  become: true
 
 - name: Check master replication status.
   mysql_replication: mode=getmaster
@@ -30,6 +32,7 @@
     ((slave.Is_Slave is defined and not slave.Is_Slave) or (slave.Is_Slave is not defined and slave|failed))
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
+  become: true
 
 - name: Configure replication on the slave.
   mysql_replication:
@@ -45,6 +48,7 @@
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
     and mysql_replication_user
+  become: true
 
 - name: Start replication.
   mysql_replication: mode=startslave
@@ -52,3 +56,4 @@
     ((slave.Is_Slave is defined and not slave.Is_Slave) or (slave.Is_Slave is not defined and slave|failed))
     and (mysql_replication_role == 'slave')
     and (mysql_replication_master != '')
+  become: true

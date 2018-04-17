@@ -1,8 +1,4 @@
 ---
-- debug: var=freckelize_profiles_metadata
-- debug: var=freckelize_freckle_metadata
-
-
 - name: "[processing folder permissions]"
   include_tasks: folder_permissions.yml
   vars:
