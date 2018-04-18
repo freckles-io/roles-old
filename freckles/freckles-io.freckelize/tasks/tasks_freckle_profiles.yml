@@ -64,14 +64,14 @@
       loop_var: var_item
 
 - name: "[executing task lists for freckle folder]"
-  include_tasks: "{{ playbook_dir }}/../task_lists/{{ task_item_name['target'] }}"
+  include_tasks: "{{ playbook_dir }}/../task_lists/task_list_{{ freckelize_profile_name }}.yml"
   vars:
     freckle_folder_name: "{{ freckle_folder_metadata['folder_name'] }}"
     freckle_owner: "{{ freckle_base_vars.get('owner', None) }}"
-  with_items:
-    - "{{ adapters_files_map.get(freckelize_profile_name, {}).get('freckle', []) }}"
-  loop_control:
-    loop_var: task_item_name
+  # with_items:
+  #   - "{{ adapters_files_map.get(freckelize_profile_name, {}).get('freckle', []) }}"
+  # loop_control:
+  #   loop_var: task_item_name
 
 - name: "[unsetting variables]"
   set_fact:

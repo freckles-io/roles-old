@@ -8,9 +8,28 @@
     pkg_mgr: "{{ pkg_mgr | default(omit) }}"
   # when: '"stow" in executables_missing and (not dotfiles_no_stow or dotfiles_unstow)'
 
-- stat:
+- name: "[getting stow root stats]"
+  stat:
     path: "{{ freckle_folder_metadata.stow_root }}"
   register: p
+
+- name: "creating group '{{ freckle_folder_metadata.group }}'"
+  group:
+    name: "{{ freckle_folder_metadata.group }}"
+    state: present
+    gid: "{{ freckle_folder_metadata.gid | default(omit) }}"
+  when: "'group' in freckle_folder_metadata.keys()"
+  become: yes
+
+# TODO: should we do this group assignment?
+- name: "creating user '{{ freckle_folder_metadata.owner }}')"
+  user:
+    name: "{{ freckle_folder_metadata['owner'] }}"
+    state: present
+    group: "{{ freckle_folder_metadata.group | default(omit) }}"
+    uid: "{{ freckle_folder_metadata.uid | default(omit) }}"
+  when: "'owner' in freckle_folder_metadata.keys()"
+  become: yes
 
 - name: "ensuring stow target parent exists"
   file:

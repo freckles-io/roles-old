@@ -3,16 +3,6 @@
 - name: "starting adapter '{{ freckelize_profile_name }}'"
   debug: msg="Starting adapter '{{ freckelize_profile_name }}'"
 
-- name: "[starting adater init: {{ freckelize_profile_name }}]"
-  include_tasks: "{{ playbook_dir }}/../task_lists/{{ freckle_init_item['target'] }}"
-  vars:
-      profile_vars: "{{ freckles_profile_folders | flatten_profile_vars }}"
-      profile_vars_folders: "{{ freckles_profile_folders }}"
-  with_items:
-    - "{{ adapters_files_map.get(freckelize_profile_name, {}).get('init', []) }}"
-  loop_control:
-    loop_var: freckle_init_item
-
 - name: "[starting adapter tasks: {{ freckelize_profile_name }}]"
   include_tasks: "tasks_freckle_profiles.yml"
   vars:

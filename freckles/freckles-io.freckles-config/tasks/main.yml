@@ -37,9 +37,10 @@
   with_items: "{{ freckles_config_dict.get('trusted-repos', []) | expand_repos_filter }}"
 
 - name: checking out extra repos
-  local_action: git repo="{{ item.url }}" dest="{{ item.path }}" track_submodules=no update="{{ freckles_config_update_repos }}"
+  local_action: git repo="{{ item.url }}" dest="{{ item.path }}" track_submodules=no update="{{ freckles_config_update_repos }}" version="{{ item.branch | default(omit) }}"
   when: "item.url"
   with_items: "{{ freckles_extra_repos | expand_repos_filter }}"
+
 
 # - name: updating repos
 #   local_action: git repo="{{ item.url }}" dest="{{ item.path }}" track_submodules=yes update="{{ freckles_config_update_repos }}"

@@ -21,8 +21,12 @@
   loop_control:
     loop_var: freckelize_folder_metadata
 
-# - name: "executing generic freckle tasks"
-  # include_tasks: "freckle-generic.yml"
+- name: "[setting task_list_alias variables]"
+  set_fact:
+      "{{ var_item.key }}": "{{ var_item.value }}"
+  with_dict: "{{ task_list_aliases }}"
+  loop_control:
+      loop_var: var_item
 
 - name: "[including profile specific tasks]"
   include_tasks: "profile.yml"
