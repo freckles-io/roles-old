@@ -16,10 +16,13 @@
   loop_control:
     loop_var: checkout_item
 
+- set_fact:
+    become_necessary: "{{ freckles | check_become }}"
+
 - name: "[finding freckles folders]"
   freckles_facts:
-    freckles_repos: "{{ freckles }}"
-  become: true
+    freckles_repos: "{{ freckles | resolve_paths(ansible_env.HOME) }}"
+  become: "{{ become_necessary }}"
 
 - name: "[setting repo metadata file absolute path]"
   set_fact:

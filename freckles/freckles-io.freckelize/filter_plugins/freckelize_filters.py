@@ -23,8 +23,31 @@ class FilterModule(object):
         return {
             'create_extra_pkg_mgrs_list': self.create_extra_pkg_mgrs_list,
             'create_package_list_from_profiles_metadata': self.create_package_list_from_profiles_metadata,
-            'flatten_profile_vars': self.flatten_profile_vars
+            'flatten_profile_vars': self.flatten_profile_vars,
+            'resolve_paths': self.resolve_paths,
+            'check_become': self.check_become
         }
+
+    def check_become(self, folder_metadata_list):
+
+        for md in folder_metadata_list:
+            become = md["checkout_become"]
+
+            if become:
+                return True
+
+        return False
+
+    def resolve_paths(self, folder_metadata_list, home_dir):
+
+        for md in folder_metadata_list:
+            path = md["local_parent"]
+
+            if path.startswith("~/"):
+                path_new = os.path.join(home_dir, path[2:])
+                md["local_parent"] = path_new
+
+        return folder_metadata_list
 
     def flatten_profile_vars(self, profile_folder_list):
 
