@@ -4,7 +4,6 @@ import copy
 import os
 
 from frkl import frkl
-from freckles.freckles_defaults import DEFAULT_PROFILE_VAR_FORMAT, DEFAULT_VAR_FORMAT
 
 try:
     set

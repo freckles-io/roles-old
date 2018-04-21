@@ -2,9 +2,11 @@
 
 import os
 
-from  freckles import utils, config, freckles_defaults
-from frkl import frkl
 from ansible import errors
+
+from freckles import utils, config, freckles_defaults
+from frkl import frkl
+
 
 class FilterModule(object):
     def filters(self):
