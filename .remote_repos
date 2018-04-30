@@ -2,7 +2,6 @@ freckles/freckles-io.install-freckles=https://github.com/freckles-io/freckles-io
 generic/freckles-io.box-basics=https://github.com/freckles-io/freckles-io.box-basics
 languages/python/freckles-io.python-dev=https://github.com/freckles-io/freckles-io.python-dev
 freckles/freckles-io.freckles-config=https://github.com/freckles-io/freckles-io.freckles-config
-configuration-management/dotfiles/freckles-io.dotfiles=https://github.com/freckles-io/freckles-io.dotfiles
 virtualization/virtualbox/freckles-io.install-virtualbox=https://github.com/freckles-io/freckles-io.install-virtualbox
 development/vagrant/freckles-io.install-vagrant=https://github.com/freckles-io/freckles-io.install-vagrant
 package-management/generic/freckles-io.install-packages=https://github.com/freckles-io/freckles-io.install-packages
