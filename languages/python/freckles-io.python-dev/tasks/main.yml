@@ -1,4 +1,0 @@
----
-# main file for python-dev role
-
-- include_tasks: python-prepare.yml
