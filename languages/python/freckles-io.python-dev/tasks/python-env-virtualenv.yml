@@ -6,6 +6,8 @@
     package_install_list: "{{ freckle_vars | assemble_package_list('python_dev_dependency_packages', 'auto') }}"
     pkg_mgr: "auto"
 
+# TODO check whether python version is available
+
 - name: "creating virtualenv '{{ python_dev_project_name }}'"
   command: "virtualenv -p python{{ python_dev_python_version | default(python_dev_default_python_version) }} ~/.virtualenvs/{{ python_dev_project_name }}"
   args:
