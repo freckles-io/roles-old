@@ -290,6 +290,8 @@ tasks:
            - warn
   - add-user:
       meta:
+         task-desc: "making sure user exists"
+         task-name: user
          default-key: name
          become: yes
          var-keys:
@@ -297,7 +299,7 @@ tasks:
            - createhome
            - expires
            - generate_ssh_key
-           - groups
+           #- groups   # -> this uses the ansible var 'groups' if specified like this
            - home
            - login_class
            - name
