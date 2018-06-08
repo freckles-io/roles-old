@@ -1,6 +1,5 @@
-tasks:
-  - apt:
-      meta:
+apt:
+      task:
         default-key: name
         task-name: apt
         become: yes
@@ -9,13 +8,13 @@ tasks:
           - state
       vars:
         state: present
-  - npm:
-      meta:
+npm:
+      task:
         default-key: name
         task-name: npm
         become: no
-  - download:
-      meta:
+download:
+      task:
         task-desc: downloading file
         task-type: ansible-task
         become: no
@@ -47,8 +46,8 @@ tasks:
           - url_username
           - use_proxy
           - validate_certs
-  - git:
-      meta:
+git:
+      task:
         task-desc: checking out git repository
         var-keys:
           - accept_hostkey
@@ -70,8 +69,8 @@ tasks:
           - update
           - verify_commit
           - version
-  - update-freckles:
-      meta:
+update-freckles:
+      task:
         task-type: ansible-role
         task_desc: updating freckles
         task-name: freckles-io.install-freckles
@@ -81,8 +80,8 @@ tasks:
         update: true
         install_method: auto
 
-  - remove-freckles:
-      meta:
+remove-freckles:
+      task:
         task-type: ansible-role
         task_desc: removing freckles
         task-name: freckles-io.install-freckles
@@ -90,8 +89,8 @@ tasks:
         install_method: auto
         remove: true
 
-  - use-freckles-version:
-      meta:
+use-freckles-version:
+      task:
         task-type: ansible-role
         task_desc: updating freckles
         task-name: freckles-io.install-freckles
@@ -100,18 +99,18 @@ tasks:
       vars:
         update: false
         install_method: auto
-  - install-nix:
-        meta:
+install-nix:
+        task:
           task-type: ansible-role
           task-desc: installing 'nix' package manager
           task-name: freckles-io.install-nix
-  - install-conda:
-        meta:
+install-conda:
+        task:
           task-type: ansible-role
           task-desc: installing 'conda' package manager
           task-name: freckles-io.install-conda
-  - install-homebrew:
-        meta:
+install-homebrew:
+        task:
           task-type: ansible-role
           task-desc: installing 'homebrew' package manager
           task-name: geerlingguy.homebrew
@@ -120,35 +119,35 @@ tasks:
              - elliotweiser.osx-command-line-tools
         vars:
           homebrew_cask_apps: []
-  - install-oracle-java:
-      meta:
+install-oracle-java:
+      task:
         task-type: ansible-role
         task-desc: installing oracle java
         task-name: ansiblebit.oracle-java
         task-roles:
           - ansiblebit.oracle-java
         become: yes
-  - install-vagrant:
-      meta:
+install-vagrant:
+      task:
         task-type: ansible-role
         task-desc: installing vagrant
         task-name: freckles-io.install-vagrant
         task-roles:
           - freckles-io.install-vagrant
         become: yes
-  - install-virtualbox:
-      meta:
+install-virtualbox:
+      task:
         task-type: ansible-role
         task-desc: installing virtualbox
         task-name: freckles-io.install-virtualbox
         task-roles:
           - freckles-io.install-virtualbox
         become: yes
-  - yum:
-      meta:
+yum:
+      task:
         become: yes
-  - install-pkg-mgrs:
-      meta:
+install-pkg-mgrs:
+      task:
         default-key: pkg_mgrs
         task-desc: installing package managers
         task-name: freckles-io.install-pkg-mgrs
@@ -159,8 +158,8 @@ tasks:
            - freckles-io.install-nodejs
            - geerlingguy.homebrew
            - elliotweiser.osx-command-line-tools
-  - install-packages:
-      meta:
+install-packages:
+      task:
         default-key: packages
         task-desc: installing packages
         task-name: freckles-io.install-packages
@@ -173,8 +172,8 @@ tasks:
            - ansiblebit.oracle-java
            - geerlingguy.homebrew
            - elliotweiser.osx-command-line-tools
-  - freckles_checkout:
-      meta:
+freckles_checkout:
+      task:
         task-desc: checking out freckle(s)
         task-name: freckles-io.freckelize
         task-roles:
@@ -188,8 +187,8 @@ tasks:
       vars:
         checkout_phase: true
 
-  - freckles:
-      meta:
+freckles:
+      task:
         task-desc: starting to process freckle(s)
         task-name: freckles-io.freckelize
         task-roles:
@@ -209,8 +208,8 @@ tasks:
            - ansiblebit.oracle-java
       vars:
         checkout_phase: false
-  - install:
-      meta:
+install:
+      task:
         task-name: install
         task-desc: installing package(s)
         with_items: packages
@@ -218,16 +217,16 @@ tasks:
         var-keys:
           - packages
           - pkg_mgr
-  - delete:
-      meta:
+delete:
+      task:
          default-key: path
          with_items: path
          task-name: file
          task-desc: deleting file(s)
       vars:
          state: absent
-  - create-folder:
-      meta:
+create-folder:
+      task:
          default-key: path
          with_items: path
          task-desc: creating folder(s)
@@ -246,8 +245,8 @@ tasks:
            - seuser
       vars:
          state: directory
-  - copy:
-      meta:
+copy:
+      task:
          var-keys:
            - src
            - dest
@@ -265,8 +264,8 @@ tasks:
            - serole
            - setype
            - seuser
-  - shell:
-      meta:
+shell:
+      task:
          default-key: free_form
          task-name: shell
          task-desc: running shell command
@@ -276,8 +275,8 @@ tasks:
            - creates
            - executable
            - removes
-  - command:
-      meta:
+command:
+      task:
          default-key: free_form
          task-name: command
          task-desc: running command
@@ -288,8 +287,8 @@ tasks:
            - executable
            - removes
            - warn
-  - add-user:
-      meta:
+add-user:
+      task:
          task-desc: "making sure user exists"
          task-name: user
          default-key: name
