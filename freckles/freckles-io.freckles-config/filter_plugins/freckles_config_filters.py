@@ -4,7 +4,7 @@ import os
 
 from ansible import errors
 
-from freckles import utils, config, freckles_defaults
+from freckles import config, freckles_defaults, utils
 from frkl import frkl
 
 
